@@ -1,0 +1,66 @@
+{
+  "secret": "test-secret-at-least-32-characters-long!!",
+  "rotating": {
+    "keys": [
+      [
+        2,
+        "second-secret-value-that-is-long-enough"
+      ],
+      [
+        1,
+        "first-secret-value-that-is-long-enough!"
+      ]
+    ],
+    "currentVersion": 2,
+    "legacySecret": "test-secret-at-least-32-characters-long!!"
+  },
+  "passwords": [
+    {
+      "password": "password123",
+      "hash": "cf477ba72d8e049a8766766f1a30fc19:a63898de89a11c9226b27d64367d940e8c398b8148bf3fbff2c40ac3f37b60f6c5af69f2c8ce9c156ec833f999990a280f8209669e3fe7f1b3fd7e06f3beeff2"
+    },
+    {
+      "password": "Ünïcödé-ﬁ-ｐａｓｓ",
+      "hash": "03dc916a270a1cde13e96087da57409f:edb78823affb1452ac0769d8f4f0f4c8591dea5bd1fea51c0eaa311d486d90fef088538631b40f8c3ce937ce82ae5d51838ca29a04375432bdc1a5fa79cb17c3"
+    },
+    {
+      "password": "",
+      "hash": "71e56c3ea291f38b6762779220a17136:63e20ca9413e8e4ca5d8a9329422d90034a56da7141eab6c2ea60f318e6914893c48c32c4f7a49ca14d89acb3d0558cf202ab3dfb880f3b458114f6c5a5370a5"
+    },
+    {
+      "password": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "hash": "6ac50c8c3c7caa7aa19265d873a20a15:0ffc41f7426745a81f27efb14ed1ebcaa6a21e619958e6a008fee53f0e724be26dfbba75f9b78664f50e2a78f44486e1ab55de5ad70b11b7bda9182cc41be5ea"
+    }
+  ],
+  "symmetric": {
+    "plaintext": "hello world ✓",
+    "ciphertext": "af84d1a1d1d9c7add76fd3018baf03775c87dd95f114ed93c8aee1225ab8b4173013a670e94edd67f2e688833333384360b693deb4456c"
+  },
+  "symmetricRotating": {
+    "plaintext": "rotated",
+    "ciphertext": "$ba$2$d087270dae3a42cc225dba05bdd65e4a9f9780e04cb19a295e7b403d17309b075940d67b895f420d7a0a25806d15a1",
+    "legacyCiphertext": "4df9796158832cfbe5326b17170f818270bab3d4990c831a3f81f0a4b5cabca5191dd24dbc7f2f8499e727092a64"
+  },
+  "jwe": {
+    "payload": {
+      "session": {
+        "token": "abc"
+      },
+      "user": {
+        "id": "u1",
+        "name": "Ann"
+      },
+      "updatedAt": 1736000000000,
+      "version": "1"
+    },
+    "token": "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiWFZZaHY4MmZ5OHdHbVRrNnItQ1o3eTk1Y2l5WlV0R2JpX05MdzBlVFZDMCJ9..p_nV25Xa8SGxo0Px3uhctQ._amfjJM6XE0pgyShtlqi96I0x-6rqzQvWlWgf_IhpkjkmWEco-68AR5sDv1qRAk3EKs767Q0priCO6VF37vUT5im53TDjGazSRfdmsIsBiX_CBUpLOFujceg-OnKk4elWkbZPwb0ZA21kqW8Zun5P4jJQyV-20b0cnw9M9fE1oee-vfky3I3Do2Xyv-GPgq6ulKoOCGaPlrp5NtYVEsSFsoD5LIXISYYI3kKOxHdsyXU_qy7suAbBWoTlV346Kjt.h_0J5hrJN8_V0-ZkSBJpVvrVOssvoBqgGnmOms_HU1U",
+    "rotatingToken": "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiOWdfeGhMOWwyU2JWSjc3YThKRUFlOXNlM0tKY1o4YlAtN3ZzUElUUDJ0MCJ9..vDfX-sMXgLwoLKrT4wb-_A._P8osJ_pQIUHw1G6lHNKdEbLGJssq73o296u5_vwoZxtjzHeMC97hyaLcUbnpra5D95qzG9_heqmHRs3hR0dx1F6vkrIT5ivj1P3CQev09o2vswPeE2fE3aD7cBzhQyc2MSLrP8xVl2B-LCl0LecDg.D6fWHRnQr2NrYfUO2r1FKUSW3Y5DbAhuw94hfJUAwos"
+  },
+  "jwt": {
+    "token": "eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImFAYi5jbyIsImlhdCI6MTc5MTg0MDkzMCwiZXhwIjo0OTQ1NDQwOTMwfQ.MG4vCIJxCo5_dNQOhP3J9k2rKaYzThoo-vnbwNMC8aw"
+  },
+  "signature": {
+    "value": "session-token-value",
+    "signature": "TLUWY8v143ax5shFA6N7ssS1lhVIEXn5mGiJJbl4P68="
+  }
+}

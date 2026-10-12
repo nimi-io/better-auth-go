@@ -1,0 +1,5 @@
+e2e/node_modules/
+e2e/.bin/
+*.test
+coverage.out
+.DS_Store

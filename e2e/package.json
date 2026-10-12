@@ -1,0 +1,12 @@
+{
+  "name": "better-auth-go-e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test --test-concurrency=1 \"tests/*.test.mjs\""
+  },
+  "dependencies": {
+    "better-auth": "1.7.7",
+    "better-sqlite3": "12.4.1"
+  }
+}
