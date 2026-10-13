@@ -1132,7 +1132,7 @@ func TestPortSessionCookieCacheJWKS(t *testing.T) {
 		"should verify existing cookie-cache JWTs across JWKS rotation grace period",
 	} {
 		t.Run(name, func(t *testing.T) {
-			t.Skip("requires the jwt plugin (jwt({ sessionCookieCache: true }), getJwks/signJWT endpoints), which is not implemented in the Go port")
+			t.Skip("needs the jwt plugin (import cycle); ported in plugins/jwt TestCookieCacheJWTStrategyBackedByJWKS")
 		})
 	}
 }
@@ -1722,7 +1722,10 @@ func TestPortSessionUpdateSession(t *testing.T) {
 func TestPortSessionUpdateSessionPluginAuthorityFields(t *testing.T) {
 	for _, f := range []string{"activeOrganizationId", "activeTeamId", "impersonatedBy"} {
 		t.Run("should reject forging the "+f+" session field", func(t *testing.T) {
-			t.Skip("requires the organization and admin plugins, which are not implemented in the Go port")
+			if f == "impersonatedBy" {
+				t.Skip("needs the admin plugin (import cycle); ported as TestPortSessionUpdateSessionPluginAuthorityFields in plugins/admin/admin_core_test.go")
+			}
+			t.Skip("ported to plugins/organization/session_authority_test.go (TestSessionAuthorityUpdateSessionPluginAuthorityFields): the core test package cannot import plugins (import cycle)")
 		})
 	}
 }

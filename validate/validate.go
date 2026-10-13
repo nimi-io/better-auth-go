@@ -114,6 +114,8 @@ type StringSchema struct {
 	email     bool
 	url       bool
 	transform func(string) string
+	// minMessage overrides the too_small message (.min(n, message) / .nonempty(message)).
+	minMessage string
 }
 
 // String is z.string().
@@ -130,6 +132,13 @@ func (s *StringSchema) NonEmpty() *StringSchema { return s.Min(1) }
 
 // Min is .min(n).
 func (s *StringSchema) Min(n int) *StringSchema { c := *s; c.min, c.hasMin = n, true; return &c }
+
+// MinMessage is .min(n, message): like Min with a custom error message.
+func (s *StringSchema) MinMessage(n int, message string) *StringSchema {
+	c := s.Min(n)
+	c.minMessage = message
+	return c
+}
 
 // Max is .max(n).
 func (s *StringSchema) Max(n int) *StringSchema { c := *s; c.max, c.hasMax = n, true; return &c }
@@ -149,8 +158,11 @@ func (s *StringSchema) validate(v any, path []any) (any, []Issue) {
 	var issues []Issue
 	n := jsLen(str)
 	if s.hasMin && n < s.min {
-		issues = append(issues, Issue{Path: path, Code: "too_small",
-			Message: fmt.Sprintf("Too small: expected string to have >=%d characters", s.min)})
+		msg := fmt.Sprintf("Too small: expected string to have >=%d characters", s.min)
+		if s.minMessage != "" {
+			msg = s.minMessage
+		}
+		issues = append(issues, Issue{Path: path, Code: "too_small", Message: msg})
 	}
 	if s.hasMax && n > s.max {
 		issues = append(issues, Issue{Path: path, Code: "too_big",

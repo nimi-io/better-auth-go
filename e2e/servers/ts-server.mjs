@@ -1,6 +1,7 @@
 // Reference TypeScript Better Auth server (better-auth@1.7.7) with the same configuration
 // as e2e/goserver/main.go. PROFILE selects the variant.
 import { createServer } from "node:http";
+import { existsSync } from "node:fs";
 import { betterAuth } from "better-auth";
 import Database from "better-sqlite3";
 import { toNodeHandler } from "better-auth/node";
@@ -122,6 +123,17 @@ if (profile === "shared") {
   } else throw new Error(`unsupported DB_URL ${dbURL}`);
 }
 
+// Plugin profiles live in servers/profiles/<name>.mjs (mirroring e2e/goserver/profile_<name>.go):
+// `export default async function (options, { capture, record, emails, baseURL })` mutates the
+// options; an optional `export const testRoutes = { "/__test/x": async (req, res, url, auth) => ... }`
+// adds test endpoints.
+let profileModule = null;
+if (profile && existsSync(new URL(`./profiles/${profile}.mjs`, import.meta.url))) {
+  profileModule = await import(`./profiles/${profile}.mjs`);
+  const record = (type, to, url, token) => emails.push({ type, to, url, token });
+  await profileModule.default(options, { capture, record, emails, baseURL });
+}
+
 const auth = betterAuth(options);
 if (options.database && (profile !== "shared" || process.env.MIGRATE === "1")) await (await auth.$context).runMigrations();
 const handler = toNodeHandler(auth);
@@ -145,5 +157,7 @@ createServer(async (req, res) => {
     return res.end(JSON.stringify(s));
   }
   if (url.pathname === "/__test/health") return res.end("ok");
+  const route = profileModule?.testRoutes?.[url.pathname];
+  if (route) return route(req, res, url, auth);
   res.statusCode = 404; res.end("null");
 }).listen(port, "127.0.0.1", () => console.log(`ts better-auth e2e server on ${baseURL} (profile=${profile})`));

@@ -1,0 +1,683 @@
+{
+  "secret": "better-auth-secret-12345678901234567890",
+  "rotating": {
+    "keys": [
+      [
+        2,
+        "second-secret-value-that-is-long-enough"
+      ],
+      [
+        1,
+        "first-secret-value-that-is-long-enough!"
+      ]
+    ],
+    "currentVersion": 2,
+    "legacySecret": "better-auth-secret-12345678901234567890"
+  },
+  "totp": [
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 6,
+      "period": 30,
+      "time": 0,
+      "code": "770317"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 6,
+      "period": 30,
+      "time": 59000,
+      "code": "959162"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 6,
+      "period": 30,
+      "time": 1111111109000,
+      "code": "394313"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 6,
+      "period": 30,
+      "time": 1234567890000,
+      "code": "063978"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 6,
+      "period": 30,
+      "time": 2000000000000,
+      "code": "873497"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 6,
+      "period": 30,
+      "time": 1760000012345,
+      "code": "295495"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 6,
+      "period": 60,
+      "time": 0,
+      "code": "770317"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 6,
+      "period": 60,
+      "time": 59000,
+      "code": "770317"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 6,
+      "period": 60,
+      "time": 1111111109000,
+      "code": "414575"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 6,
+      "period": 60,
+      "time": 1234567890000,
+      "code": "320792"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 6,
+      "period": 60,
+      "time": 2000000000000,
+      "code": "215698"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 6,
+      "period": 60,
+      "time": 1760000012345,
+      "code": "647990"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 8,
+      "period": 30,
+      "time": 0,
+      "code": "58770317"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 8,
+      "period": 30,
+      "time": 59000,
+      "code": "09959162"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 8,
+      "period": 30,
+      "time": 1111111109000,
+      "code": "16394313"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 8,
+      "period": 30,
+      "time": 1234567890000,
+      "code": "76063978"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 8,
+      "period": 30,
+      "time": 2000000000000,
+      "code": "16873497"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 8,
+      "period": 30,
+      "time": 1760000012345,
+      "code": "42295495"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 8,
+      "period": 60,
+      "time": 0,
+      "code": "58770317"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 8,
+      "period": 60,
+      "time": 59000,
+      "code": "58770317"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 8,
+      "period": 60,
+      "time": 1111111109000,
+      "code": "37414575"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 8,
+      "period": 60,
+      "time": 1234567890000,
+      "code": "84320792"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 8,
+      "period": 60,
+      "time": 2000000000000,
+      "code": "10215698"
+    },
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 8,
+      "period": 60,
+      "time": 1760000012345,
+      "code": "60647990"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 6,
+      "period": 30,
+      "time": 0,
+      "code": "975147"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 6,
+      "period": 30,
+      "time": 59000,
+      "code": "917659"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 6,
+      "period": 30,
+      "time": 1111111109000,
+      "code": "771593"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 6,
+      "period": 30,
+      "time": 1234567890000,
+      "code": "602142"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 6,
+      "period": 30,
+      "time": 2000000000000,
+      "code": "938772"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 6,
+      "period": 30,
+      "time": 1760000012345,
+      "code": "889492"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 6,
+      "period": 60,
+      "time": 0,
+      "code": "975147"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 6,
+      "period": 60,
+      "time": 59000,
+      "code": "975147"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 6,
+      "period": 60,
+      "time": 1111111109000,
+      "code": "146002"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 6,
+      "period": 60,
+      "time": 1234567890000,
+      "code": "152195"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 6,
+      "period": 60,
+      "time": 2000000000000,
+      "code": "913975"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 6,
+      "period": 60,
+      "time": 1760000012345,
+      "code": "653302"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 8,
+      "period": 30,
+      "time": 0,
+      "code": "85975147"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 8,
+      "period": 30,
+      "time": 59000,
+      "code": "73917659"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 8,
+      "period": 30,
+      "time": 1111111109000,
+      "code": "24771593"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 8,
+      "period": 30,
+      "time": 1234567890000,
+      "code": "37602142"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 8,
+      "period": 30,
+      "time": 2000000000000,
+      "code": "97938772"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 8,
+      "period": 30,
+      "time": 1760000012345,
+      "code": "48889492"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 8,
+      "period": 60,
+      "time": 0,
+      "code": "85975147"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 8,
+      "period": 60,
+      "time": 59000,
+      "code": "85975147"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 8,
+      "period": 60,
+      "time": 1111111109000,
+      "code": "76146002"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 8,
+      "period": 60,
+      "time": 1234567890000,
+      "code": "57152195"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 8,
+      "period": 60,
+      "time": 2000000000000,
+      "code": "14913975"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 8,
+      "period": 60,
+      "time": 1760000012345,
+      "code": "34653302"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 6,
+      "period": 30,
+      "time": 0,
+      "code": "755224"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 6,
+      "period": 30,
+      "time": 59000,
+      "code": "287082"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 6,
+      "period": 30,
+      "time": 1111111109000,
+      "code": "081804"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 6,
+      "period": 30,
+      "time": 1234567890000,
+      "code": "005924"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 6,
+      "period": 30,
+      "time": 2000000000000,
+      "code": "279037"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 6,
+      "period": 30,
+      "time": 1760000012345,
+      "code": "070128"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 6,
+      "period": 60,
+      "time": 0,
+      "code": "755224"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 6,
+      "period": 60,
+      "time": 59000,
+      "code": "755224"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 6,
+      "period": 60,
+      "time": 1111111109000,
+      "code": "360094"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 6,
+      "period": 60,
+      "time": 1234567890000,
+      "code": "713351"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 6,
+      "period": 60,
+      "time": 2000000000000,
+      "code": "864010"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 6,
+      "period": 60,
+      "time": 1760000012345,
+      "code": "066577"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 8,
+      "period": 30,
+      "time": 0,
+      "code": "84755224"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 8,
+      "period": 30,
+      "time": 59000,
+      "code": "94287082"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 8,
+      "period": 30,
+      "time": 1111111109000,
+      "code": "07081804"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 8,
+      "period": 30,
+      "time": 1234567890000,
+      "code": "89005924"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 8,
+      "period": 30,
+      "time": 2000000000000,
+      "code": "69279037"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 8,
+      "period": 30,
+      "time": 1760000012345,
+      "code": "06070128"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 8,
+      "period": 60,
+      "time": 0,
+      "code": "84755224"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 8,
+      "period": 60,
+      "time": 59000,
+      "code": "84755224"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 8,
+      "period": 60,
+      "time": 1111111109000,
+      "code": "19360094"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 8,
+      "period": 60,
+      "time": 1234567890000,
+      "code": "55713351"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 8,
+      "period": 60,
+      "time": 2000000000000,
+      "code": "76864010"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 8,
+      "period": 60,
+      "time": 1760000012345,
+      "code": "26066577"
+    }
+  ],
+  "hotp": [
+    {
+      "secret": "12345678901234567890",
+      "counter": 0,
+      "code": "755224"
+    },
+    {
+      "secret": "12345678901234567890",
+      "counter": 1,
+      "code": "287082"
+    },
+    {
+      "secret": "12345678901234567890",
+      "counter": 2,
+      "code": "359152"
+    },
+    {
+      "secret": "12345678901234567890",
+      "counter": 9,
+      "code": "520489"
+    },
+    {
+      "secret": "12345678901234567890",
+      "counter": 1234567,
+      "code": "643082"
+    },
+    {
+      "secret": "12345678901234567890",
+      "counter": 4294967296,
+      "code": "999456"
+    }
+  ],
+  "uris": [
+    {
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "digits": 6,
+      "period": 30,
+      "issuer": "Better Auth",
+      "account": "test@test.com",
+      "uri": "otpauth://totp/Better%20Auth:test%40test.com?secret=MFRGGZDFMZTWQ2LKNNWG23TPOBYXE43UOV3HO6DZPIYDCMRTGQ2Q&issuer=Better+Auth&digits=6&period=30"
+    },
+    {
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "digits": 8,
+      "period": 60,
+      "issuer": "My App: *test* ~(x)!'",
+      "account": "ü+tag@example.com",
+      "uri": "otpauth://totp/My%20App%3A%20*test*%20~(x)!':%C3%BC%2Btag%40example.com?secret=LJ4C2XZZKF3UK4SUPFKWST3QIFZUIZSHNBFGWTD2LBRVMYSONUYQ&issuer=My+App%3A+*test*+%7E%28x%29%21%27&digits=8&period=60"
+    },
+    {
+      "secret": "12345678901234567890",
+      "digits": 6,
+      "period": 30,
+      "issuer": "a&b=c/d?e#f%g",
+      "account": "name with space",
+      "uri": "otpauth://totp/a%26b%3Dc%2Fd%3Fe%23f%25g:name%20with%20space?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ&issuer=a%26b%3Dc%2Fd%3Fe%23f%25g&digits=6&period=30"
+    }
+  ],
+  "encryptedSecrets": [
+    {
+      "key": "plain",
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "encrypted": "3af748f90e164bf077c4de0c9fba0c0c1153e04e76363619562a5f32b854eb54f514bfc75f3c52639a42e62e234fb8854fccee2ba8ca5da69259a9874407390a19733d9c2771044a"
+    },
+    {
+      "key": "rotating",
+      "secret": "abcdefghijklmnopqrstuvwxyz012345",
+      "encrypted": "$ba$2$299cbc19748c8d6018c92fecc6b99c3c4bf39cbb92b99c6dcca75a706521e375a59834b3a5af9d4f611b148f17a4dc8a619319c2b68dbe2aa9d5ad6e6fd4daecf33b46fcd23045d2"
+    },
+    {
+      "key": "plain",
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "encrypted": "7c73349a9337a5cf824d6a2a89bd2654f614c8dc06b5f16cb5853fd515121efd7a4db4bb1c66da1e1c635d83e628aae94477926f67dacad55f4d8fa4a66ab6584f27ff2c6c42e024"
+    },
+    {
+      "key": "rotating",
+      "secret": "Zx-_9QwErTyUiOpAsDfGhJkLzXcVbNm1",
+      "encrypted": "$ba$2$391cb9e63b33191b84a7768679f8de23230918a7c37d42e61dce0ae41f8d3b0f840af14a9ec418dfc235c5c7f8d1497e742e1077b6d4d5e5977a12e24da13ad8bc2373624f8f3160"
+    },
+    {
+      "key": "plain",
+      "secret": "12345678901234567890",
+      "encrypted": "939a4fa08e8ec4e875a99ff18e0912adcc9576dc182bc46a3beb2b70aa94e98f0db066fe667fe7d83a014b4fa185fb471c91a629dc10eacd808135f2"
+    },
+    {
+      "key": "rotating",
+      "secret": "12345678901234567890",
+      "encrypted": "$ba$2$20450ded1bf0a2b80acdc71f3699f5eca29c8dc9db28f282eb84ece22d152d740df73ca7bf10ab99aeebdf17ddcbbb2f3c2853414a06418efae9eeae"
+    }
+  ],
+  "backupCodes": [
+    {
+      "key": "plain",
+      "storage": "encrypted",
+      "codes": [
+        "b4TmH-q1hHg",
+        "RyuU0-LCnBq",
+        "u25Xb-PCT6M",
+        "3x5i1-N2DLC",
+        "0zPXt-5YJYN",
+        "F87xr-E1p1x",
+        "ekztb-X1jLr",
+        "9j01m-Iisda",
+        "Asw3L-wjEam",
+        "sfzCJ-QUOgW"
+      ],
+      "stored": "9bbadb3ebb4725858232510baf0159c47e29fd67cb20d1a21344e96606c6bed1973be85c95dfeb5f99f66abde6b3f0342a8dbe3da23fed4ed0331c024c51cc99d16df1b99bb2a4a198a49528bdc701f782786bc51767a49b69200b374fc3fff2d2f0d9073da91551d7dde0192916d59fe68f347cc168eb15848b40d0f6e2fea18ac4fdd447e51c65ec216bcd3b535214c6303e8d711b8eae33d9bc0adc7e87d8ad6ba179f89eddfefcbff60bc9e219adec4a9e8761"
+    },
+    {
+      "key": "rotating",
+      "storage": "encrypted",
+      "codes": [
+        "2kqEp-EdWhG",
+        "QPQdz-HRKWB",
+        "2BXOd-mfTtu",
+        "Ovnym-bZSxs",
+        "7Nky1-jFbUC",
+        "LNiXO-Cmn4Z",
+        "DBKId-KMAj6",
+        "YVmvz-gKKVL",
+        "Bn2qJ-tDWjP",
+        "MWBgW-XlzWh"
+      ],
+      "stored": "$ba$2$084821de9198e6f291bd37966ab892d1b63684a85b79a22520c7022c82c1cc6140c0d9746beb4c42782e35822a22c06705761746c36d8b71a2b18efa971bdca54b5dfb18e706d805bd2c549072be4589abfe6c77486e2d282d82ca7718f7ce05089ad05f6bc04b5233c4542933347d6113c4c7479bfc66792a4c78c2fc0c75a2d99aabd8d9eb7e729b9be64861c1cbf89f6cc50b807ae4dca95a81d04c996e686ebe4e1838d38700754cf8ccd74fdb053eaae0f039"
+    },
+    {
+      "key": "plain",
+      "storage": "plain",
+      "codes": [
+        "iDlr1-U6yEFIS",
+        "9BQrh-IJWRbsa",
+        "iMw5z-m80YIZ4"
+      ],
+      "stored": "[\"iDlr1-U6yEFIS\",\"9BQrh-IJWRbsa\",\"iMw5z-m80YIZ4\"]"
+    },
+    {
+      "key": "plain",
+      "storage": "encrypted",
+      "codes": [
+        "a<b>& c",
+        "ünï-cödé",
+        "plain"
+      ],
+      "stored": "1b54ee519fbbecb123fe8f97ee9862b9bd8213d3cffa0a51adeba0227de2832c229c8081c86e3d2116e95ebdb8f9417c8c51bd1634c47a4765b8e7f09076e764d048b062ae6df65c26826d8f"
+    }
+  ],
+  "hashedOTP": [
+    {
+      "otp": "000000",
+      "hash": "kbTRQoI_fSDF8I32kSLeQ_NfBXqYjZYZ9tMThIXJogM"
+    },
+    {
+      "otp": "123456",
+      "hash": "jZae727K08KaOmKSgOaGzww_XVqGr_PKEgIMkjrcbJI"
+    },
+    {
+      "otp": "98765432",
+      "hash": "TiBhPsOmNzL5hjC5Qp4WANR6CPBZSW05_9NT8MMDjzk"
+    }
+  ]
+}

@@ -19,7 +19,7 @@ option) and its status in the Go port. Upstream reference: `better-auth/better-a
 | 1 | Core endpoints, cookies, sessions, cookie cache, CSRF/origin checks, rate limiter, secondary storage, hooks | ✅ |
 | 2 | Social OAuth (sign-in/social, callback, state, PKCE, id-token sign-in, ~36 providers) | ✅ |
 | 3 | Adapters (Postgres, MySQL, SQLite, MongoDB), conformance suite, migrations, CLI | ✅ |
-| 4 | Plugins | ⬜ |
+| 4 | Plugins | ✅ |
 | 5 | Enterprise (SSO, SCIM, OAuth provider, MCP) | ⬜ |
 
 ## Wire-level compatibility
@@ -177,33 +177,45 @@ Notes and intentional differences:
 
 ## Plugins
 
+Every plugin below runs its upstream test files ported to Go plus an e2e suite
+(`e2e/tests/plugin-*.test.mjs`) that drives the official client plugin against the Go and
+TypeScript servers and diffs the transcripts. Plugins that store data (two-factor, passkey,
+api-key, jwt, email-otp, magic-link, one-time-token) are also checked on a shared database:
+rows written by one implementation are used by the other. `plugins/access` holds the
+access-control core shared by admin and organization.
+
+Intentional differences: Go option types (durations, typed callbacks taking
+`*betterauth.EndpointContext`); JSON objects taken from request bodies (organization/api-key
+metadata, role permissions) are stored with sorted keys rather than insertion order (same
+values); verify responses of passkey hide `returned: false` fields.
+
 | Plugin | Upstream | Status |
 |---|---|---|
-| two-factor (TOTP, OTP, backup codes, trusted devices) | `plugins/two-factor` | ⬜ |
-| passkey (WebAuthn) | `packages/passkey` | ⬜ |
-| organization (teams, roles, invitations, dynamic access control) | `plugins/organization`, `plugins/access` | ⬜ |
-| admin | `plugins/admin` | ⬜ |
-| magic-link | `plugins/magic-link` | ⬜ |
-| email-otp | `plugins/email-otp` | ⬜ |
-| jwt (JWKS, key rotation) | `plugins/jwt` | ⬜ |
-| bearer | `plugins/bearer` | ⬜ |
-| username | `plugins/username` | ⬜ |
-| anonymous | `plugins/anonymous` | ⬜ |
-| phone-number | `plugins/phone-number` | ⬜ |
-| multi-session | `plugins/multi-session` | ⬜ |
-| one-tap | `plugins/one-tap` | ⬜ |
-| one-time-token | `plugins/one-time-token` | ⬜ |
-| generic-oauth | `plugins/generic-oauth` | ⬜ |
-| api-key | `packages/api-key` | ⬜ |
-| captcha | `plugins/captcha` | ⬜ |
-| haveibeenpwned | `plugins/haveibeenpwned` | ⬜ |
-| last-login-method | `plugins/last-login-method` | ⬜ |
-| custom-session | `plugins/custom-session` | ⬜ |
-| device-authorization | `plugins/device-authorization` | ⬜ |
-| oauth-proxy | `plugins/oauth-proxy` | ⬜ |
-| oauth-popup | `plugins/oauth-popup` | ⬜ |
-| open-api | `plugins/open-api` | ⬜ |
-| siwe | `plugins/siwe` | ⬜ |
+| two-factor (TOTP, OTP, backup codes, trusted devices) | `plugins/twofactor` (upstream `plugins/two-factor`) | ✅ |
+| passkey (WebAuthn) | `plugins/passkey` (upstream `packages/passkey`) | ✅ |
+| organization (teams, roles, invitations, dynamic access control) | `plugins/organization` (upstream `plugins/organization`, `plugins/access`) | ✅ |
+| admin | `plugins/admin` (upstream `plugins/admin`) | ✅ |
+| magic-link | `plugins/magiclink` (upstream `plugins/magic-link`) | ✅ |
+| email-otp | `plugins/emailotp` (upstream `plugins/email-otp`) | ✅ |
+| jwt (JWKS, key rotation) | `plugins/jwt` (upstream `plugins/jwt`) | ✅ |
+| bearer | `plugins/bearer` (upstream `plugins/bearer`) | ✅ |
+| username | `plugins/username` (upstream `plugins/username`) | ✅ |
+| anonymous | `plugins/anonymous` (upstream `plugins/anonymous`) | ✅ |
+| phone-number | `plugins/phonenumber` (upstream `plugins/phone-number`) | ✅ |
+| multi-session | `plugins/multisession` (upstream `plugins/multi-session`) | ✅ |
+| one-tap | `plugins/onetap` (upstream `plugins/one-tap`) | ✅ |
+| one-time-token | `plugins/onetimetoken` (upstream `plugins/one-time-token`) | ✅ |
+| generic-oauth | `plugins/genericoauth` (upstream `plugins/generic-oauth`) | ✅ |
+| api-key | `plugins/apikey` (upstream `packages/api-key`) | ✅ |
+| captcha | `plugins/captcha` (upstream `plugins/captcha`) | ✅ |
+| haveibeenpwned | `plugins/haveibeenpwned` (upstream `plugins/haveibeenpwned`) | ✅ |
+| last-login-method | `plugins/lastloginmethod` (upstream `plugins/last-login-method`) | ✅ |
+| custom-session | `plugins/customsession` (upstream `plugins/custom-session`) | ✅ |
+| device-authorization | `plugins/deviceauthorization` (upstream `plugins/device-authorization`) | ✅ |
+| oauth-proxy | `plugins/oauthproxy` (upstream `plugins/oauth-proxy`) | ✅ |
+| oauth-popup | `plugins/oauthpopup` (upstream `plugins/oauth-popup`) | ✅ |
+| open-api | `plugins/openapi` (upstream `plugins/open-api`) | ✅ |
+| siwe | `plugins/siwe` (upstream `plugins/siwe`) | ✅ |
 | additional-fields (client inference helper) | `plugins/additional-fields` | ➖ (TS type inference only) |
 | sso (OIDC + SAML 2.0, domain verification) | `packages/sso` | ⬜ |
 | scim (SCIM 2.0) | `packages/scim` | ⬜ |

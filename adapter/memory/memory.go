@@ -307,32 +307,66 @@ func (e *ErrUniqueViolation) Error() string {
 	return fmt.Sprintf("UNIQUE constraint failed: %s.%s", e.Model, e.Field)
 }
 
-// uniqueColumns returns the physical columns that must be unique (id + unique fields).
-func (m *memAdapter) uniqueColumns(model string) []string {
-	cols := []string{"id"}
+// uniqueColumns returns the groups of physical columns that must be unique: id, unique
+// fields and unique (possibly compound) table indexes.
+func (m *memAdapter) uniqueColumns(model string) [][]string {
+	cols := [][]string{{"id"}}
 	t, err := m.h.Table(model)
 	if err != nil || t == nil {
 		return cols
 	}
 	for _, f := range t.Fields {
 		if f.Unique {
-			cols = append(cols, f.Column())
+			cols = append(cols, []string{f.Column()})
 		}
+	}
+	for _, idx := range t.Indexes {
+		if !idx.Unique || len(idx.Fields) == 0 {
+			continue
+		}
+		group := make([]string, 0, len(idx.Fields))
+		for _, name := range idx.Fields {
+			if f, ok := t.Field(name); ok {
+				group = append(group, f.Column())
+			} else {
+				group = append(group, name)
+			}
+		}
+		cols = append(cols, group)
 	}
 	return cols
 }
 
-// checkUnique enforces unique columns like a real database would. skip is the index of
-// the row being updated (-1 for inserts).
+// checkUnique enforces unique columns like a real database would (NULL never conflicts).
+// skip is the index of the row being updated (-1 for inserts).
 func (m *memAdapter) checkUnique(model string, rec adapter.Record, skip int) error {
-	for _, col := range m.uniqueColumns(model) {
-		v, ok := rec[col]
-		if !ok || v == nil {
+	for _, group := range m.uniqueColumns(model) {
+		vals := make([]any, len(group))
+		complete := true
+		for i, col := range group {
+			v, ok := rec[col]
+			if !ok || v == nil {
+				complete = false
+				break
+			}
+			vals[i] = v
+		}
+		if !complete {
 			continue
 		}
 		for i, row := range m.db.tables[model] {
-			if i != skip && adapter.Equal(row[col], v) {
-				return &ErrUniqueViolation{Model: model, Field: col}
+			if i == skip {
+				continue
+			}
+			match := true
+			for j, col := range group {
+				if !adapter.Equal(row[col], vals[j]) {
+					match = false
+					break
+				}
+			}
+			if match {
+				return &ErrUniqueViolation{Model: model, Field: strings.Join(group, ",")}
 			}
 		}
 	}

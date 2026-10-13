@@ -304,10 +304,10 @@ func TestPortDBSecondaryStorage_DeletesUserSessionsFromBothStores(t *testing.T) 
 
 // @see https://github.com/better-auth/better-auth/security/advisories/GHSA-2vg6-77g8-24mp
 func TestPortDBSecondaryStorage_AdminRemoveUserCleansUpSessions(t *testing.T) {
-	t.Skip("requires the admin plugin (admin().removeUser), not implemented in the Go port")
+	t.Skip("needs the admin plugin (import cycle); ported as TestPortDBSecondaryStorage_AdminRemoveUserCleansUpSessions in plugins/admin/admin_core_test.go")
 }
 
 // @see https://github.com/better-auth/better-auth/security/advisories/GHSA-2vg6-77g8-24mp
 func TestPortDBSecondaryStorage_DeleteAnonymousUserCleansUpSessions(t *testing.T) {
-	t.Skip("requires the anonymous plugin (/delete-anonymous-user), not implemented in the Go port")
+	t.Skip("needs the anonymous plugin (import cycle); ported as TestPortDBSecondaryStorage_DeleteAnonymousUserCleansUpSessions in plugins/anonymous/anonymous_core_test.go")
 }

@@ -6,6 +6,7 @@
     "test": "node --test --test-concurrency=1 \"tests/*.test.mjs\""
   },
   "dependencies": {
+    "@better-auth/passkey": "1.7.7",
     "better-auth": "1.7.7",
     "better-sqlite3": "12.4.1"
   },

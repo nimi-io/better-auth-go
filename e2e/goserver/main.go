@@ -205,6 +205,11 @@ func config(profile, baseURL string, mb *mailbox) betterauth.Config {
 			wechat.New(wechat.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "wechat-client", ClientSecret: "wechat-secret"}}),
 			zoom.New(zoom.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "zoom-client", ClientSecret: "zoom-secret"}}),
 		}
+	default:
+		// Plugin profiles register themselves from profile_<name>.go files.
+		if fn, ok := profiles[profile]; ok {
+			fn(&cfg, profileEnv{BaseURL: baseURL, Mail: mb, Capture: capture})
+		}
 	}
 	return cfg
 }
@@ -250,6 +255,9 @@ func main() {
 		_ = json.NewEncoder(w).Encode(s)
 	})
 	mux.HandleFunc("/__test/health", func(w http.ResponseWriter, _ *http.Request) { _, _ = w.Write([]byte("ok")) })
+	for path, h := range testHandlers {
+		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) { h(w, r, auth) })
+	}
 	log.Printf("go better-auth e2e server on %s (profile=%q)", baseURL, profile)
 	// Route /api/auth without ServeMux so non-canonical paths (e.g. "//ok") reach the
 	// Better Auth router unmodified, as they do on the Node server.

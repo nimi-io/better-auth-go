@@ -222,7 +222,7 @@ func callbackOAuth(ctx *EndpointContext) (any, error) {
 	}
 	q := func(k string) string { return ctx.QueryString(k) }
 	code, state, iss := q("code"), q("state"), q("iss")
-	if state == "" && code != "" {
+	if !ctx.HasQuery("state") && code != "" { // upstream: state === undefined
 		if p := a.FindProvider(ctx.Params["id"]); p != nil && oauth2.SettingsOf(p).AllowIDPInitiated {
 			nonce := GenerateIDTokenNonce(p)
 			st, verifier, err := GenerateState(ctx, &GenerateStateOptions{IDTokenNonce: nonce})

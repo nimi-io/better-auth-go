@@ -281,7 +281,7 @@ func TestPortCookieCacheJWTStrategy(t *testing.T) {
 }
 
 func TestPortCookieCacheJWTStrategyJWKS(t *testing.T) {
-	t.Skip("unimplemented plugin: jwt({ sessionCookieCache: true }) / getCookieCache jwt.jwks verification")
+	t.Skip("needs the jwt plugin (import cycle); ported as plugins/jwt TestGetCookieCacheJWKS/should_work_with_JWT_strategy_backed_by_JWKS_keys")
 }
 
 func TestPortCookieCacheCompactStrategy(t *testing.T) {
@@ -357,11 +357,11 @@ func TestPortCookieCacheRequiresSecretWithoutJWKS(t *testing.T) {
 }
 
 func TestPortCookieCacheRejectsNonCacheJWTPluginTokens(t *testing.T) {
-	t.Skip("unimplemented plugin: jwt() signJWT/getJwks + getCookieCache jwt.jwks")
+	t.Skip("needs the jwt plugin (import cycle); ported as plugins/jwt TestGetCookieCacheJWKS/should_reject_JWT_plugin_tokens_that_are_not_cookie-cache_JWTs")
 }
 
 func TestPortCookieCacheWrongJWKSReturnsNull(t *testing.T) {
-	t.Skip("unimplemented plugin: jwt({ sessionCookieCache: true }) + getCookieCache jwt.jwks")
+	t.Skip("needs the jwt plugin (import cycle); ported as plugins/jwt TestGetCookieCacheJWKS/should_return_null_when_JWKS_verification_uses_the_wrong_key_set")
 }
 
 func TestPortCookieCacheDefaultsToCompact(t *testing.T) {
@@ -411,7 +411,7 @@ func TestPortCookieChunksOver4KB(t *testing.T) {
 }
 
 func TestPortCookieChunksJWKSBackedJWT(t *testing.T) {
-	t.Skip("unimplemented plugin: jwt({ sessionCookieCache: true })")
+	t.Skip("needs the jwt plugin (import cycle); ported as plugins/jwt TestGetCookieCacheJWKS/should_chunk_JWKS-backed_JWT_cookies_when_they_exceed_4KB")
 }
 
 func TestPortCookieReconstructsChunkedCookies(t *testing.T) {

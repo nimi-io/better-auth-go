@@ -18,9 +18,9 @@ See [COMPATIBILITY.md](COMPATIBILITY.md) for the feature-by-feature status.
 
 > **Status:** Phase 1 (core email/password auth, sessions, cookie cache, CSRF/origin checks,
 > rate limiting, secondary storage, hooks), Phase 2 (social OAuth: sign-in, callback,
-> linking, id-token sign-in, all upstream providers) and Phase 3 (PostgreSQL, MySQL, SQLite
-> and MongoDB adapters, migrations, CLI) are complete. Plugins are being ported next; the
-> matrix tracks progress.
+> linking, id-token sign-in, all upstream providers) Phase 3 (PostgreSQL, MySQL, SQLite
+> and MongoDB adapters, migrations, CLI) and Phase 4 (25 plugins) are complete. Enterprise
+> packages (SSO, SCIM, OAuth provider, MCP) are next; the matrix tracks progress.
 
 ## Install
 
@@ -275,6 +275,35 @@ JS client works unchanged: `authClient.signIn.social({ provider: "github" })`,
 `oauth2.Provider`, or build one with `oauth2.NewProvider(oauth2.Spec{...})`.
 
 ## Plugins
+
+Built-in plugins live in `plugins/<name>` and mirror their TypeScript counterparts; the
+official client plugins (`twoFactorClient`, `organizationClient`, ...) work unchanged.
+
+```go
+import (
+	"github.com/nimi-io/better-auth-go/plugins/admin"
+	"github.com/nimi-io/better-auth-go/plugins/organization"
+	"github.com/nimi-io/better-auth-go/plugins/twofactor"
+)
+
+betterauth.Config{
+	// ...
+	Plugins: []*betterauth.Plugin{
+		twofactor.New(twofactor.Options{Issuer: "My App"}),
+		organization.New(organization.Options{Teams: &organization.TeamsOptions{Enabled: true}}),
+		admin.New(admin.Options{}),
+	},
+}
+```
+
+Available: access, admin, anonymous, api-key (`apikey`), bearer, captcha, custom-session,
+device-authorization, email-otp, generic-oauth, haveibeenpwned, jwt, last-login-method,
+magic-link, multi-session, oauth-popup, oauth-proxy, one-tap, one-time-token, open-api,
+organization, passkey, phone-number, siwe, two-factor (`twofactor`), username. Run
+`auth.RunMigrations(ctx)` (or `better-auth migrate` embedded in your binary) after adding
+plugins with schema.
+
+### Writing plugins
 
 Plugins are `*betterauth.Plugin` values with endpoints, schema, hooks, middlewares,
 rate-limit rules and error codes, mirroring `BetterAuthPlugin`:

@@ -1,0 +1,81 @@
+{
+	"signInAnonymous": {
+		"description": "Sign in anonymously",
+		"responses": {
+			"200": {
+				"description": "Sign in anonymously",
+				"content": {
+					"application/json": {
+						"schema": {
+							"type": "object",
+							"properties": {
+								"user": {
+									"$ref": "#/components/schemas/User"
+								},
+								"session": {
+									"$ref": "#/components/schemas/Session"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"deleteAnonymousUser": {
+		"description": "Delete an anonymous user",
+		"responses": {
+			"200": {
+				"description": "Anonymous user deleted",
+				"content": {
+					"application/json": {
+						"schema": {
+							"type": "object",
+							"properties": {
+								"success": {
+									"type": "boolean"
+								}
+							}
+						}
+					}
+				}
+			},
+			"400": {
+				"description": "Anonymous user deletion is disabled",
+				"content": {
+					"application/json": {
+						"schema": {
+							"type": "object",
+							"properties": {
+								"message": {
+									"type": "string"
+								}
+							}
+						},
+						"required": [
+							"message"
+						]
+					}
+				}
+			},
+			"500": {
+				"description": "Internal server error",
+				"content": {
+					"application/json": {
+						"schema": {
+							"type": "object",
+							"properties": {
+								"message": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"message"
+							]
+						}
+					}
+				}
+			}
+		}
+	}
+}

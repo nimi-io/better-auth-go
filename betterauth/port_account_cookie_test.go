@@ -529,7 +529,7 @@ func TestPortAccountCookieRefreshedStateless(t *testing.T) {
 	}
 }
 
-const pacGenericOAuthSkip = "requires the genericOAuth plugin (not ported yet): describe(\"account resolution in stateless mode\") signs in through a discovery-based genericOAuth provider"
+const pacGenericOAuthSkip = "ported to plugins/genericoauth/stateless_account_test.go: describe(\"account resolution in stateless mode\") signs in through a discovery-based genericOAuth provider (betterauth cannot import plugins)"
 
 func TestPortAccountStatelessGetAccessTokenMismatchedCookie(t *testing.T) {
 	t.Skip(pacGenericOAuthSkip)

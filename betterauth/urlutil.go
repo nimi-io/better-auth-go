@@ -457,35 +457,71 @@ func (c *regexCache) get(pattern string) *regexp.Regexp {
 
 var wildcardCache regexCache
 
-// wildcardMatch implements wildcardMatch(pattern)(sample) with no separator: "*" matches
-// any run of characters, "?" a single character, "\" escapes.
+// wildcardMatch implements upstream wildcardMatch(pattern)(sample) (utils/wildcard.ts) with
+// its default separator (true): "/" and "\\" separate segments, "*" matches within one
+// segment, "**" spans segments, "?" matches one non-separator character, "\\" escapes.
 func wildcardMatch(pattern, sample string) bool {
 	re := wildcardCache.get(pattern)
 	return re.MatchString(sample)
 }
 
-func wildcardRegexp(pattern string) *regexp.Regexp {
-	var b strings.Builder
-	b.WriteString("^")
-	rs := []rune(pattern)
-	for i := 0; i < len(rs); i++ {
-		c := rs[i]
-		switch c {
-		case '\\':
-			if i < len(rs)-1 {
-				b.WriteString(regexp.QuoteMeta(string(rs[i+1])))
-				i++
-			}
-		case '?':
-			b.WriteString("(?s:.)")
-		case '*':
-			b.WriteString("(?s:.*?)")
-		default:
-			b.WriteString(regexp.QuoteMeta(string(c)))
-		}
+func escapeWildcardChar(c rune) string {
+	switch c {
+	case '-', '^', '$', '+', '.', '(', ')', '|', '[', ']', '{', '}', '*', '?', '\\':
+		return `\` + string(c)
 	}
-	b.WriteString("$")
-	return regexp.MustCompile(b.String())
+	return regexp.QuoteMeta(string(c))
+}
+
+// wildcardRegexp ports transform(pattern, true).
+func wildcardRegexp(pattern string) *regexp.Regexp {
+	const (
+		sepMatcher = `[/\\]`
+		wildcard   = `[^/\\]`
+		required   = sepMatcher + `+?`
+		optional   = sepMatcher + `*?`
+	)
+	segments := strings.Split(pattern, "/")
+	var b strings.Builder
+	for i, seg := range segments {
+		if seg == "" && i > 0 {
+			continue
+		}
+		var cur string
+		switch {
+		case i == len(segments)-1:
+			cur = optional
+		case segments[i+1] != "**":
+			cur = required
+		}
+		if seg == "**" {
+			if cur != "" {
+				if i != 0 {
+					b.WriteString(cur)
+				}
+				b.WriteString(`(?:` + wildcard + `*?` + cur + `)*?`)
+			}
+			continue
+		}
+		rs := []rune(seg)
+		for j := 0; j < len(rs); j++ {
+			switch c := rs[j]; c {
+			case '\\':
+				if j < len(rs)-1 {
+					b.WriteString(escapeWildcardChar(rs[j+1]))
+					j++
+				}
+			case '?':
+				b.WriteString(wildcard)
+			case '*':
+				b.WriteString(wildcard + `*?`)
+			default:
+				b.WriteString(escapeWildcardChar(c))
+			}
+		}
+		b.WriteString(cur)
+	}
+	return regexp.MustCompile(`^(?:` + b.String() + `)$`)
 }
 
 func isLoopbackHost(host string) bool {

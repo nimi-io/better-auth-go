@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/nimi-io/better-auth-go/jsonx"
@@ -117,8 +118,12 @@ func runEndpoint(ec *EndpointContext) (any, error) {
 	}
 	if ep.Query != nil {
 		var q any = ec.Query
-		if len(ec.Query) == 0 {
+		// better-call passes {} for HTTP requests (Object.fromEntries(searchParams)); only
+		// direct API calls without a query see undefined.
+		if len(ec.Query) == 0 && ec.Request == nil {
 			q = validate.Undefined
+		} else if ec.Query == nil {
+			q = map[string]any{}
 		}
 		out, issues := validate.Validate(ep.Query, q)
 		if len(issues) > 0 {
@@ -301,7 +306,9 @@ func GetSessionFromCtx(ctx *EndpointContext, opts *GetSessionOptions) (*SessionW
 	} else {
 		delete(query, "disableRefresh")
 	}
-	ep := ctx.Auth.auth.endpoint("getSession")
+	// Always the core endpoint (upstream calls getSession() directly), even when a plugin
+	// such as custom-session replaces the registered "getSession" route.
+	ep := coreGetSessionEndpoint()
 	child := &EndpointContext{
 		ctx: ctx.ctx, Path: ep.Path, Method: "GET", Request: ctx.Request, Headers: ctx.Headers,
 		Body: validate.Undefined, Query: query, Params: ctx.Params, Auth: ctx.Auth, Endpoint: ep,
@@ -414,3 +421,14 @@ func FreshSessionMiddleware(ctx *EndpointContext) error {
 var errNotFound = errors.New("not found")
 
 func timeSince(t time.Time) time.Duration { return time.Since(t) }
+
+var coreGetSession struct {
+	once sync.Once
+	ep   *Endpoint
+}
+
+// coreGetSessionEndpoint returns the built-in get-session endpoint.
+func coreGetSessionEndpoint() *Endpoint {
+	coreGetSession.once.Do(func() { coreGetSession.ep = getSessionEndpoint() })
+	return coreGetSession.ep
+}
