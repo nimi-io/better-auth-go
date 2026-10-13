@@ -10,9 +10,14 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 	"testing"
+
+	bacrypto "github.com/nimi-io/better-auth-go/crypto"
+	"github.com/nimi-io/better-auth-go/oauth2"
+	"github.com/nimi-io/better-auth-go/oauth2/oauth2test"
 )
 
 // ---- shared helpers ----
@@ -627,6 +632,74 @@ func TestPortCookieExpireCookieScrubsPendingSetCookies(t *testing.T) {
 
 // ---- describe("account cookie sync on user switch") ----
 
+func pcAccountSwitchEnv(t *testing.T) (*testEnv, *oauth2test.Server) {
+	m := oauth2test.New(t)
+	env := poEnv(t, []oauth2.Provider{poGoogle(nil)}, []func(c *Config){pacStoreAccountCookie, poCookieCache()}, poInstanceOpts{disableTestUser: true})
+	return env, m
+}
+
+// pcGoogleSignIn mocks the Google token endpoint for (email, sub) and runs sign-in/social +
+// callback on c, returning the callback response.
+func pcGoogleSignIn(t *testing.T, c *testClient, m *oauth2test.Server, email, sub string) *testResponse {
+	t.Helper()
+	poMockGoogleToken(m, poGoogleProfile(email, true, sub, "Test User", "https://lh3.googleusercontent.com/a-/AOh14GjQ4Z7Vw"),
+		map[string]any{"access_token": "access-token-" + sub, "refresh_token": "refresh-token-" + sub})
+	state := poSocialState(t, c, map[string]any{"provider": "google", "callbackURL": "/callback"})
+	res := poCallback(t, c, "google", state)
+	if res.Status != 302 {
+		t.Fatalf("callback: %d %s", res.Status, res.Body)
+	}
+	return res
+}
+
+// pcSetCookie returns the parsed Set-Cookie entry for name in res, if any.
+func pcSetCookie(res *testResponse, name string) (value string, attrs map[string]string, ok bool) {
+	for _, sc := range res.Header.Values("Set-Cookie") {
+		if n, v, a := ParseSetCookie(sc); n == name {
+			value, attrs, ok = v, a, true
+		}
+	}
+	return
+}
+
 func TestPortCookieAccountCookieSyncOnUserSwitch(t *testing.T) {
-	t.Skip("unimplemented feature for this port: both cases require social OAuth (Google sign-in + callback with mocked token endpoint)")
+	t.Run("keeps the fresh account cookie issued for the new user when the request carries another user's stale account cookie", func(t *testing.T) {
+		env, m := pcAccountSwitchEnv(t)
+		ac := env.auth.Context()
+		name := ac.AuthCookies.AccountData.Name
+		c := env.client()
+		pcGoogleSignIn(t, c, m, "switch-first@test.com", "switch-first-sub")
+		res := pcGoogleSignIn(t, c, m, "switch-second@test.com", "switch-second-sub")
+		v, attrs, ok := pcSetCookie(res, name)
+		if !ok || v == "" || attrs["max-age"] == "0" {
+			t.Fatalf("expected a fresh %s cookie, got ok=%v value=%q attrs=%v", name, ok, v, attrs)
+		}
+		s := c.session()
+		u, _ := s["user"].(map[string]any)
+		if u["email"] != "switch-second@test.com" {
+			t.Fatalf("session user %v", u)
+		}
+		dec, _ := url.QueryUnescape(v)
+		data := bacrypto.SymmetricDecodeJWT(dec, ac.SecretConfig, "better-auth-account")
+		if data == nil {
+			t.Fatal("account cookie did not decode")
+		}
+		if uid, _ := data.Get("userId"); uid != u["id"] {
+			t.Fatalf("account cookie userId %v, session user %v", uid, u["id"])
+		}
+	})
+	t.Run("still expires another user's stale account cookie when the response issues no fresh one", func(t *testing.T) {
+		env, m := pcAccountSwitchEnv(t)
+		name := env.auth.Context().AuthCookies.AccountData.Name
+		c := env.client()
+		pcGoogleSignIn(t, c, m, "expire-first@test.com", "expire-first-sub")
+		res := c.signUp("expire-second@test.com", "password123456", "Second User")
+		if res.Status != 200 {
+			t.Fatalf("sign-up %d %s", res.Status, res.Body)
+		}
+		v, attrs, ok := pcSetCookie(res, name)
+		if !ok || v != "" || attrs["max-age"] != "0" {
+			t.Fatalf("expected %s to be expired, got ok=%v value=%q attrs=%v", name, ok, v, attrs)
+		}
+	})
 }

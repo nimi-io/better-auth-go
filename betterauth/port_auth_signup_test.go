@@ -590,6 +590,6 @@ func TestPortAuthSignUpIndistinguishableResponse(t *testing.T) {
 // describe("sign-up enumeration protection — customSyntheticUser with admin plugin")
 func TestPortAuthSignUpCustomSyntheticUserAdmin(t *testing.T) {
 	t.Run("should return indistinguishable response with admin plugin fields", func(t *testing.T) {
-		t.Skip("phase 2: requires the admin plugin (role/banned/banReason/banExpires schema fields)")
+		t.Skip("requires the admin plugin (not ported yet): role/banned/banReason/banExpires schema fields")
 	})
 }

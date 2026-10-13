@@ -36,8 +36,14 @@ type StateData struct {
 
 func (s *StateData) toObject() *jsonx.Object {
 	o := jsonx.NewObject()
+	// Internal fields are always written from the typed fields below (upstream assigns them
+	// after spreading additionalData), so a client cannot smuggle link, errorURL,
+	// serverContext, ... through additionalData.
 	if s.Additional != nil {
 		for _, k := range s.Additional.Keys() {
+			if internalStateKeys[k] {
+				continue
+			}
 			v, _ := s.Additional.Get(k)
 			o.Set(k, v)
 		}
@@ -228,7 +234,9 @@ func GenerateState(ctx *EndpointContext, o *GenerateStateOptions) (state, codeVe
 		}
 	}
 	for k, v := range o.AdditionalData {
-		sd.Additional.Set(k, v)
+		if !internalStateKeys[k] {
+			sd.Additional.Set(k, v)
+		}
 	}
 	RequestStateSet(ctx.Context(), oauthStateKey{}, sd)
 	state, err = generateGenericState(ctx, sd, "")

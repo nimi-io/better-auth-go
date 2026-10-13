@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"sync"
@@ -15,7 +16,61 @@ import (
 	"github.com/nimi-io/better-auth-go/adapter/memory"
 	"github.com/nimi-io/better-auth-go/betterauth"
 	bacrypto "github.com/nimi-io/better-auth-go/crypto"
+	"github.com/nimi-io/better-auth-go/oauth2"
+	"github.com/nimi-io/better-auth-go/providers/apple"
+	"github.com/nimi-io/better-auth-go/providers/atlassian"
+	"github.com/nimi-io/better-auth-go/providers/cloudflare"
+	"github.com/nimi-io/better-auth-go/providers/cognito"
+	"github.com/nimi-io/better-auth-go/providers/discord"
+	"github.com/nimi-io/better-auth-go/providers/dropbox"
+	"github.com/nimi-io/better-auth-go/providers/facebook"
+	"github.com/nimi-io/better-auth-go/providers/figma"
+	"github.com/nimi-io/better-auth-go/providers/github"
+	"github.com/nimi-io/better-auth-go/providers/gitlab"
+	"github.com/nimi-io/better-auth-go/providers/google"
+	"github.com/nimi-io/better-auth-go/providers/huggingface"
+	"github.com/nimi-io/better-auth-go/providers/kakao"
+	"github.com/nimi-io/better-auth-go/providers/kick"
+	"github.com/nimi-io/better-auth-go/providers/line"
+	"github.com/nimi-io/better-auth-go/providers/linear"
+	"github.com/nimi-io/better-auth-go/providers/linkedin"
+	"github.com/nimi-io/better-auth-go/providers/microsoft"
+	"github.com/nimi-io/better-auth-go/providers/naver"
+	"github.com/nimi-io/better-auth-go/providers/notion"
+	"github.com/nimi-io/better-auth-go/providers/paybin"
+	"github.com/nimi-io/better-auth-go/providers/paypal"
+	"github.com/nimi-io/better-auth-go/providers/polar"
+	"github.com/nimi-io/better-auth-go/providers/railway"
+	"github.com/nimi-io/better-auth-go/providers/reddit"
+	"github.com/nimi-io/better-auth-go/providers/roblox"
+	"github.com/nimi-io/better-auth-go/providers/salesforce"
+	"github.com/nimi-io/better-auth-go/providers/slack"
+	"github.com/nimi-io/better-auth-go/providers/spotify"
+	"github.com/nimi-io/better-auth-go/providers/tiktok"
+	"github.com/nimi-io/better-auth-go/providers/twitch"
+	"github.com/nimi-io/better-auth-go/providers/twitter"
+	"github.com/nimi-io/better-auth-go/providers/vercel"
+	"github.com/nimi-io/better-auth-go/providers/vk"
+	"github.com/nimi-io/better-auth-go/providers/wechat"
+	"github.com/nimi-io/better-auth-go/providers/zoom"
 )
+
+// idpTransport rewrites https://host/path to <target>/host/path (the mock IdP).
+type idpTransport struct{ target string }
+
+func (t idpTransport) RoundTrip(r *http.Request) (*http.Response, error) {
+	if r.URL.Scheme == "https" {
+		u, err := url.Parse(t.target + "/" + r.URL.Host + r.URL.Path)
+		if err != nil {
+			return nil, err
+		}
+		u.RawQuery = r.URL.RawQuery
+		r = r.Clone(r.Context())
+		r.URL = u
+		r.Host = u.Host
+	}
+	return http.DefaultTransport.RoundTrip(r)
+}
 
 type email struct {
 	Type  string `json:"type"`
@@ -92,6 +147,49 @@ func config(profile, baseURL string, mb *mailbox) betterauth.Config {
 		cfg.Database = nil
 	case "delete-verify":
 		cfg.User.DeleteUser.SendDeleteAccountVerification = capture("delete-account")
+	case "oauth":
+		if idp := os.Getenv("IDP_URL"); idp != "" {
+			oauth2.HTTPClient.Transport = idpTransport{target: idp}
+		}
+		cfg.SocialProviders = []oauth2.Provider{
+			github.New(github.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "gh-client", ClientSecret: "gh-secret"}}),
+			google.New(google.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "google-client", ClientSecret: "google-secret"}}),
+			// The remaining providers are only exercised for authorization-URL parity.
+			apple.New(apple.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "apple-client", ClientSecret: "apple-secret"}}),
+			atlassian.New(atlassian.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "atlassian-client", ClientSecret: "atlassian-secret"}}),
+			cloudflare.New(cloudflare.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "cloudflare-client", ClientSecret: "cloudflare-secret"}}),
+			cognito.New(cognito.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "cognito-client", ClientSecret: "cognito-secret"}, Domain: "auth.example.com", Region: "us-east-1", UserPoolID: "us-east-1_pool"}),
+			discord.New(discord.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "discord-client", ClientSecret: "discord-secret"}}),
+			dropbox.New(dropbox.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "dropbox-client", ClientSecret: "dropbox-secret"}}),
+			facebook.New(facebook.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "facebook-client", ClientSecret: "facebook-secret"}}),
+			figma.New(figma.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "figma-client", ClientSecret: "figma-secret"}}),
+			gitlab.New(gitlab.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "gitlab-client", ClientSecret: "gitlab-secret"}}),
+			huggingface.New(huggingface.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "huggingface-client", ClientSecret: "huggingface-secret"}}),
+			kakao.New(kakao.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "kakao-client", ClientSecret: "kakao-secret"}}),
+			kick.New(kick.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "kick-client", ClientSecret: "kick-secret"}}),
+			line.New(line.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "line-client", ClientSecret: "line-secret"}}),
+			linear.New(linear.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "linear-client", ClientSecret: "linear-secret"}}),
+			linkedin.New(linkedin.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "linkedin-client", ClientSecret: "linkedin-secret"}}),
+			microsoft.New(microsoft.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "microsoft-client", ClientSecret: "microsoft-secret"}, TenantID: "e2e-tenant"}),
+			naver.New(naver.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "naver-client", ClientSecret: "naver-secret"}}),
+			notion.New(notion.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "notion-client", ClientSecret: "notion-secret"}}),
+			paybin.New(paybin.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "paybin-client", ClientSecret: "paybin-secret"}}),
+			paypal.New(paypal.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "paypal-client", ClientSecret: "paypal-secret"}}),
+			polar.New(polar.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "polar-client", ClientSecret: "polar-secret"}}),
+			railway.New(railway.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "railway-client", ClientSecret: "railway-secret"}}),
+			reddit.New(reddit.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "reddit-client", ClientSecret: "reddit-secret"}}),
+			roblox.New(roblox.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "roblox-client", ClientSecret: "roblox-secret"}}),
+			salesforce.New(salesforce.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "salesforce-client", ClientSecret: "salesforce-secret"}}),
+			slack.New(slack.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "slack-client", ClientSecret: "slack-secret"}}),
+			spotify.New(spotify.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "spotify-client", ClientSecret: "spotify-secret"}}),
+			tiktok.New(tiktok.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "tiktok-client", ClientSecret: "tiktok-secret", ClientKey: "tiktok-key"}}),
+			twitch.New(twitch.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "twitch-client", ClientSecret: "twitch-secret"}}),
+			twitter.New(twitter.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "twitter-client", ClientSecret: "twitter-secret"}}),
+			vercel.New(vercel.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "vercel-client", ClientSecret: "vercel-secret"}}),
+			vk.New(vk.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "vk-client", ClientSecret: "vk-secret"}}),
+			wechat.New(wechat.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "wechat-client", ClientSecret: "wechat-secret"}}),
+			zoom.New(zoom.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "zoom-client", ClientSecret: "zoom-secret"}}),
+		}
 	}
 	return cfg
 }

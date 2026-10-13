@@ -5,8 +5,9 @@ package betterauth
 // Upstream runs the "account" describe block as one shared instance whose state flows
 // from test to test (accounts linked through the /callback/google round-trip are counted
 // by later tests). The Go ports below are independent: each test seeds the rows the
-// upstream predecessor tests would have produced (documented per test). The callback
-// round-trip itself is phase 2 and is skipped where it is the subject of the test.
+// upstream predecessor tests would have produced (documented per test). The
+// /callback/google round-trip runs against pacProvider, whose getUserInfo answers like
+// Google decoding the msw-mocked id_token (poPacGoogleUserInfo).
 
 import (
 	"context"
@@ -48,7 +49,7 @@ func TestPortAccountListAllAccounts(t *testing.T) {
 }
 
 func TestPortAccountLinkFirstAccount(t *testing.T) {
-	env, _ := pacMainInstance(t)
+	env, g := pacMainInstance(t)
 	c, _ := pacSignInWithTestUser(t, env)
 	res := c.post("/link-social", map[string]any{"provider": "google", "callbackURL": "/callback"})
 	if res.Status != 200 {
@@ -65,11 +66,64 @@ func TestPortAccountLinkFirstAccount(t *testing.T) {
 	if u.Query().Get("state") == "" {
 		t.Fatal("expected state in authorization URL")
 	}
-	t.Skip("phase 2: /callback/google round-trip (account creation + list-accounts == 2) not implemented")
+	pacLinkCallback(t, c, g, u.Query().Get("state"), "test@test.com")
+	c2, _ := pacSignInWithTestUser(t, env)
+	if n := len(pacListAccounts(t, c2)); n != 2 {
+		t.Fatalf("expected 2 accounts, got %d", n)
+	}
 }
 
+// pacLinkCallback completes a /link-social flow through /callback/google: the provider
+// answers getUserInfo like Google decoding the msw id_token for email (sub "1234567890"),
+// and the callback must redirect to the "/callback" callbackURL.
+func pacLinkCallback(t *testing.T, c *testClient, g *pacProvider, state, email string) {
+	t.Helper()
+	g.mu.Lock()
+	g.userInfoFn = poPacGoogleUserInfo(email)
+	g.mu.Unlock()
+	res := c.get("/callback/google?state=" + url.QueryEscape(state) + "&code=test")
+	if res.Status != 302 {
+		t.Fatalf("callback: expected 302, got %d %s", res.Status, res.Body)
+	}
+	if loc := res.Header.Get("Location"); !strings.Contains(loc, "/callback") {
+		t.Fatalf("callback: location %q should contain /callback", loc)
+	}
+}
+
+// Upstream state before this test: the google account linked by "should link first
+// account"; it is produced here through the same /link-social + /callback/google flow.
 func TestPortAccountEncryptAccessAndRefreshToken(t *testing.T) {
-	t.Skip("phase 2: upstream relies on the account created by the /callback/google round-trip; see TestPortAccountEncryptTokensViaIDTokenLink for the adapted id-token variant")
+	env, g := pacMainInstance(t)
+	c, _ := pacSignInWithTestUser(t, env)
+	res := c.post("/link-social", map[string]any{"provider": "google", "callbackURL": "/callback"})
+	if res.Status != 200 {
+		t.Fatalf("link-social: %d %s", res.Status, res.Body)
+	}
+	u, _ := url.Parse(pacStr(res.JSON(t)["url"]))
+	pacLinkCallback(t, c, g, u.Query().Get("state"), "test@test.com")
+
+	c2, _ := pacSignInWithTestUser(t, env)
+	rec, err := env.auth.Context().Adapter.FindOne(context.Background(), adapter.FindOneInput{Model: "account",
+		Where: []adapter.Where{{Field: "providerId", Value: "google"}}})
+	if err != nil || rec == nil {
+		t.Fatalf("google account not found: %v", err)
+	}
+	if rec["accessToken"] == "test" {
+		t.Fatalf("expected encrypted accessToken, got %v", rec["accessToken"])
+	}
+	var googleID string
+	for _, a := range pacListAccounts(t, c2) {
+		if a["providerId"] == "google" {
+			googleID = pacStr(a["id"])
+		}
+	}
+	if googleID == "" {
+		t.Fatal("google account should be listed")
+	}
+	at := c2.post("/get-access-token", map[string]any{"accountId": googleID})
+	if at.Status != 200 || at.JSON(t)["accessToken"] != "test" {
+		t.Fatalf("expected accessToken test, got %d %s", at.Status, at.Body)
+	}
 }
 
 // Adapted from "should encrypt access token and refresh token": the google account is
@@ -410,9 +464,13 @@ func TestPortAccountLinkSocialIDTokenNonce(t *testing.T) {
 	}
 }
 
+// Upstream state before this test: credential + the google account (sub "1234567890")
+// linked by "should link first account"; it is seeded directly here.
 func TestPortAccountLinkSecondAccountSameProvider(t *testing.T) {
-	env, _ := pacMainInstance(t)
-	c, _ := pacSignInWithTestUser(t, env)
+	env, g := pacMainInstance(t)
+	c, user := pacSignInWithTestUser(t, env)
+	pacCreateAccount(t, env, adapter.Record{"userId": user["id"], "providerId": "google", "accountId": "1234567890",
+		"accessToken": "test", "refreshToken": "test"})
 	res := c.post("/link-social", map[string]any{"provider": "google", "callbackURL": "/callback"})
 	if res.Status != 200 {
 		t.Fatalf("link-social: %d %s", res.Status, res.Body)
@@ -421,7 +479,12 @@ func TestPortAccountLinkSecondAccountSameProvider(t *testing.T) {
 	if !strings.Contains(pacStr(m["url"]), "google.com") || m["redirect"] != true {
 		t.Fatalf("unexpected response %s", res.Body)
 	}
-	t.Skip("phase 2: /callback/google round-trip (re-linking the same google subject keeps 2 accounts) not implemented")
+	u, _ := url.Parse(pacStr(m["url"]))
+	pacLinkCallback(t, c, g, u.Query().Get("state"), "test2@test.com")
+	c3, _ := pacSignInWithTestUser(t, env)
+	if n := len(pacListAccounts(t, c3)); n != 2 {
+		t.Fatalf("expected 2 accounts, got %d", n)
+	}
 }
 
 // Upstream state before this test: credential + the google account (sub "1234567890")
@@ -650,6 +713,44 @@ func TestPortAccountUnlinkProviderAccountsIndividually(t *testing.T) {
 	}
 }
 
+// describe("validateUserInfo account linking")
+// @see https://github.com/better-auth/better-auth/issues/9732
 func TestPortAccountValidateUserInfoRejectsLinking(t *testing.T) {
-	t.Skip("phase 2: describe(\"validateUserInfo account linking\") requires the /callback/google round-trip")
+	var validatedUserID any
+	var sourceMethod, sourceProvider string
+	env, g := pacIsolatedGoogle(t, func(c *Config) {
+		c.User = &UserConfig{ValidateUserInfo: func(_ *EndpointContext, user map[string]any, source UserInfoSource) (*ValidateUserInfoResult, error) {
+			if source.Action != "link-account" {
+				return nil, nil
+			}
+			validatedUserID = user["id"]
+			sourceMethod, sourceProvider = source.Method, source.ProviderID
+			return &ValidateUserInfoResult{Error: "domain_blocked", ErrorDescription: "This email domain is not allowed"}, nil
+		}}
+		c.Account = &AccountConfig{AccountLinking: &AccountLinkingConfig{AllowDifferentEmails: true}}
+	})
+	c, user := pacSignInWithTestUser(t, env)
+	res := c.post("/link-social", map[string]any{"provider": "google", "callbackURL": "/callback"})
+	if res.Status != 200 {
+		t.Fatalf("link-social: %d %s", res.Status, res.Body)
+	}
+	u, _ := url.Parse(pacStr(res.JSON(t)["url"]))
+	g.userInfoFn = poPacGoogleUserInfo("blocked@example.com")
+	cb := c.get("/callback/google?state=" + url.QueryEscape(u.Query().Get("state")) + "&code=test")
+	loc := cb.Header.Get("Location")
+	if !strings.Contains(loc, "error=domain_blocked") {
+		t.Fatalf("redirect %q should contain error=domain_blocked", loc)
+	}
+	if !strings.Contains(loc, "error_description=This+email+domain+is+not+allowed") {
+		t.Fatalf("redirect %q should contain the encoded error_description", loc)
+	}
+	if sourceMethod != "oauth" || sourceProvider != "google" {
+		t.Fatalf("source = %q/%q, want oauth/google", sourceMethod, sourceProvider)
+	}
+	if validatedUserID != user["id"] {
+		t.Fatalf("validated user id = %v, want %v", validatedUserID, user["id"])
+	}
+	if n := len(pacListAccounts(t, c)); n != 1 {
+		t.Fatalf("expected 1 account, got %d", n)
+	}
 }

@@ -17,7 +17,7 @@ option) and its status in the Go port. Upstream reference: `better-auth/better-a
 | Phase | Scope | Status |
 |---|---|---|
 | 1 | Core endpoints, cookies, sessions, cookie cache, CSRF/origin checks, rate limiter, secondary storage, hooks | ✅ |
-| 2 | Social OAuth (sign-in/social, callback, state, PKCE, id-token sign-in, ~36 providers) | ⬜ |
+| 2 | Social OAuth (sign-in/social, callback, state, PKCE, id-token sign-in, ~36 providers) | ✅ |
 | 3 | Adapters (Postgres, MySQL, SQLite, MongoDB), conformance suite, migrations, CLI | ⬜ |
 | 4 | Plugins | ⬜ |
 | 5 | Enterprise (SSO, SCIM, OAuth provider, MCP) | ⬜ |
@@ -53,7 +53,7 @@ option) and its status in the Go port. Upstream reference: `better-auth/better-a
 | `secondaryStorage` (`get`, `set`, `delete`, `getAndDelete`, `increment`) | ✅ | |
 | `emailVerification.*` (`sendVerificationEmail`, `sendOnSignUp`, `sendOnSignIn`, `autoSignInAfterVerification`, `expiresIn`, `before/afterEmailVerification`) | ✅ | |
 | `emailAndPassword.*` (`enabled`, `disableSignUp`, `requireEmailVerification`, `min/maxPasswordLength`, `sendResetPassword`, `resetPasswordTokenExpiresIn`, `onPasswordReset`, `password.hash/verify`, `autoSignIn`, `revokeSessionsOnPasswordReset`, `onExistingUserSignUp`, `customSyntheticUser`) | ✅ | |
-| `socialProviders` | ⬜ | Phase 2 |
+| `socialProviders` | ✅ | `Config.SocialProviders` + `providers/*` |
 | `plugins` | 🟡 | |
 | `user.*` (`modelName`, `fields`, `additionalFields`, `validateUserInfo`, `changeEmail.*`, `deleteUser.*`) | ✅ | |
 | `session.*` (`expiresIn`, `updateAge`, `disableSessionRefresh`, `deferSessionRefresh`, `storeSessionInDatabase`, `preserveSessionInDatabase`, `cookieCache.*`, `freshAge`, `additionalFields`) | ✅ | |
@@ -99,20 +99,45 @@ option) and its status in the Go port. Upstream reference: `better-auth/better-a
 
 ## Social providers (`packages/core/src/social-providers`)
 
+All 36 providers are ported, one package per provider id under `providers/`. Each package has
+Go tests (authorization URL with the exact upstream query string, code exchange and refresh
+request bodies, user-info mapping, account subject, overrides) plus every case of its upstream
+`*.test.ts` and of `social-providers.test.ts` / `social.test.ts`. In `e2e/tests/oauth.test.mjs`:
+- ✅ GitHub and Google run complete flows (redirect, callback, token exchange, user info,
+  linking, id-token sign-in) on both servers against a mock IdP;
+- every provider (🟡 rows included) has its authorization URL diffed against the TypeScript
+  server: endpoint, every parameter and parameter order, with default options and with
+  scopes, `loginHint` and `additionalParams`. Their token exchange and user-info calls are
+  covered by Go tests only.
+
 | Provider | Status | Provider | Status | Provider | Status |
 |---|---|---|---|---|---|
-| apple | ⬜ | gitlab | ⬜ | reddit | ⬜ |
-| atlassian | ⬜ | google | ⬜ | roblox | ⬜ |
-| cloudflare | ⬜ | huggingface | ⬜ | salesforce | ⬜ |
-| cognito | ⬜ | kakao | ⬜ | slack | ⬜ |
-| discord | ⬜ | kick | ⬜ | spotify | ⬜ |
-| dropbox | ⬜ | line | ⬜ | tiktok | ⬜ |
-| facebook | ⬜ | linear | ⬜ | twitch | ⬜ |
-| figma | ⬜ | linkedin | ⬜ | twitter | ⬜ |
-| github | ⬜ | microsoft (Entra ID) | ⬜ | vercel | ⬜ |
-| naver | ⬜ | notion | ⬜ | vk | ⬜ |
-| paybin | ⬜ | paypal | ⬜ | wechat | ⬜ |
-| polar | ⬜ | railway | ⬜ | zoom | ⬜ |
+| apple | 🟡 | atlassian | 🟡 | cloudflare | 🟡 |
+| cognito | 🟡 | discord | 🟡 | dropbox | 🟡 |
+| facebook | 🟡 | figma | 🟡 | github | ✅ |
+| gitlab | 🟡 | google | ✅ | huggingface | 🟡 |
+| kakao | 🟡 | kick | 🟡 | line | 🟡 |
+| linear | 🟡 | linkedin | 🟡 | microsoft (Entra ID) | 🟡 |
+| naver | 🟡 | notion | 🟡 | paybin | 🟡 |
+| paypal | 🟡 | polar | 🟡 | railway | 🟡 |
+| reddit | 🟡 | roblox | 🟡 | salesforce | 🟡 |
+| slack | 🟡 | spotify | 🟡 | tiktok | 🟡 |
+| twitch | 🟡 | twitter | 🟡 | vercel | 🟡 |
+| vk | 🟡 | wechat | 🟡 | zoom | 🟡 |
+
+Notes and intentional differences:
+- `additionalParams` keep the request body's key order (JS enumeration order, array-index keys
+  first). Calls through `auth.API` pass a Go map, so their extra params are sorted.
+- Zoom: upstream omits `options` from the Zoom provider object, so `disableSignUp`,
+  `disableImplicitSignUp` and `overrideUserInfoOnSignIn` are silently ignored for Zoom. The Go
+  port honours them.
+- Kick: an empty user list returns an error (upstream throws on `data[0]!`).
+- Microsoft and Cognito validate options at construction: `New` panics like upstream throws;
+  `TryNew` returns the error.
+- JWKS documents are cached for 5 minutes and refetched on an unknown `kid` (upstream fetches
+  per verification); verification results are identical.
+- Provider `VerifyIDToken` overrides receive a `context.Context`; use
+  `betterauth.EndpointContextFrom(ctx)` to reach the request.
 
 ## Plugins
 
@@ -158,8 +183,11 @@ Phase 1 notes:
 - ✅ endpoints are covered by Go ports of the upstream `*.test.ts` files **and** by the e2e
   suite, which drives the official `better-auth@1.7.7` client against the Go server and the
   reference TypeScript server and diffs status, body, `Location` and `Set-Cookie`.
-- 🟡 endpoints that need an OAuth provider are tested in Go with a mock provider; their
-  end-to-end coverage arrives with the real providers in Phase 2.
+- 🟡 endpoints that need an OAuth provider are tested in Go with a mock provider (and the
+  real provider code via `oauth2test`); the e2e suite does not yet diff them against TS.
+- Phase 2: `e2e/tests/oauth.test.mjs` runs the real GitHub and Google provider code on both
+  servers against a mock IdP (`e2e/servers/mock-idp.mjs`), covering redirect sign-in,
+  callback errors, form_post, linking, implicit-linking refusal and id-token sign-in.
 - Intentional difference: the Go port always stores `image` on sign-up (null when omitted)
   so real and synthetic duplicate-sign-up responses are indistinguishable. With a SQL
   database the TypeScript server returns the same `image: null`; only its in-memory
@@ -176,7 +204,7 @@ Upstream: `packages/better-auth/src/api/routes`
 |---|---|---|---|
 | POST | `(server-only) setPassword` | server-only (no HTTP route); `auth.API.SetPassword` | 🟡 |
 | GET | `/account-info` | mock OAuth provider | 🟡 |
-| [GET, POST] | `/callback/:id` | Phase 2 | ⬜ |
+| [GET, POST] | `/callback/:id` | GET + form_post; e2e against mock IdP (GitHub, Google) | ✅ |
 | POST | `/change-email` |  | ✅ |
 | POST | `/change-password` |  | ✅ |
 | POST | `/delete-user` |  | ✅ |
@@ -184,7 +212,7 @@ Upstream: `packages/better-auth/src/api/routes`
 | GET | `/error` |  | ✅ |
 | POST | `/get-access-token` | mock OAuth provider (refresh, encryption, account cookie) | 🟡 |
 | [GET, POST] | `/get-session` |  | ✅ |
-| POST | `/link-social` | mock OAuth provider; real providers in Phase 2 | 🟡 |
+| POST | `/link-social` | e2e: link via callback, email mismatch | ✅ |
 | GET | `/list-accounts` |  | ✅ |
 | GET | `/list-sessions` |  | ✅ |
 | GET | `/ok` |  | ✅ |
@@ -197,7 +225,7 @@ Upstream: `packages/better-auth/src/api/routes`
 | POST | `/revoke-sessions` |  | ✅ |
 | POST | `/send-verification-email` |  | ✅ |
 | POST | `/sign-in/email` |  | ✅ |
-| POST | `/sign-in/social` | Phase 2 | ⬜ |
+| POST | `/sign-in/social` | redirect + id-token flows; e2e against mock IdP | ✅ |
 | POST | `/sign-out` |  | ✅ |
 | POST | `/sign-up/email` |  | ✅ |
 | POST | `/unlink-account` |  | ✅ |

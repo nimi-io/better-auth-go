@@ -38,14 +38,14 @@ async function waitHealthy(base, proc, name) {
 }
 
 /** Starts both servers for a profile. Returns { go, ts, stop }. */
-export async function startServers(profile = "", { only } = {}) {
+export async function startServers(profile = "", { only, env: extraEnv = {} } = {}) {
   buildGoServer();
   const servers = {};
   const procs = [];
   const want = only ? [only] : ["go", "ts"];
   for (const kind of want) {
     const port = nextPort++;
-    const env = { ...process.env, PORT: String(port), PROFILE: profile, NODE_ENV: "test" };
+    const env = { ...process.env, ...extraEnv, PORT: String(port), PROFILE: profile, NODE_ENV: "test" };
     const proc = kind === "go"
       ? spawn(goBin, [], { env, stdio: ["ignore", "inherit", "inherit"] })
       : spawn(process.execPath, [path.join(e2eDir, "servers/ts-server.mjs")], { env, stdio: ["ignore", "inherit", "inherit"] });
@@ -60,6 +60,24 @@ export async function startServers(profile = "", { only } = {}) {
       for (const p of procs) p.kill();
     },
   };
+}
+
+/** Starts the mock identity provider (servers/mock-idp.mjs). Returns { base, stop }. */
+export async function startIdp() {
+  const port = nextPort++;
+  const proc = spawn(process.execPath, [path.join(e2eDir, "servers/mock-idp.mjs")], {
+    env: { ...process.env, PORT: String(port) },
+    stdio: ["ignore", "ignore", "inherit"],
+  });
+  const base = `http://127.0.0.1:${port}`;
+  const deadline = Date.now() + 20000;
+  for (;;) {
+    if (proc.exitCode !== null) throw new Error(`mock idp exited with ${proc.exitCode}`);
+    try { if ((await fetch(`${base}/__idp/health`)).ok) break; } catch {}
+    if (Date.now() > deadline) throw new Error("mock idp did not start");
+    await new Promise((r) => setTimeout(r, 100));
+  }
+  return { base, stop: () => proc.kill() };
 }
 
 /** A minimal cookie jar emulating a browser for one origin. */
@@ -218,6 +236,8 @@ export async function dual(servers, scenario, { imageNullEqualsAbsent = false } 
   if (diffs.length) {
     assert.fail(`Go and TypeScript transcripts differ:\n${diffs.join("\n")}`);
   }
+  // E2E_DUMP=1 prints a one-line summary of each transcript step.
+  if (process.env.E2E_DUMP) console.log(JSON.stringify(transcripts.go.map((e) => [e.name, e.status, e.location, e.error?.code ?? e.data?.code ?? (e.data?.user?.email)]), null, 0));
   return transcripts.go;
 }
 

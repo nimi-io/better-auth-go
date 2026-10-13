@@ -3,3 +3,4 @@ e2e/.bin/
 *.test
 coverage.out
 .DS_Store
+/goserver

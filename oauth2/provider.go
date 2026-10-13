@@ -68,6 +68,8 @@ type AuthorizationURLParams struct {
 	LoginHint        string
 	IDTokenNonce     string
 	AdditionalParams map[string]string
+	// AdditionalParamsOrder is the key order of AdditionalParams in the request body.
+	AdditionalParamsOrder []string
 }
 
 // CodeParams are the inputs of ValidateAuthorizationCode.
@@ -152,8 +154,8 @@ func SettingsOf(p Provider) ProviderSettings {
 
 // SupportsIDTokenSignIn mirrors supportsIdTokenSignIn upstream.
 func SupportsIDTokenSignIn(p Provider) bool {
-	_, ok := p.(IDTokenVerifier)
-	return ok && !SettingsOf(p).DisableIDTokenSignIn
+	_, ok := AsIDTokenVerifier(p)
+	return ok
 }
 
 // CallbackPath returns the callback path of a provider (getOAuthCallbackPath).

@@ -52,6 +52,60 @@ if (profile === "ratelimit") options.rateLimit = { enabled: true, window: 10, ma
 if (profile === "stateless") delete options.database;
 if (profile === "delete-verify") options.user.deleteUser.sendDeleteAccountVerification = capture("delete-account");
 
+if (profile === "oauth") {
+  // Route provider hosts to the mock IdP: https://host/path -> <IDP_URL>/host/path.
+  const idp = process.env.IDP_URL;
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (input, init) => {
+    const u = new URL(typeof input === "string" || input instanceof URL ? String(input) : input.url);
+    if (u.protocol === "https:" && idp) {
+      const target = `${idp}/${u.host}${u.pathname}${u.search}`;
+      if (input instanceof Request) return realFetch(new Request(target, input), init);
+      return realFetch(target, init);
+    }
+    return realFetch(input, init);
+  };
+  options.socialProviders = {
+    github: { clientId: "gh-client", clientSecret: "gh-secret" },
+    google: { clientId: "google-client", clientSecret: "google-secret" },
+    // The remaining providers are only exercised for authorization-URL parity.
+    apple: { clientId: "apple-client", clientSecret: "apple-secret" },
+    atlassian: { clientId: "atlassian-client", clientSecret: "atlassian-secret" },
+    cloudflare: { clientId: "cloudflare-client", clientSecret: "cloudflare-secret" },
+    cognito: { clientId: "cognito-client", clientSecret: "cognito-secret", domain: "auth.example.com", region: "us-east-1", userPoolId: "us-east-1_pool" },
+    discord: { clientId: "discord-client", clientSecret: "discord-secret" },
+    dropbox: { clientId: "dropbox-client", clientSecret: "dropbox-secret" },
+    facebook: { clientId: "facebook-client", clientSecret: "facebook-secret" },
+    figma: { clientId: "figma-client", clientSecret: "figma-secret" },
+    gitlab: { clientId: "gitlab-client", clientSecret: "gitlab-secret" },
+    huggingface: { clientId: "huggingface-client", clientSecret: "huggingface-secret" },
+    kakao: { clientId: "kakao-client", clientSecret: "kakao-secret" },
+    kick: { clientId: "kick-client", clientSecret: "kick-secret" },
+    line: { clientId: "line-client", clientSecret: "line-secret" },
+    linear: { clientId: "linear-client", clientSecret: "linear-secret" },
+    linkedin: { clientId: "linkedin-client", clientSecret: "linkedin-secret" },
+    microsoft: { clientId: "microsoft-client", clientSecret: "microsoft-secret", tenantId: "e2e-tenant" },
+    naver: { clientId: "naver-client", clientSecret: "naver-secret" },
+    notion: { clientId: "notion-client", clientSecret: "notion-secret" },
+    paybin: { clientId: "paybin-client", clientSecret: "paybin-secret" },
+    paypal: { clientId: "paypal-client", clientSecret: "paypal-secret" },
+    polar: { clientId: "polar-client", clientSecret: "polar-secret" },
+    railway: { clientId: "railway-client", clientSecret: "railway-secret" },
+    reddit: { clientId: "reddit-client", clientSecret: "reddit-secret" },
+    roblox: { clientId: "roblox-client", clientSecret: "roblox-secret" },
+    salesforce: { clientId: "salesforce-client", clientSecret: "salesforce-secret" },
+    slack: { clientId: "slack-client", clientSecret: "slack-secret" },
+    spotify: { clientId: "spotify-client", clientSecret: "spotify-secret" },
+    tiktok: { clientId: "tiktok-client", clientSecret: "tiktok-secret", clientKey: "tiktok-key" },
+    twitch: { clientId: "twitch-client", clientSecret: "twitch-secret" },
+    twitter: { clientId: "twitter-client", clientSecret: "twitter-secret" },
+    vercel: { clientId: "vercel-client", clientSecret: "vercel-secret" },
+    vk: { clientId: "vk-client", clientSecret: "vk-secret" },
+    wechat: { clientId: "wechat-client", clientSecret: "wechat-secret" },
+    zoom: { clientId: "zoom-client", clientSecret: "zoom-secret" },
+  };
+}
+
 const auth = betterAuth(options);
 if (options.database) await (await auth.$context).runMigrations();
 const handler = toNodeHandler(auth);

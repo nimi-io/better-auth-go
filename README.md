@@ -17,7 +17,8 @@ existing Better Auth databases.
 See [COMPATIBILITY.md](COMPATIBILITY.md) for the feature-by-feature status.
 
 > **Status:** Phase 1 (core email/password auth, sessions, cookie cache, CSRF/origin checks,
-> rate limiting, secondary storage, hooks) is complete. Social OAuth, SQL/Mongo adapters, the
+> rate limiting, secondary storage, hooks) and Phase 2 (social OAuth: sign-in, callback,
+> linking, id-token sign-in, all upstream providers) are complete. SQL/Mongo adapters, the
 > CLI and plugins are being ported phase by phase; the matrix tracks progress.
 
 ## Install
@@ -165,6 +166,43 @@ Field names mirror the TypeScript options (`emailAndPassword` → `EmailAndPassw
 Durations use `time.Duration`; options whose zero value is meaningful use pointers
 (`betterauth.Bool`, `betterauth.Duration`).
 
+## Social sign-in
+
+Providers live in `providers/<id>` and are passed as `Config.SocialProviders`. Each package
+exposes `New(Options)`; `Options` embeds `oauth2.ProviderOptions` (`ClientID`, `ClientSecret`,
+`Scope`, `RedirectURI`, `MapProfileToUser`, `DisableSignUp`, ...) plus provider-specific
+fields, mirroring `socialProviders.<id>` in TypeScript.
+
+```go
+import (
+	"github.com/nimi-io/better-auth-go/oauth2"
+	"github.com/nimi-io/better-auth-go/providers/github"
+	"github.com/nimi-io/better-auth-go/providers/google"
+)
+
+betterauth.Config{
+	// ...
+	SocialProviders: []oauth2.Provider{
+		github.New(github.Options{ProviderOptions: oauth2.ProviderOptions{
+			ClientID: os.Getenv("GITHUB_CLIENT_ID"), ClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
+		}}),
+		google.New(google.Options{
+			ProviderOptions: oauth2.ProviderOptions{ClientID: "...", ClientSecret: "..."},
+			AccessType:      "offline",
+		}),
+	},
+	Account: &betterauth.AccountConfig{
+		AccountLinking: &betterauth.AccountLinkingConfig{TrustedProviders: []string{"google"}},
+	},
+}
+```
+
+The redirect URI to register with each provider is `<baseURL>/api/auth/callback/<id>`. The
+JS client works unchanged: `authClient.signIn.social({ provider: "github" })`,
+`authClient.linkSocial(...)`, and id-token sign-in
+(`signIn.social({ provider: "google", idToken: { token } })`). Custom providers implement
+`oauth2.Provider`, or build one with `oauth2.NewProvider(oauth2.Spec{...})`.
+
 ## Plugins
 
 Plugins are `*betterauth.Plugin` values with endpoints, schema, hooks, middlewares,
@@ -197,7 +235,10 @@ func helloPlugin() *betterauth.Plugin {
 | `crypto` | scrypt passwords, XChaCha20-Poly1305, JWT/JWE, random ids (byte-compatible with TS) |
 | `jsonx` | JavaScript-compatible ordered JSON (needed for signature compatibility) |
 | `validate` | zod-compatible validation with identical error messages |
-| `oauth2` | OAuth provider interface |
+| `oauth2` | OAuth provider interface, provider framework (`NewProvider`), token/JWKS helpers |
+| `oauth2/oauth2test` | Mock provider HTTP transport for tests |
+| `providers/*` | Social providers (one package per provider id) |
+| `jose` | JWK/JWS/JWT verification for id tokens |
 
 ## Testing
 

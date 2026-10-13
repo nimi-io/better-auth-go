@@ -11,13 +11,15 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"regexp"
+	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/nimi-io/better-auth-go/jose"
 	"github.com/nimi-io/better-auth-go/jsonx"
+	"github.com/nimi-io/better-auth-go/validate"
 )
 
 // ReservedAuthorizationParams cannot be overridden through additionalParams.
@@ -130,7 +132,10 @@ type AuthorizationURLOptions struct {
 	HD                  string
 	ResponseMode        string
 	AdditionalParams    map[string]string
-	ScopeJoiner         string
+	// AdditionalParamsOrder is the JS insertion order of AdditionalParams keys; keys
+	// missing from it are appended in sorted order.
+	AdditionalParamsOrder []string
+	ScopeJoiner           string
 }
 
 // CreateAuthorizationURL builds the provider authorization URL (createAuthorizationURL).
@@ -183,12 +188,7 @@ func CreateAuthorizationURL(o AuthorizationURLOptions) (*url.URL, error) {
 		}
 		q.set("claims", string(jsonx.MustMarshal(jsonx.O("id_token", inner))))
 	}
-	keys := make([]string, 0, len(o.AdditionalParams))
-	for k := range o.AdditionalParams {
-		keys = append(keys, k)
-	}
-	sortStrings(keys)
-	for _, k := range keys {
+	for _, k := range OrderedKeys(o.AdditionalParams, o.AdditionalParamsOrder) {
 		if isReserved(k) {
 			continue
 		}
@@ -831,10 +831,125 @@ func DecodeJWTPayload(token string) (map[string]any, error) {
 	return p.Map(), nil
 }
 
-var placeholderSafe = regexp.MustCompile(`[^a-zA-Z0-9._-]`)
+// OrderedKeys returns the keys of m in JavaScript object enumeration order for an object
+// built with the given insertion order: canonical array-index keys first (ascending), then
+// the other keys as listed in order (duplicates and keys absent from m skipped), then any
+// remaining keys sorted. It reproduces JS object-spread ordering for additionalParams.
+func OrderedKeys(m map[string]string, order []string) []string {
+	keys := make([]string, 0, len(m))
+	seen := make(map[string]bool, len(m))
+	for _, k := range order {
+		if _, ok := m[k]; ok && !seen[k] {
+			seen[k] = true
+			keys = append(keys, k)
+		}
+	}
+	rest := make([]string, 0, len(m)-len(keys))
+	for k := range m {
+		if !seen[k] {
+			rest = append(rest, k)
+		}
+	}
+	sortStrings(rest)
+	return JSKeyOrder(append(keys, rest...))
+}
 
-// PlaceholderEmail builds "<identifier>@<namespace>.placeholder.invalid"
-// (createPlaceholderEmail).
-func PlaceholderEmail(identifier, namespace string) string {
-	return placeholderSafe.ReplaceAllString(identifier, "") + "@" + namespace + ".placeholder.invalid"
+// JSKeyOrder applies JavaScript's own-property enumeration order to keys listed in
+// insertion order: canonical array indices (0 .. 2^32-2) first, ascending, then the rest.
+func JSKeyOrder(keys []string) []string {
+	var idx, rest []string
+	for _, k := range keys {
+		if n, err := strconv.ParseUint(k, 10, 32); err == nil && n < 1<<32-1 && strconv.FormatUint(n, 10) == k {
+			idx = append(idx, k)
+		} else {
+			rest = append(rest, k)
+		}
+	}
+	sort.SliceStable(idx, func(i, j int) bool {
+		a, _ := strconv.ParseUint(idx[i], 10, 32)
+		b, _ := strconv.ParseUint(idx[j], 10, 32)
+		return a < b
+	})
+	return append(idx, rest...)
+}
+
+// ErrInvalidPlaceholderEmail is returned when a placeholder address fails email validation.
+var ErrInvalidPlaceholderEmail = errors.New("Invalid placeholder email")
+
+// PlaceholderEmail builds the stable, non-routable "<identifier>@<namespace>.placeholder.invalid"
+// address for an account without an email (createPlaceholderEmail). Like upstream it validates
+// the result with zod's email rules and fails instead of sanitising the identifier.
+func PlaceholderEmail(identifier, namespace string) (string, error) {
+	email := identifier + "@" + namespace + ".placeholder.invalid"
+	if !validate.IsEmail(email) {
+		return "", ErrInvalidPlaceholderEmail
+	}
+	return email, nil
+}
+
+// PostTokenRequest sends a prepared token request and decodes the JSON response.
+func PostTokenRequest(ctx context.Context, r *TokenRequest) (map[string]any, error) {
+	return postForm(ctx, r)
+}
+
+// GetJSONArray performs a GET and decodes a JSON array of objects.
+func GetJSONArray(ctx context.Context, endpoint string, headers map[string]string) ([]map[string]any, error) {
+	req, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+	for k, v := range headers {
+		req.Header.Set(k, v)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+	res, err := HTTPClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	if res.StatusCode >= 300 {
+		return nil, &FetchError{Status: res.StatusCode, StatusText: res.Status}
+	}
+	var arr []map[string]any
+	if err := json.NewDecoder(io.LimitReader(res.Body, 10<<20)).Decode(&arr); err != nil {
+		return nil, err
+	}
+	return arr, nil
+}
+
+// DoRequest performs a request and decodes any JSON value (object or array).
+func DoRequest(ctx context.Context, req *http.Request) (any, error) {
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+	res, err := HTTPClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	if isRedirect(res.StatusCode) {
+		return nil, fmt.Errorf("The OAuth endpoint %q returned an HTTP redirect.", req.URL.String())
+	}
+	body, err := io.ReadAll(io.LimitReader(res.Body, 10<<20))
+	if err != nil {
+		return nil, err
+	}
+	var v any
+	if len(body) > 0 {
+		_ = json.Unmarshal(body, &v)
+	}
+	if res.StatusCode >= 400 {
+		m, _ := v.(map[string]any)
+		return nil, &FetchError{Status: res.StatusCode, StatusText: res.Status, Body: m, Raw: string(body)}
+	}
+	return v, nil
+}
+
+// ResetJWKSCache clears cached JWKS documents (used by tests).
+func ResetJWKSCache() {
+	jwksMu.Lock()
+	defer jwksMu.Unlock()
+	jwksCache = map[string]jwksEntry{}
 }

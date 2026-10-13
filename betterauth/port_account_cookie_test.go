@@ -5,23 +5,31 @@ package betterauth
 // describe("token routes cookie cache revocation") and
 // describe("account resolution in stateless mode").
 //
-// Upstream obtains the account_data cookie from the /callback/:id round-trip (phase 2).
-// The "...Adapted" tests keep the upstream assertions but seed the account row and inject
-// the signed account_data cookie directly (the way the upstream "does not select a signed
+// Upstream obtains the account_data cookie from the /callback/:id round-trip, ported
+// below with the real Google provider. The additional "...Adapted" tests keep the
+// upstream assertions but seed the account row and inject the signed account_data cookie
+// directly (the way the upstream "does not select a signed
 // account cookie" test does), so the get-access-token / refresh-token / cookie semantics
 // are exercised without the callback.
 
 import (
 	"context"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/nimi-io/better-auth-go/adapter"
 	bacrypto "github.com/nimi-io/better-auth-go/crypto"
+	"github.com/nimi-io/better-auth-go/db"
 	"github.com/nimi-io/better-auth-go/oauth2"
+	"github.com/nimi-io/better-auth-go/oauth2/oauth2test"
+	"github.com/nimi-io/better-auth-go/providers/cognito"
 )
 
 func pacAccountCookieValue(t *testing.T, env *testEnv, acc *Account) string {
@@ -49,74 +57,494 @@ func pacDecodeAccountCookie(t *testing.T, env *testEnv, value string) map[string
 	return o.Map()
 }
 
-// ---- callback-dependent upstream cases (phase 2) ----
+// ---- callback-dependent upstream cases ----
+//
+// These drive the real /sign-in/social + /callback/google round-trip with the Google
+// provider; its token endpoint is answered by oauth2test (the msw handlers upstream).
+
+func pacCallbackGoogleEnv(t *testing.T, extra ...func(c *Config)) (*testEnv, *oauth2test.Server) {
+	t.Helper()
+	m := oauth2test.New(t)
+	return poEnv(t, []oauth2.Provider{poGoogle(nil)}, extra), m
+}
+
+func pacStoreAccountCookie(c *Config) {
+	if c.Account == nil {
+		c.Account = &AccountConfig{}
+	}
+	c.Account.StoreAccountCookie = Bool(true)
+}
+
+// pacGoogleSignIn runs signIn.social + /callback/google (callbackURL "/callback") on c and
+// expects a 302 to the callback URL.
+func pacGoogleSignIn(t *testing.T, c *testClient) *testResponse {
+	t.Helper()
+	state := poStartGoogle(t, c, "/callback")
+	res := c.get("/callback/google?state=" + url.QueryEscape(state) + "&code=test")
+	if res.Status != 302 || !strings.Contains(res.Header.Get("Location"), "/callback") {
+		t.Fatalf("callback: %d %q %s", res.Status, res.Header.Get("Location"), res.Body)
+	}
+	return res
+}
+
+func pacExpectAccessToken(t *testing.T, res *testResponse, field, want string) {
+	t.Helper()
+	if res.Status != 200 {
+		t.Fatalf("expected no error, got %d %s", res.Status, res.Body)
+	}
+	if got := res.JSON(t)[field]; got != want {
+		t.Fatalf("%s = %v, want %s", field, got, want)
+	}
+}
 
 func TestPortAccountCookieStoredAfterOAuthFlow(t *testing.T) {
-	t.Skip("phase 2: requires /sign-in/social + /callback/google; see TestPortAccountCookieUseAccountCookieAdapted")
+	env, m := pacCallbackGoogleEnv(t, pacStoreAccountCookie)
+	name := env.auth.Context().AuthCookies.AccountData.Name
+	poAccountGoogleToken(m, "oauth-test@test.com")
+	c := env.client()
+	res := pacGoogleSignIn(t, c)
+	if v, ok := poLastSetCookie(res.Header, name); !ok || v == "" {
+		t.Fatalf("expected %s cookie, got %v", name, pacSetCookieNames(res.Header))
+	}
+	pacExpectAccessToken(t, c.post("/get-access-token", map[string]any{"useAccountCookie": true}), "accessToken", "test")
 }
 
 func TestPortAccountCookieSelectedAccountCookie(t *testing.T) {
-	t.Skip("phase 2: requires /sign-in/social + /callback/google; see TestPortAccountCookieUseAccountCookieAdapted")
+	var spy *pacSpyAdapter
+	env, m := pacCallbackGoogleEnv(t, pacStoreAccountCookie, pacWithSpy(&spy))
+	poAccountGoogleToken(m, "account-cookie-match@test.com")
+	c := env.client()
+	pacGoogleSignIn(t, c)
+	spy.reset()
+	pacExpectAccessToken(t, c.post("/get-access-token", map[string]any{"useAccountCookie": true}), "accessToken", "test")
+	if calls := spy.calls(); len(calls) != 0 {
+		t.Fatalf("findAccounts must not be called on the cookie path, got %v", calls)
+	}
 }
 
 func TestPortAccountCookieLocalAccountIDFromDatabase(t *testing.T) {
-	t.Skip("phase 2: requires /sign-in/social + /callback/google; see TestPortAccountCookieLocalAccountIDFromDatabaseAdapted")
+	var spy *pacSpyAdapter
+	env, m := pacCallbackGoogleEnv(t, pacStoreAccountCookie, pacWithSpy(&spy))
+	poAccountGoogleToken(m, "account-cookie-accountid@test.com")
+	c := env.client()
+	pacGoogleSignIn(t, c)
+	var google map[string]any
+	for _, a := range pacListAccounts(t, c) {
+		if a["providerId"] == "google" {
+			google = a
+		}
+	}
+	if google == nil || google["id"] == google["accountId"] {
+		t.Fatalf("google account should exist with id != accountId: %#v", google)
+	}
+	spy.reset()
+	pacExpectAccessToken(t, c.post("/get-access-token", map[string]any{"accountId": google["id"]}), "accessToken", "test")
+	found := false
+	for _, a := range spy.calls() {
+		if a == google["userId"] {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("findAccounts must be called with %v, got %v", google["userId"], spy.calls())
+	}
 }
 
 func TestPortAccountCookieStaleCookieOtherUser(t *testing.T) {
-	t.Skip("phase 2: requires /sign-in/social + /callback/google; see TestPortAccountCookieStaleCookieOtherUserAdapted")
+	env, m := pacCallbackGoogleEnv(t, pacStoreAccountCookie)
+	var mu sync.Mutex
+	refreshedWith := ""
+	poGoogleTokenByGrant(m, func(form url.Values) map[string]any {
+		if form.Get("grant_type") == "refresh_token" {
+			mu.Lock()
+			refreshedWith = form.Get("refresh_token")
+			mu.Unlock()
+			// the provider does not rotate the refresh token
+			return map[string]any{"access_token": "rotated-access-token"}
+		}
+		p := poAccountGoogleProfile("stale-cookie-first@test.com")
+		p["name"], p["sub"], p["given_name"], p["family_name"] = "First User", "first-google-sub", "First", "User"
+		return map[string]any{"access_token": "first-access-token", "refresh_token": "first-refresh-token", "id_token": poSignJWT(p)}
+	})
+	// The first user signs in with Google, storing their account_data cookie.
+	c := env.client()
+	pacGoogleSignIn(t, c)
+
+	c.signUp("stale-cookie-second@test.com", "password123456", "Second User")
+	s := c.session()
+	if s == nil {
+		t.Fatal("second user should be signed in")
+	}
+	second, _ := s["user"].(map[string]any)
+	if second["email"] != "stale-cookie-second@test.com" {
+		t.Fatalf("unexpected session user %v", second["email"])
+	}
+	secondAcc := pacCreateAccount(t, env, adapter.Record{"userId": second["id"], "providerId": "google", "accountId": "second-google-sub",
+		"accessToken": "second-access-token", "refreshToken": "second-refresh-token", "scope": "email"})
+
+	res := c.post("/refresh-token", map[string]any{"accountId": secondAcc.ID})
+	mu.Lock()
+	got := refreshedWith
+	mu.Unlock()
+	if got != "second-refresh-token" {
+		t.Fatalf("refresh must use the second user's token, got %q", got)
+	}
+	if res.Status == 200 && res.JSON(t)["refreshToken"] == "first-refresh-token" {
+		t.Fatalf("refresh returned the first user's token: %s", res.Body)
+	}
+	for _, a := range pacFindAccounts(t, env, pacStr(second["id"])) {
+		if a.ProviderID == "google" {
+			if a.RefreshToken == nil || *a.RefreshToken != "second-refresh-token" {
+				t.Fatalf("second user's refresh token overwritten: %v", a.RefreshToken)
+			}
+		}
+	}
+}
+
+// pacIDTokenPair signs the old/new id tokens of the "persist refreshed idToken" tests.
+func pacIDTokenPair(email, sub, oldJTI, newJTI string) (string, string) {
+	now := time.Now().Unix()
+	mk := func(exp int64, jti string) string {
+		p := poAccountGoogleProfile(email)
+		p["exp"], p["sub"], p["iat"], p["nbf"], p["jti"] = now+exp, sub, now, now, jti
+		return poSignJWT(p)
+	}
+	return mk(3600, oldJTI), mk(7200, newJTI)
 }
 
 func TestPortAccountPersistRefreshedIDTokenInDatabase(t *testing.T) {
-	t.Skip("phase 2: requires /sign-in/social + /callback/google; see TestPortAccountPersistRefreshedIDTokenInDatabaseAdapted")
+	env, m := pacCallbackGoogleEnv(t, func(c *Config) { c.Account = &AccountConfig{StoreAccountCookie: Bool(false)} })
+	oldIDToken, newIDToken := pacIDTokenPair("persist-id-token-db@test.com", "persist-id-token-db", "old-id-token", "new-id-token")
+	var refreshCalls atomic.Int32
+	poGoogleTokenByGrant(m, func(form url.Values) map[string]any {
+		if form.Get("grant_type") == "refresh_token" {
+			refreshCalls.Add(1)
+			return map[string]any{"access_token": "refreshed-access-token", "refresh_token": "refreshed-refresh-token",
+				"expires_in": 3600, "id_token": newIDToken}
+		}
+		return map[string]any{"access_token": "initial-access-token", "refresh_token": "initial-refresh-token",
+			"expires_in": 1, "id_token": oldIDToken}
+	})
+	c := env.client()
+	pacGoogleSignIn(t, c)
+	var googleID any
+	for _, a := range pacListAccounts(t, c) {
+		if a["providerId"] == "google" {
+			googleID = a["id"]
+		}
+	}
+	if googleID == nil {
+		t.Fatal("google account should be listed")
+	}
+	pacExpectAccessToken(t, c.post("/get-access-token", map[string]any{"accountId": googleID}), "idToken", newIDToken)
+	pacExpectAccessToken(t, c.post("/get-access-token", map[string]any{"accountId": googleID}), "idToken", newIDToken)
+	if n := refreshCalls.Load(); n != 1 {
+		t.Fatalf("refresh calls = %d, want 1", n)
+	}
+	rec, err := env.auth.Context().Adapter.FindOne(context.Background(), adapter.FindOneInput{Model: "account",
+		Where: []adapter.Where{{Field: "providerId", Value: "google"}}})
+	if err != nil || rec == nil {
+		t.Fatalf("account not found: %v", err)
+	}
+	if rec["idToken"] != newIDToken {
+		t.Fatalf("idToken = %v, want the refreshed id token", rec["idToken"])
+	}
 }
 
 func TestPortAccountPersistRefreshedIDTokenInCookieStateless(t *testing.T) {
-	t.Skip("phase 2: stateless (database: undefined) session can only be created by /sign-in/social + /callback/google")
+	m := oauth2test.New(t)
+	env := poEnv(t, []oauth2.Provider{poGoogle(nil)}, []func(c *Config){func(c *Config) {
+		c.Database = nil
+		c.Account = &AccountConfig{StoreAccountCookie: Bool(true)}
+	}}, poInstanceOpts{disableTestUser: true})
+	name := env.auth.Context().AuthCookies.AccountData.Name
+	oldIDToken, newIDToken := pacIDTokenPair("persist-id-token-cookie@test.com", "persist-id-token-cookie", "old-cookie-id-token", "new-cookie-id-token")
+	var refreshCalls atomic.Int32
+	poGoogleTokenByGrant(m, func(form url.Values) map[string]any {
+		if form.Get("grant_type") == "refresh_token" {
+			refreshCalls.Add(1)
+			return map[string]any{"access_token": "refreshed-cookie-access-token", "refresh_token": "refreshed-cookie-refresh-token",
+				"expires_in": 3600, "id_token": newIDToken}
+		}
+		return map[string]any{"access_token": "initial-cookie-access-token", "refresh_token": "initial-cookie-refresh-token",
+			"expires_in": 1, "id_token": oldIDToken}
+	})
+	c := env.client()
+	pacGoogleSignIn(t, c)
+	first := c.post("/get-access-token", map[string]any{"useAccountCookie": true})
+	pacExpectAccessToken(t, first, "idToken", newIDToken)
+	refreshed, ok := poLastSetCookie(first.Header, name)
+	if !ok || refreshed == "" {
+		t.Fatalf("expected a refreshed %s cookie, got %v", name, pacSetCookieNames(first.Header))
+	}
+	if dec := pacDecodeAccountCookie(t, env, refreshed); dec["idToken"] != newIDToken {
+		t.Fatalf("account cookie idToken = %v", dec["idToken"])
+	}
+	pacExpectAccessToken(t, c.post("/get-access-token", map[string]any{"useAccountCookie": true}), "idToken", newIDToken)
+	if refreshCalls.Load() == 0 {
+		t.Fatal("expected at least one refresh grant")
+	}
 }
 
+// @see https://github.com/better-auth/better-auth/issues/8562
 func TestPortAccountCognitoPreserveRefreshToken(t *testing.T) {
-	t.Skip("phase 2: stateless cognito sign-in requires /sign-in/social + /callback/cognito and a cognito provider; see TestPortAccountPreserveRefreshTokenAdapted")
+	const cognitoDomain = "test.auth.us-east-1.amazoncognito.com"
+	const cognitoIssuer = "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_testpool"
+	signCognitoIDToken := func(jti string) string {
+		now := time.Now().Unix()
+		return poSignJWT(map[string]any{"email": "cognito-refresh@test.com", "email_verified": true, "name": "Cognito User",
+			"exp": now + 3600, "sub": "cognito-user-sub", "iat": now, "aud": "cognito-client", "iss": cognitoIssuer, "jti": jti})
+	}
+	m := oauth2test.New(t)
+	env := poEnv(t, []oauth2.Provider{cognito.New(cognito.Options{
+		ProviderOptions: oauth2.ProviderOptions{ClientID: "cognito-client", ClientSecret: "cognito-secret"},
+		Domain:          cognitoDomain, Region: "us-east-1", UserPoolID: "us-east-1_testpool",
+	})}, []func(c *Config){func(c *Config) {
+		c.Database = nil
+		c.Account = &AccountConfig{StoreAccountCookie: Bool(true)}
+	}}, poInstanceOpts{disableTestUser: true})
+	name := env.auth.Context().AuthCookies.AccountData.Name
+	initialIDToken, refreshedIDToken := signCognitoIDToken("initial-cognito-id-token"), signCognitoIDToken("refreshed-cognito-id-token")
+	var mu sync.Mutex
+	var grants []string
+	m.Handle("POST "+cognitoDomain+"/oauth2/token", func(w http.ResponseWriter, r *http.Request) {
+		b, _ := io.ReadAll(r.Body)
+		form, _ := url.ParseQuery(string(b))
+		w.Header().Set("Content-Type", "application/json")
+		if form.Get("grant_type") == "refresh_token" {
+			mu.Lock()
+			grants = append(grants, form.Get("refresh_token"))
+			mu.Unlock()
+			_ = json.NewEncoder(w).Encode(map[string]any{"access_token": "refreshed-cognito-access-token", "expires_in": 3600,
+				"id_token": refreshedIDToken, "token_type": "Bearer"})
+			return
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{"access_token": "initial-cognito-access-token", "expires_in": 1,
+			"id_token": initialIDToken, "refresh_token": "cognito-refresh-token", "token_type": "Bearer"})
+	})
+	grantsCopy := func() []string {
+		mu.Lock()
+		defer mu.Unlock()
+		return append([]string{}, grants...)
+	}
+
+	c := env.client()
+	res := c.post("/sign-in/social", map[string]any{"provider": "cognito", "callbackURL": "/callback"})
+	if res.Status != 200 {
+		t.Fatalf("signIn.social: %d %s", res.Status, res.Body)
+	}
+	sm := res.JSON(t)
+	if !strings.Contains(pacStr(sm["url"]), cognitoDomain) || sm["redirect"] != true {
+		t.Fatalf("signIn.social: unexpected response %s", res.Body)
+	}
+	u, _ := url.Parse(pacStr(sm["url"]))
+	cb := c.get("/callback/cognito?state=" + url.QueryEscape(u.Query().Get("state")) + "&code=test")
+	if cb.Status != 302 {
+		t.Fatalf("callback: %d %q %s", cb.Status, cb.Header.Get("Location"), cb.Body)
+	}
+
+	at := c.post("/get-access-token", map[string]any{"useAccountCookie": true})
+	if at.Status != 200 {
+		t.Fatalf("get-access-token: %d %s", at.Status, at.Body)
+	}
+	am := at.JSON(t)
+	if am["accessToken"] != "refreshed-cognito-access-token" || am["idToken"] != refreshedIDToken {
+		t.Fatalf("unexpected response %s", at.Body)
+	}
+	if g := grantsCopy(); len(g) != 1 || g[0] != "cognito-refresh-token" {
+		t.Fatalf("refresh grants = %v", g)
+	}
+	refreshed, ok := poLastSetCookie(at.Header, name)
+	if !ok || refreshed == "" {
+		t.Fatalf("expected a refreshed %s cookie, got %v", name, pacSetCookieNames(at.Header))
+	}
+	dec := pacDecodeAccountCookie(t, env, refreshed)
+	if dec["accessToken"] != "refreshed-cognito-access-token" || dec["idToken"] != refreshedIDToken || dec["refreshToken"] != "cognito-refresh-token" {
+		t.Fatalf("unexpected cookie payload %#v", dec)
+	}
+
+	rt := c.post("/refresh-token", map[string]any{"useAccountCookie": true})
+	if rt.Status != 200 {
+		t.Fatalf("refresh-token: %d %s", rt.Status, rt.Body)
+	}
+	if rt.JSON(t)["refreshToken"] != "cognito-refresh-token" {
+		t.Fatalf("unexpected refreshToken %s", rt.Body)
+	}
+	if g := grantsCopy(); len(g) != 2 || g[0] != "cognito-refresh-token" || g[1] != "cognito-refresh-token" {
+		t.Fatalf("refresh grants = %v", g)
+	}
+}
+
+func pacChunkedEnv(t *testing.T, fields ...db.Field) (*testEnv, *oauth2test.Server) {
+	return pacCallbackGoogleEnv(t, func(c *Config) {
+		c.Secret = "better-auth.secret"
+		c.Account = &AccountConfig{StoreAccountCookie: Bool(true), ModelConfig: ModelConfig{AdditionalFields: fields}}
+	})
+}
+
+func pacAccountDataChunks(h http.Header) (chunks, single bool) {
+	for _, n := range pacSetCookieNames(h) {
+		if strings.Contains(n, "account_data.0") || strings.Contains(n, "account_data.1") {
+			chunks = true
+		}
+		if strings.HasSuffix(n, "account_data") {
+			single = true
+		}
+	}
+	return
 }
 
 func TestPortAccountCookieNotChunkedUnder4KB(t *testing.T) {
-	t.Skip("phase 2: asserts the Set-Cookie of /callback/google")
+	env, m := pacChunkedEnv(t)
+	poAccountGoogleToken(m, "oauth-test@test.com")
+	c := env.client()
+	res := pacGoogleSignIn(t, c)
+	chunks, single := pacAccountDataChunks(res.Header)
+	if chunks || !single {
+		t.Fatalf("hasChunks=%v hasSingleAccountData=%v (%v)", chunks, single, pacSetCookieNames(res.Header))
+	}
+	pacExpectAccessToken(t, c.post("/get-access-token", map[string]any{"useAccountCookie": true}), "accessToken", "test")
 }
 
 func TestPortAccountCookieChunkedOver4KB(t *testing.T) {
-	t.Skip("phase 2: asserts the Set-Cookie of /callback/google")
+	env, m := pacChunkedEnv(t, db.Field{Name: "largeField", Type: db.TypeString, DefaultValue: strings.Repeat("x", 5000)})
+	poAccountGoogleToken(m, "oauth-test@test.com")
+	c := env.client()
+	res := pacGoogleSignIn(t, c)
+	if chunks, _ := pacAccountDataChunks(res.Header); !chunks {
+		t.Fatalf("expected chunked account_data cookies, got %v", pacSetCookieNames(res.Header))
+	}
+	pacExpectAccessToken(t, c.post("/get-access-token", map[string]any{"useAccountCookie": true}), "accessToken", "test")
 }
 
 func TestPortAccountCookieEncryptedPayload(t *testing.T) {
-	t.Skip("phase 2: asserts the Set-Cookie of /callback/google; the payload encryption is checked in TestPortAccountPreserveRefreshTokenAdapted")
+	env, m := pacChunkedEnv(t)
+	poAccountGoogleToken(m, "oauth-test@test.com")
+	res := pacGoogleSignIn(t, env.client())
+	v, ok := poLastSetCookie(res.Header, "better-auth.account_data")
+	if !ok || !strings.HasPrefix(v, "ey") {
+		t.Fatalf("account_data must be an encrypted JWT, got %q (%v)", v, pacSetCookieNames(res.Header))
+	}
+	dec := pacDecodeAccountCookie(t, env, v)
+	if dec["accessToken"] != "test" || dec["refreshToken"] != "test" || dec["providerId"] != "google" {
+		t.Fatalf("unexpected cookie payload %#v", dec)
+	}
 }
 
 func TestPortAccountCookieReLoginUpdateAccountOnSignInFalse(t *testing.T) {
-	t.Skip("phase 2: requires /sign-in/social + /callback/google")
+	env, m := pacCallbackGoogleEnv(t, func(c *Config) {
+		c.Account = &AccountConfig{StoreAccountCookie: Bool(true), UpdateAccountOnSignIn: Bool(false)}
+	})
+	name := env.auth.Context().AuthCookies.AccountData.Name
+	poAccountGoogleToken(m, "re-login-test@test.com")
+	c := env.client()
+	pacGoogleSignIn(t, c)
+	pacExpectAccessToken(t, c.post("/get-access-token", map[string]any{"useAccountCookie": true}), "accessToken", "test")
+	c.post("/sign-out", map[string]any{})
+
+	c2 := env.client()
+	res := pacGoogleSignIn(t, c2)
+	if v, ok := poLastSetCookie(res.Header, name); !ok || v == "" {
+		t.Fatalf("account cookie must be set on re-login, got %v", pacSetCookieNames(res.Header))
+	}
+	pacExpectAccessToken(t, c2.post("/get-access-token", map[string]any{"useAccountCookie": true}), "accessToken", "test")
 }
 
 func TestPortAccountCookieRefreshedWithSession(t *testing.T) {
-	t.Skip("phase 2: requires /sign-in/social + /callback/google; see TestPortAccountCookieRefreshedWithSessionAdapted")
+	expiresIn := 7 * 24 * time.Hour
+	updateAge := 10 * time.Second
+	env, m := pacCallbackGoogleEnv(t, func(c *Config) {
+		c.Account = &AccountConfig{StoreAccountCookie: Bool(true)}
+		c.Session = &SessionConfig{ExpiresIn: expiresIn, UpdateAge: &updateAge,
+			CookieCache: &CookieCacheConfig{Enabled: true, Strategy: "jwe"}}
+	})
+	ac := env.auth.Context()
+	poAccountGoogleToken(m, "refresh-account-cookie-test@test.com")
+	c := env.client()
+	res := pacGoogleSignIn(t, c)
+	if v, _ := poLastSetCookie(res.Header, ac.AuthCookies.AccountData.Name); v == "" {
+		t.Fatalf("initial account cookie not set: %v", pacSetCookieNames(res.Header))
+	}
+	if v, _ := poLastSetCookie(res.Header, ac.AuthCookies.SessionData.Name); v == "" {
+		t.Fatalf("initial session cookie not set: %v", pacSetCookieNames(res.Header))
+	}
+	s := c.session()
+	if s == nil {
+		t.Fatal("expected a session")
+	}
+	token := pacStr(s["session"].(map[string]any)["token"])
+	past := time.Now().Add(expiresIn - updateAge - time.Second)
+	if token != "" {
+		if _, err := ac.Adapter.Update(context.Background(), "session", []adapter.Where{{Field: "token", Value: token}},
+			adapter.Record{"expiresAt": past}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	res = c.get("/get-session?disableCookieCache=true")
+	if v, _ := poLastSetCookie(res.Header, ac.AuthCookies.SessionData.Name); v == "" {
+		t.Fatalf("expected refreshed session_data cookie, got %v", pacSetCookieNames(res.Header))
+	}
+	if v, _ := poLastSetCookie(res.Header, ac.AuthCookies.AccountData.Name); v == "" {
+		t.Fatalf("expected refreshed account_data cookie, got %v", pacSetCookieNames(res.Header))
+	}
 }
 
+// Upstream advances fake timers by 241s against maxAge 300 / refreshCache.updateAge 60. Go
+// has no injectable clock, so (like psStatelessRefresh) the refresh window is made
+// reachable with updateAge 299s and a 1.1s sleep.
 func TestPortAccountCookieRefreshedStateless(t *testing.T) {
-	t.Skip("phase 2: stateless session requires /sign-in/social + /callback/google")
+	m := oauth2test.New(t)
+	env := poEnv(t, []oauth2.Provider{poGoogle(nil)}, []func(c *Config){func(c *Config) {
+		c.Database = nil
+		c.Session = &SessionConfig{CookieCache: &CookieCacheConfig{Enabled: true, Strategy: "jwe", MaxAge: 300 * time.Second,
+			RefreshCache: &RefreshCacheConfig{Enabled: true, UpdateAge: Duration(299 * time.Second)}}}
+	}}, poInstanceOpts{disableTestUser: true})
+	ac := env.auth.Context()
+	if ac.Options.Account == nil || ac.Options.Account.StoreAccountCookie == nil || !*ac.Options.Account.StoreAccountCookie {
+		t.Fatal("storeAccountCookie should default to true in stateless mode")
+	}
+	poAccountGoogleToken(m, "stateless-refresh-test@test.com")
+	c := env.client()
+	res := pacGoogleSignIn(t, c)
+	if v, _ := poLastSetCookie(res.Header, ac.AuthCookies.AccountData.Name); v == "" {
+		t.Fatalf("initial account cookie not set: %v", pacSetCookieNames(res.Header))
+	}
+	if v, _ := poLastSetCookie(res.Header, ac.AuthCookies.SessionData.Name); v == "" {
+		t.Fatalf("initial session cookie not set: %v", pacSetCookieNames(res.Header))
+	}
+	s := c.session()
+	if s == nil {
+		t.Fatal("expected a session")
+	}
+	if token := pacStr(s["session"].(map[string]any)["token"]); token != "" {
+		_ = ac.InternalAdapter.DeleteSession(context.Background(), token)
+	}
+	time.Sleep(1100 * time.Millisecond)
+	res = c.get("/get-session")
+	if v, _ := poLastSetCookie(res.Header, ac.AuthCookies.SessionData.Name); v == "" {
+		t.Fatalf("expected refreshed session_data cookie, got %v", pacSetCookieNames(res.Header))
+	}
+	if v, _ := poLastSetCookie(res.Header, ac.AuthCookies.AccountData.Name); v == "" {
+		t.Fatalf("expected refreshed account_data cookie, got %v", pacSetCookieNames(res.Header))
+	}
 }
+
+const pacGenericOAuthSkip = "requires the genericOAuth plugin (not ported yet): describe(\"account resolution in stateless mode\") signs in through a discovery-based genericOAuth provider"
 
 func TestPortAccountStatelessGetAccessTokenMismatchedCookie(t *testing.T) {
-	t.Skip("phase 2: describe(\"account resolution in stateless mode\") needs genericOAuth + /sign-in/social + /callback/idp")
+	t.Skip(pacGenericOAuthSkip)
 }
 
 func TestPortAccountStatelessAccountInfoMismatchedCookie(t *testing.T) {
-	t.Skip("phase 2: describe(\"account resolution in stateless mode\") needs genericOAuth + /sign-in/social + /callback/idp")
+	t.Skip(pacGenericOAuthSkip)
 }
 
 func TestPortAccountStatelessRefreshMismatchedCookie(t *testing.T) {
-	t.Skip("phase 2: describe(\"account resolution in stateless mode\") needs genericOAuth + /sign-in/social + /callback/idp")
+	t.Skip(pacGenericOAuthSkip)
 }
 
 func TestPortAccountStatelessSessionRefreshPreservesCookie(t *testing.T) {
-	t.Skip("phase 2: describe(\"account resolution in stateless mode\") needs genericOAuth + /sign-in/social + /callback/idp")
+	t.Skip(pacGenericOAuthSkip)
 }
 
 // ---- adapted storeAccountCookie cases ----

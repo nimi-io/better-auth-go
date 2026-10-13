@@ -1,7 +1,10 @@
 package betterauth
 
 import (
+	"bytes"
+	"context"
 	"errors"
+	"io"
 	"strings"
 	"time"
 
@@ -122,6 +125,34 @@ func stringMap(v any) map[string]string {
 	return out
 }
 
+// additionalParamsOrder recovers the key order of body.additionalParams from the raw JSON
+// request body (insertion order; oauth2.OrderedKeys applies JS enumeration rules). It returns nil for server-side calls (no request body).
+func additionalParamsOrder(ctx *EndpointContext) []string {
+	r := ctx.Request
+	if r == nil || r.Body == nil {
+		return nil
+	}
+	raw, err := io.ReadAll(r.Body)
+	r.Body = io.NopCloser(bytes.NewReader(raw))
+	if err != nil || len(raw) == 0 {
+		return nil
+	}
+	v, err := jsonx.Parse(raw)
+	if err != nil {
+		return nil
+	}
+	obj, ok := v.(*jsonx.Object)
+	if !ok {
+		return nil
+	}
+	ap, _ := obj.Get("additionalParams")
+	params, ok := ap.(*jsonx.Object)
+	if !ok {
+		return nil
+	}
+	return params.Keys()
+}
+
 // ApplyUpdateUserInfoOnLink updates the user with provider profile data when
 // account.accountLinking.updateUserInfoOnLink is enabled.
 func ApplyUpdateUserInfoOnLink(ctx *EndpointContext, userID string, info oauth2.UserInfo) *User {
@@ -156,10 +187,28 @@ func ApplyUpdateUserInfoOnLink(ctx *EndpointContext, userID string, info oauth2.
 	return u
 }
 
-// ResolveAccountID returns the provider account id for a profile (resolveOAuthAccountKey).
+// ErrAccountSubjectInvalid is returned when a provider's account subject is empty,
+// "undefined" or "null" (BetterAuthError OAUTH_ACCOUNT_SUBJECT_INVALID).
+var ErrAccountSubjectInvalid = errors.New("OAUTH_ACCOUNT_SUBJECT_INVALID")
+
+// ResolveOAuthAccountKey returns the stable provider account id established by a provider
+// response (resolveOAuthAccountKey).
+func ResolveOAuthAccountKey(ctx context.Context, p oauth2.Provider, tokens *oauth2.Tokens, profile map[string]any) (string, error) {
+	id, err := p.AccountSubject(ctx, tokens, profile)
+	if err != nil {
+		return "", err
+	}
+	if strings.TrimSpace(id) == "" || id == "undefined" || id == "null" {
+		return "", ErrAccountSubjectInvalid
+	}
+	return id, nil
+}
+
+// ResolveAccountID resolves the account id at a direct HTTP boundary
+// (resolveOAuthAccountKeyForAPI): every failure becomes UNAUTHORIZED FAILED_TO_GET_USER_INFO.
 func ResolveAccountID(ctx *EndpointContext, p oauth2.Provider, tokens *oauth2.Tokens, profile map[string]any) (string, error) {
-	id, err := p.AccountSubject(ctx.Context(), tokens, profile)
-	if err != nil || strings.TrimSpace(id) == "" || id == "undefined" || id == "null" {
+	id, err := ResolveOAuthAccountKey(ctx.Context(), p, tokens, profile)
+	if err != nil {
 		return "", ErrFrom("UNAUTHORIZED", ErrFailedToGetUserInfo)
 	}
 	return id, nil
@@ -187,7 +236,8 @@ func linkSocialEndpoint() *Endpoint {
 				nonce, _ := idt["nonce"].(string)
 				accessToken, _ := idt["accessToken"].(string)
 				refreshToken, _ := idt["refreshToken"].(string)
-				valid, err := p.(oauth2.IDTokenVerifier).VerifyIDToken(ctx.Context(), token, nonce)
+				verifier, _ := oauth2.AsIDTokenVerifier(p)
+				valid, err := verifier.VerifyIDToken(ctx.Context(), token, nonce)
 				if err != nil || !valid {
 					a.Logger.Warn("Invalid id token", providerID)
 					return nil, ErrFrom("UNAUTHORIZED", ErrInvalidToken)
@@ -273,6 +323,7 @@ func linkSocialEndpoint() *Endpoint {
 				State: state, CodeVerifier: verifier, IDTokenNonce: nonce,
 				RedirectURI: a.BaseURL + oauth2.CallbackPath(p), Scopes: stringList(body["scopes"]),
 				LoginHint: ctx.BodyString("loginHint"), AdditionalParams: stringMap(body["additionalParams"]),
+				AdditionalParamsOrder: additionalParamsOrder(ctx),
 			})
 			if err != nil {
 				return nil, err
@@ -410,7 +461,7 @@ func getValidAccessToken(ctx *EndpointContext, uid string, sel accountSelection,
 	fail := ErrFrom("BAD_REQUEST", ErrorCode{Code: "FAILED_TO_GET_ACCESS_TOKEN", Message: "Failed to get a valid access token"})
 	var newTokens *oauth2.Tokens
 	expired := acc.AccessTokenExpiresAt != nil && time.Until(*acc.AccessTokenExpiresAt) < 5*time.Second
-	refresher, canRefresh := p.(oauth2.Refresher)
+	refresher, canRefresh := oauth2.AsRefresher(p)
 	if acc.RefreshToken != nil && *acc.RefreshToken != "" && expired && canRefresh {
 		rt, err := a.DecryptOAuthToken(*acc.RefreshToken)
 		if err != nil {
@@ -530,7 +581,7 @@ func refreshTokenEndpoint() *Endpoint {
 			if p == nil {
 				return nil, ErrFrom("BAD_REQUEST", ErrorCode{Code: "PROVIDER_NOT_SUPPORTED", Message: "Provider " + acc.ProviderID + " is not supported."})
 			}
-			refresher, ok := p.(oauth2.Refresher)
+			refresher, ok := oauth2.AsRefresher(p)
 			if !ok {
 				return nil, ErrFrom("BAD_REQUEST", ErrorCode{Code: "TOKEN_REFRESH_NOT_SUPPORTED", Message: "Provider " + acc.ProviderID + " does not support token refreshing."})
 			}

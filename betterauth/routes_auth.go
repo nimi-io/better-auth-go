@@ -416,7 +416,7 @@ func providerLogoutURL(ctx *EndpointContext, current *SessionWithUser) string {
 	var logout []*Account
 	for _, acc := range accounts {
 		if p, ok := byID[acc.ProviderID]; ok {
-			if _, ok := p.(oauth2.EndSessioner); ok {
+			if _, ok := oauth2.AsEndSessioner(p); ok {
 				logout = append(logout, acc)
 			}
 		}
@@ -441,7 +441,7 @@ func providerLogoutURL(ctx *EndpointContext, current *SessionWithUser) string {
 			continue
 		}
 		seen[acc.ProviderID] = true
-		es := byID[acc.ProviderID].(oauth2.EndSessioner)
+		es, _ := oauth2.AsEndSessioner(byID[acc.ProviderID])
 		idToken := ""
 		if acc.IDToken != nil {
 			idToken = *acc.IDToken

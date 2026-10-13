@@ -13,6 +13,8 @@ import (
 // (ok and error are appended after plugin endpoints).
 func coreEndpoints() []*Endpoint {
 	return []*Endpoint{
+		signInSocialEndpoint(),
+		callbackEndpoint(),
 		getSessionEndpoint(),
 		signOutEndpoint(),
 		signUpEmailEndpoint(),

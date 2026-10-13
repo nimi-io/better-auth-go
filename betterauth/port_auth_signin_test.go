@@ -9,6 +9,9 @@ import (
 	"testing"
 
 	"github.com/nimi-io/better-auth-go/db"
+	"github.com/nimi-io/better-auth-go/oauth2"
+	"github.com/nimi-io/better-auth-go/providers/github"
+	"github.com/nimi-io/better-auth-go/providers/google"
 )
 
 // Port of better-auth/src/api/routes/sign-in.test.ts
@@ -130,7 +133,27 @@ func TestPortAuthSignIn(t *testing.T) {
 // describe("url checks")
 func TestPortAuthSignInURLChecks(t *testing.T) {
 	t.Run("should reject untrusted origins", func(t *testing.T) {
-		t.Skip("phase 2: requires /sign-in/social and the google social provider")
+		env := paNewEnv(t, func(c *Config) {
+			// getTestInstance's default social providers
+			c.SocialProviders = []oauth2.Provider{
+				github.New(github.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "test", ClientSecret: "test"}}),
+				google.New(google.Options{ProviderOptions: oauth2.ProviderOptions{ClientID: "test", ClientSecret: "test"}}),
+			}
+			c.Advanced = &AdvancedConfig{DisableOriginCheck: Bool(false)}
+		})
+		for _, tc := range []struct{ field, message string }{
+			{"callbackURL", "Invalid callbackURL"},
+			{"errorCallbackURL", "Invalid errorCallbackURL"},
+			{"newUserCallbackURL", "Invalid newUserCallbackURL"},
+		} {
+			res := env.do("POST", "/sign-in/social", map[string]any{"provider": "google", tc.field: "http://malicious.com"}, nil)
+			if res.Status != 403 {
+				t.Fatalf("%s: status = %d, want 403: %s", tc.field, res.Status, res.Body)
+			}
+			if m := res.JSON(t); m["message"] != tc.message {
+				t.Fatalf("%s: message = %v, want %q", tc.field, m["message"], tc.message)
+			}
+		}
 	})
 }
 

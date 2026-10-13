@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 )
 
@@ -67,5 +68,39 @@ func TestRefusesRedirects(t *testing.T) {
 	defer srv.Close()
 	if _, err := GetJSON(context.Background(), srv.URL, nil); err == nil {
 		t.Fatal("redirect should be refused")
+	}
+}
+
+func TestOrderedKeys(t *testing.T) {
+	m := map[string]string{"z": "1", "a": "2", "m": "3", "b": "4"}
+	got := strings.Join(OrderedKeys(m, []string{"m", "z", "missing", "m"}), ",")
+	if got != "m,z,a,b" {
+		t.Fatalf("got %s", got)
+	}
+	if got := strings.Join(OrderedKeys(m, nil), ","); got != "a,b,m,z" {
+		t.Fatalf("no order: %s", got)
+	}
+}
+
+func TestCreateAuthorizationURLAdditionalParamsOrder(t *testing.T) {
+	u, err := CreateAuthorizationURL(AuthorizationURLOptions{ClientID: "c", State: "s", AuthorizationEndpoint: "https://idp/auth",
+		RedirectURI: "https://app/cb", AdditionalParams: map[string]string{"zeta": "1", "alpha": "2", "state": "x"},
+		AdditionalParamsOrder: []string{"zeta", "state", "alpha"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := "response_type=code&client_id=c&state=s&redirect_uri=https%3A%2F%2Fapp%2Fcb&zeta=1&alpha=2"; u.RawQuery != want {
+		t.Fatalf("got %s", u.RawQuery)
+	}
+}
+
+func TestPlaceholderEmail(t *testing.T) {
+	if e, err := PlaceholderEmail("12345", "twitter"); err != nil || e != "12345@twitter.placeholder.invalid" {
+		t.Fatalf("%q %v", e, err)
+	}
+	for _, id := range []string{"", "a b", "a@b", ".lead", "dou..ble", "<x>"} {
+		if _, err := PlaceholderEmail(id, "ns"); err != ErrInvalidPlaceholderEmail {
+			t.Errorf("%q: want ErrInvalidPlaceholderEmail, got %v", id, err)
+		}
 	}
 }

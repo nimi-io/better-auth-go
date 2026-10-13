@@ -224,7 +224,7 @@ type AccountLinkingConfig struct {
 	// Enabled defaults to true.
 	Enabled                   *bool
 	DisableImplicitLinking    bool
-	RequireLocalEmailVerified bool
+	RequireLocalEmailVerified *bool // default true
 	TrustedProviders          []string
 	TrustedProvidersFunc      func(r *http.Request) ([]string, error)
 	AllowDifferentEmails      bool
