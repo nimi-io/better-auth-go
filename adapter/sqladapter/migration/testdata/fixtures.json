@@ -1,0 +1,3864 @@
+{
+  "betterAuth": "1.7.7",
+  "fixtures": [
+    {
+      "config": "default",
+      "dialect": "sqlite",
+      "sql": "create table \"user\" (\"id\" text not null primary key, \"name\" text not null, \"email\" text not null unique, \"emailVerified\" integer not null, \"image\" text, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"session\" (\"id\" text not null primary key, \"expiresAt\" date not null, \"token\" text not null unique, \"createdAt\" date not null, \"updatedAt\" date not null, \"ipAddress\" text, \"userAgent\" text, \"userId\" text not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" text not null primary key, \"accountId\" text not null, \"providerId\" text not null, \"userId\" text not null references \"user\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" date, \"refreshTokenExpiresAt\" date, \"scope\" text, \"password\" text, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"verification\" (\"id\" text not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" date not null, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "default",
+      "dialect": "postgres",
+      "sql": "create table \"user\" (\"id\" text not null primary key, \"name\" text not null, \"email\" text not null unique, \"emailVerified\" boolean not null, \"image\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate table \"session\" (\"id\" text not null primary key, \"expiresAt\" timestamptz not null, \"token\" text not null unique, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null, \"ipAddress\" text, \"userAgent\" text, \"userId\" text not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" text not null primary key, \"accountId\" text not null, \"providerId\" text not null, \"userId\" text not null references \"user\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" timestamptz, \"refreshTokenExpiresAt\" timestamptz, \"scope\" text, \"password\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null);\n\ncreate table \"verification\" (\"id\" text not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" timestamptz not null, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "default",
+      "dialect": "mysql",
+      "sql": "create table `user` (`id` varchar(36) not null primary key, `name` varchar(255) not null, `email` varchar(255) not null unique, `emailVerified` boolean not null, `image` text, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null);\n\ncreate table `session` (`id` varchar(36) not null primary key, `expiresAt` timestamp(3) not null, `token` varchar(255) not null unique, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) not null, `ipAddress` text, `userAgent` text, `userId` varchar(36) not null references `user` (`id`) on delete cascade);\n\ncreate table `account` (`id` varchar(36) not null primary key, `accountId` text not null, `providerId` text not null, `userId` varchar(36) not null references `user` (`id`) on delete cascade, `accessToken` text, `refreshToken` text, `idToken` text, `accessTokenExpiresAt` timestamp(3), `refreshTokenExpiresAt` timestamp(3), `scope` text, `password` text, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) not null);\n\ncreate table `verification` (`id` varchar(36) not null primary key, `identifier` varchar(255) not null, `value` text not null, `expiresAt` timestamp(3) not null, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null);\n\ncreate index `session_userId_idx` on `session` (`userId`);\n\ncreate index `account_userId_idx` on `account` (`userId`);\n\ncreate index `verification_identifier_idx` on `verification` (`identifier`);",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "default",
+      "dialect": "mssql",
+      "sql": "create table \"user\" (\"id\" varchar(36) not null primary key, \"name\" varchar(255) not null, \"email\" varchar(255) not null unique, \"emailVerified\" smallint not null, \"image\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate table \"session\" (\"id\" varchar(36) not null primary key, \"expiresAt\" datetime2(3) not null, \"token\" varchar(255) not null unique, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null, \"ipAddress\" varchar(8000), \"userAgent\" varchar(8000), \"userId\" varchar(36) not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" varchar(36) not null primary key, \"accountId\" varchar(8000) not null, \"providerId\" varchar(8000) not null, \"userId\" varchar(36) not null references \"user\" (\"id\") on delete cascade, \"accessToken\" varchar(8000), \"refreshToken\" varchar(8000), \"idToken\" varchar(8000), \"accessTokenExpiresAt\" datetime2(3), \"refreshTokenExpiresAt\" datetime2(3), \"scope\" varchar(8000), \"password\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null);\n\ncreate table \"verification\" (\"id\" varchar(36) not null primary key, \"identifier\" varchar(8000) not null, \"value\" varchar(8000) not null, \"expiresAt\" datetime2(3) not null, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": []
+    },
+    {
+      "config": "additional-fields",
+      "dialect": "sqlite",
+      "sql": "create table \"user\" (\"id\" text not null primary key, \"name\" text not null, \"email\" text not null unique, \"emailVerified\" integer not null, \"image\" text, \"createdAt\" date not null, \"updatedAt\" date not null, \"role\" text, \"age\" integer, \"isAdmin\" integer not null, \"prefs\" text, \"tags\" text, \"lucky\" text, \"status\" text, \"score\" bigint, \"birthday\" date, \"nickname\" text, \"handle\" text not null unique, \"joinedAt\" date not null);\n\ncreate table \"session\" (\"id\" text not null primary key, \"expiresAt\" date not null, \"token\" text not null unique, \"createdAt\" date not null, \"updatedAt\" date not null, \"ipAddress\" text, \"userAgent\" text, \"userId\" text not null references \"user\" (\"id\") on delete cascade, \"deviceId\" text, \"activeOrganizationId\" text);\n\ncreate table \"account\" (\"id\" text not null primary key, \"accountId\" text not null, \"providerId\" text not null, \"userId\" text not null references \"user\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" date, \"refreshTokenExpiresAt\" date, \"scope\" text, \"password\" text, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"verification\" (\"id\" text not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" date not null, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"session_deviceId_idx\" on \"session\" (\"deviceId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt",
+            "role",
+            "age",
+            "isAdmin",
+            "prefs",
+            "tags",
+            "lucky",
+            "status",
+            "score",
+            "birthday",
+            "nickname",
+            "handle",
+            "joinedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId",
+            "deviceId",
+            "activeOrganizationId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": [
+        "Field tags in table user has a different type in the database. Expected string[] but got TEXT.",
+        "Field lucky in table user has a different type in the database. Expected number[] but got TEXT."
+      ]
+    },
+    {
+      "config": "additional-fields",
+      "dialect": "postgres",
+      "sql": "create table \"user\" (\"id\" text not null primary key, \"name\" text not null, \"email\" text not null unique, \"emailVerified\" boolean not null, \"image\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null, \"role\" text, \"age\" integer, \"isAdmin\" boolean not null, \"prefs\" jsonb, \"tags\" jsonb, \"lucky\" jsonb, \"status\" text, \"score\" bigint, \"birthday\" timestamptz, \"nickname\" text, \"handle\" text not null unique, \"joinedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate table \"session\" (\"id\" text not null primary key, \"expiresAt\" timestamptz not null, \"token\" text not null unique, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null, \"ipAddress\" text, \"userAgent\" text, \"userId\" text not null references \"user\" (\"id\") on delete cascade, \"deviceId\" text, \"activeOrganizationId\" text);\n\ncreate table \"account\" (\"id\" text not null primary key, \"accountId\" text not null, \"providerId\" text not null, \"userId\" text not null references \"user\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" timestamptz, \"refreshTokenExpiresAt\" timestamptz, \"scope\" text, \"password\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null);\n\ncreate table \"verification\" (\"id\" text not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" timestamptz not null, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"session_deviceId_idx\" on \"session\" (\"deviceId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt",
+            "role",
+            "age",
+            "isAdmin",
+            "prefs",
+            "tags",
+            "lucky",
+            "status",
+            "score",
+            "birthday",
+            "nickname",
+            "handle",
+            "joinedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId",
+            "deviceId",
+            "activeOrganizationId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": [
+        "Field score in table user has a different type in the database. Expected number but got int8."
+      ]
+    },
+    {
+      "config": "additional-fields",
+      "dialect": "mysql",
+      "sql": "create table `user` (`id` varchar(36) not null primary key, `name` varchar(255) not null, `email` varchar(255) not null unique, `emailVerified` boolean not null, `image` text, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `role` text, `age` integer, `isAdmin` boolean not null, `prefs` json, `tags` json, `lucky` json, `status` text, `score` bigint, `birthday` timestamp(3), `nickname` varchar(255), `handle` varchar(255) not null unique, `joinedAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null);\n\ncreate table `session` (`id` varchar(36) not null primary key, `expiresAt` timestamp(3) not null, `token` varchar(255) not null unique, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) not null, `ipAddress` text, `userAgent` text, `userId` varchar(36) not null references `user` (`id`) on delete cascade, `deviceId` varchar(255), `activeOrganizationId` text);\n\ncreate table `account` (`id` varchar(36) not null primary key, `accountId` text not null, `providerId` text not null, `userId` varchar(36) not null references `user` (`id`) on delete cascade, `accessToken` text, `refreshToken` text, `idToken` text, `accessTokenExpiresAt` timestamp(3), `refreshTokenExpiresAt` timestamp(3), `scope` text, `password` text, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) not null);\n\ncreate table `verification` (`id` varchar(36) not null primary key, `identifier` varchar(255) not null, `value` text not null, `expiresAt` timestamp(3) not null, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null);\n\ncreate index `session_userId_idx` on `session` (`userId`);\n\ncreate index `session_deviceId_idx` on `session` (`deviceId`);\n\ncreate index `account_userId_idx` on `account` (`userId`);\n\ncreate index `verification_identifier_idx` on `verification` (`identifier`);",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt",
+            "role",
+            "age",
+            "isAdmin",
+            "prefs",
+            "tags",
+            "lucky",
+            "status",
+            "score",
+            "birthday",
+            "nickname",
+            "handle",
+            "joinedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId",
+            "deviceId",
+            "activeOrganizationId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "additional-fields",
+      "dialect": "mssql",
+      "sql": "create table \"user\" (\"id\" varchar(36) not null primary key, \"name\" varchar(255) not null, \"email\" varchar(255) not null unique, \"emailVerified\" smallint not null, \"image\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"role\" varchar(8000), \"age\" integer, \"isAdmin\" smallint not null, \"prefs\" varchar(8000), \"tags\" varchar(8000), \"lucky\" varchar(8000), \"status\" text, \"score\" bigint, \"birthday\" datetime2(3), \"nickname\" varchar(255), \"handle\" varchar(255) not null unique, \"joinedAt\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate table \"session\" (\"id\" varchar(36) not null primary key, \"expiresAt\" datetime2(3) not null, \"token\" varchar(255) not null unique, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null, \"ipAddress\" varchar(8000), \"userAgent\" varchar(8000), \"userId\" varchar(36) not null references \"user\" (\"id\") on delete cascade, \"deviceId\" varchar(8000), \"activeOrganizationId\" varchar(8000));\n\ncreate table \"account\" (\"id\" varchar(36) not null primary key, \"accountId\" varchar(8000) not null, \"providerId\" varchar(8000) not null, \"userId\" varchar(36) not null references \"user\" (\"id\") on delete cascade, \"accessToken\" varchar(8000), \"refreshToken\" varchar(8000), \"idToken\" varchar(8000), \"accessTokenExpiresAt\" datetime2(3), \"refreshTokenExpiresAt\" datetime2(3), \"scope\" varchar(8000), \"password\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null);\n\ncreate table \"verification\" (\"id\" varchar(36) not null primary key, \"identifier\" varchar(8000) not null, \"value\" varchar(8000) not null, \"expiresAt\" datetime2(3) not null, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"session_deviceId_idx\" on \"session\" (\"deviceId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt",
+            "role",
+            "age",
+            "isAdmin",
+            "prefs",
+            "tags",
+            "lucky",
+            "status",
+            "score",
+            "birthday",
+            "nickname",
+            "handle",
+            "joinedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId",
+            "deviceId",
+            "activeOrganizationId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": []
+    },
+    {
+      "config": "renames",
+      "dialect": "sqlite",
+      "sql": "create table \"users\" (\"id\" text not null primary key, \"name\" text not null, \"email_address\" text not null unique, \"email_verified\" integer not null, \"image\" text, \"created_at\" date not null, \"updated_at\" date not null);\n\ncreate table \"user_sessions\" (\"id\" text not null primary key, \"expires_at\" date not null, \"session_token\" text not null unique, \"createdAt\" date not null, \"updatedAt\" date not null, \"ipAddress\" text, \"userAgent\" text, \"user_id\" text not null references \"users\" (\"id\") on delete cascade);\n\ncreate table \"accounts\" (\"id\" text not null primary key, \"account_id\" text not null, \"provider_id\" text not null, \"user_id\" text not null references \"users\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" date, \"refreshTokenExpiresAt\" date, \"scope\" text, \"password\" text, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"verifications\" (\"id\" text not null primary key, \"ident\" text not null, \"value\" text not null, \"expiresAt\" date not null, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"rate_limits\" (\"id\" text not null primary key, \"key\" text not null unique, \"count\" integer not null, \"last_request\" bigint not null);\n\ncreate index \"user_sessions_user_id_idx\" on \"user_sessions\" (\"user_id\");\n\ncreate index \"accounts_user_id_idx\" on \"accounts\" (\"user_id\");\n\ncreate index \"verifications_ident_idx\" on \"verifications\" (\"ident\");",
+      "toBeCreated": [
+        {
+          "table": "users",
+          "fields": [
+            "name",
+            "email_address",
+            "email_verified",
+            "image",
+            "created_at",
+            "updated_at"
+          ]
+        },
+        {
+          "table": "user_sessions",
+          "fields": [
+            "expires_at",
+            "session_token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "user_id"
+          ]
+        },
+        {
+          "table": "accounts",
+          "fields": [
+            "account_id",
+            "provider_id",
+            "user_id",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verifications",
+          "fields": [
+            "ident",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "rate_limits",
+          "fields": [
+            "key",
+            "count",
+            "last_request"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "renames",
+      "dialect": "postgres",
+      "sql": "create table \"users\" (\"id\" text not null primary key, \"name\" text not null, \"email_address\" text not null unique, \"email_verified\" boolean not null, \"image\" text, \"created_at\" timestamptz default CURRENT_TIMESTAMP not null, \"updated_at\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate table \"user_sessions\" (\"id\" text not null primary key, \"expires_at\" timestamptz not null, \"session_token\" text not null unique, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null, \"ipAddress\" text, \"userAgent\" text, \"user_id\" text not null references \"users\" (\"id\") on delete cascade);\n\ncreate table \"accounts\" (\"id\" text not null primary key, \"account_id\" text not null, \"provider_id\" text not null, \"user_id\" text not null references \"users\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" timestamptz, \"refreshTokenExpiresAt\" timestamptz, \"scope\" text, \"password\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null);\n\ncreate table \"verifications\" (\"id\" text not null primary key, \"ident\" text not null, \"value\" text not null, \"expiresAt\" timestamptz not null, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate table \"rate_limits\" (\"id\" text not null primary key, \"key\" text not null unique, \"count\" integer not null, \"last_request\" bigint not null);\n\ncreate index \"user_sessions_user_id_idx\" on \"user_sessions\" (\"user_id\");\n\ncreate index \"accounts_user_id_idx\" on \"accounts\" (\"user_id\");\n\ncreate index \"verifications_ident_idx\" on \"verifications\" (\"ident\");",
+      "toBeCreated": [
+        {
+          "table": "users",
+          "fields": [
+            "name",
+            "email_address",
+            "email_verified",
+            "image",
+            "created_at",
+            "updated_at"
+          ]
+        },
+        {
+          "table": "user_sessions",
+          "fields": [
+            "expires_at",
+            "session_token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "user_id"
+          ]
+        },
+        {
+          "table": "accounts",
+          "fields": [
+            "account_id",
+            "provider_id",
+            "user_id",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verifications",
+          "fields": [
+            "ident",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "rate_limits",
+          "fields": [
+            "key",
+            "count",
+            "last_request"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": [
+        "Field last_request in table rate_limits has a different type in the database. Expected number but got int8."
+      ]
+    },
+    {
+      "config": "renames",
+      "dialect": "mysql",
+      "sql": "create table `users` (`id` varchar(36) not null primary key, `name` varchar(255) not null, `email_address` varchar(255) not null unique, `email_verified` boolean not null, `image` text, `created_at` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updated_at` timestamp(3) default CURRENT_TIMESTAMP(3) not null);\n\ncreate table `user_sessions` (`id` varchar(36) not null primary key, `expires_at` timestamp(3) not null, `session_token` varchar(255) not null unique, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) not null, `ipAddress` text, `userAgent` text, `user_id` varchar(36) not null references `users` (`id`) on delete cascade);\n\ncreate table `accounts` (`id` varchar(36) not null primary key, `account_id` text not null, `provider_id` text not null, `user_id` varchar(36) not null references `users` (`id`) on delete cascade, `accessToken` text, `refreshToken` text, `idToken` text, `accessTokenExpiresAt` timestamp(3), `refreshTokenExpiresAt` timestamp(3), `scope` text, `password` text, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) not null);\n\ncreate table `verifications` (`id` varchar(36) not null primary key, `ident` varchar(255) not null, `value` text not null, `expiresAt` timestamp(3) not null, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null);\n\ncreate table `rate_limits` (`id` varchar(36) not null primary key, `key` varchar(255) not null unique, `count` integer not null, `last_request` bigint not null);\n\ncreate index `user_sessions_user_id_idx` on `user_sessions` (`user_id`);\n\ncreate index `accounts_user_id_idx` on `accounts` (`user_id`);\n\ncreate index `verifications_ident_idx` on `verifications` (`ident`);",
+      "toBeCreated": [
+        {
+          "table": "users",
+          "fields": [
+            "name",
+            "email_address",
+            "email_verified",
+            "image",
+            "created_at",
+            "updated_at"
+          ]
+        },
+        {
+          "table": "user_sessions",
+          "fields": [
+            "expires_at",
+            "session_token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "user_id"
+          ]
+        },
+        {
+          "table": "accounts",
+          "fields": [
+            "account_id",
+            "provider_id",
+            "user_id",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verifications",
+          "fields": [
+            "ident",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "rate_limits",
+          "fields": [
+            "key",
+            "count",
+            "last_request"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "renames",
+      "dialect": "mssql",
+      "sql": "create table \"users\" (\"id\" varchar(36) not null primary key, \"name\" varchar(255) not null, \"email_address\" varchar(255) not null unique, \"email_verified\" smallint not null, \"image\" varchar(8000), \"created_at\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updated_at\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate table \"user_sessions\" (\"id\" varchar(36) not null primary key, \"expires_at\" datetime2(3) not null, \"session_token\" varchar(255) not null unique, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null, \"ipAddress\" varchar(8000), \"userAgent\" varchar(8000), \"user_id\" varchar(36) not null references \"users\" (\"id\") on delete cascade);\n\ncreate table \"accounts\" (\"id\" varchar(36) not null primary key, \"account_id\" varchar(8000) not null, \"provider_id\" varchar(8000) not null, \"user_id\" varchar(36) not null references \"users\" (\"id\") on delete cascade, \"accessToken\" varchar(8000), \"refreshToken\" varchar(8000), \"idToken\" varchar(8000), \"accessTokenExpiresAt\" datetime2(3), \"refreshTokenExpiresAt\" datetime2(3), \"scope\" varchar(8000), \"password\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null);\n\ncreate table \"verifications\" (\"id\" varchar(36) not null primary key, \"ident\" varchar(8000) not null, \"value\" varchar(8000) not null, \"expiresAt\" datetime2(3) not null, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate table \"rate_limits\" (\"id\" varchar(36) not null primary key, \"key\" varchar(255) not null unique, \"count\" integer not null, \"last_request\" bigint not null);\n\ncreate index \"user_sessions_user_id_idx\" on \"user_sessions\" (\"user_id\");\n\ncreate index \"accounts_user_id_idx\" on \"accounts\" (\"user_id\");\n\ncreate index \"verifications_ident_idx\" on \"verifications\" (\"ident\");",
+      "toBeCreated": [
+        {
+          "table": "users",
+          "fields": [
+            "name",
+            "email_address",
+            "email_verified",
+            "image",
+            "created_at",
+            "updated_at"
+          ]
+        },
+        {
+          "table": "user_sessions",
+          "fields": [
+            "expires_at",
+            "session_token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "user_id"
+          ]
+        },
+        {
+          "table": "accounts",
+          "fields": [
+            "account_id",
+            "provider_id",
+            "user_id",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verifications",
+          "fields": [
+            "ident",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "rate_limits",
+          "fields": [
+            "key",
+            "count",
+            "last_request"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": []
+    },
+    {
+      "config": "plugin-tables",
+      "dialect": "sqlite",
+      "sql": "create table \"users\" (\"id\" text not null primary key, \"name\" text not null, \"email\" text not null unique, \"emailVerified\" integer not null, \"image\" text, \"createdAt\" date not null, \"updatedAt\" date not null, \"role\" text, \"banned\" integer);\n\ncreate table \"session\" (\"id\" text not null primary key, \"expiresAt\" date not null, \"token\" text not null unique, \"createdAt\" date not null, \"updatedAt\" date not null, \"ipAddress\" text, \"userAgent\" text, \"userId\" text not null references \"users\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" text not null primary key, \"accountId\" text not null, \"providerId\" text not null, \"userId\" text not null references \"users\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" date, \"refreshTokenExpiresAt\" date, \"scope\" text, \"password\" text, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"verification\" (\"id\" text not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" date not null, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"organizations\" (\"id\" text not null primary key, \"name\" text not null, \"slug\" text not null unique, \"logo\" text, \"metadata\" text, \"createdAt\" date not null);\n\ncreate table \"member\" (\"id\" text not null primary key, \"organization_id\" text not null references \"organizations\" (\"id\") on delete cascade, \"userId\" text references \"users\" (\"id\") on delete set null, \"role\" text not null, \"seats\" integer not null, \"createdAt\" date not null);\n\ncreate table \"api_key\" (\"id\" text not null primary key, \"key\" text not null, \"ownerEmail\" text references \"users\" (\"email\") on delete no action, \"external\" text references \"billing_account\" (\"id\") on delete cascade, \"expiresAt\" date, \"requests\" bigint not null);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");\n\ncreate index \"member_organization_id_idx\" on \"member\" (\"organization_id\");\n\ncreate index \"api_key_key_idx\" on \"api_key\" (\"key\");\n\ncreate unique index \"member_organization_id_role_uidx\" on \"member\" (\"organization_id\", \"role\");\n\ncreate index \"member_created_at_named\" on \"member\" (\"createdAt\");",
+      "toBeCreated": [
+        {
+          "table": "users",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt",
+            "role",
+            "banned"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "organizations",
+          "fields": [
+            "name",
+            "slug",
+            "logo",
+            "metadata",
+            "createdAt"
+          ]
+        },
+        {
+          "table": "member",
+          "fields": [
+            "organization_id",
+            "userId",
+            "role",
+            "seats",
+            "createdAt"
+          ]
+        },
+        {
+          "table": "api_key",
+          "fields": [
+            "key",
+            "ownerEmail",
+            "external",
+            "expiresAt",
+            "requests"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [
+        {
+          "table": "member",
+          "name": "member_organization_id_role_uidx",
+          "columns": [
+            "organization_id",
+            "role"
+          ],
+          "unique": true
+        },
+        {
+          "table": "member",
+          "name": "member_created_at_named",
+          "columns": [
+            "createdAt"
+          ],
+          "unique": false
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "plugin-tables",
+      "dialect": "postgres",
+      "sql": "create table \"users\" (\"id\" text not null primary key, \"name\" text not null, \"email\" text not null unique, \"emailVerified\" boolean not null, \"image\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null, \"role\" text, \"banned\" boolean);\n\ncreate table \"session\" (\"id\" text not null primary key, \"expiresAt\" timestamptz not null, \"token\" text not null unique, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null, \"ipAddress\" text, \"userAgent\" text, \"userId\" text not null references \"users\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" text not null primary key, \"accountId\" text not null, \"providerId\" text not null, \"userId\" text not null references \"users\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" timestamptz, \"refreshTokenExpiresAt\" timestamptz, \"scope\" text, \"password\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null);\n\ncreate table \"verification\" (\"id\" text not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" timestamptz not null, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate table \"organizations\" (\"id\" text not null primary key, \"name\" text not null, \"slug\" text not null unique, \"logo\" text, \"metadata\" jsonb, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate table \"member\" (\"id\" text not null primary key, \"organization_id\" text not null references \"organizations\" (\"id\") on delete cascade, \"userId\" text references \"users\" (\"id\") on delete set null, \"role\" text not null, \"seats\" integer not null, \"createdAt\" timestamptz not null);\n\ncreate table \"api_key\" (\"id\" text not null primary key, \"key\" text not null, \"ownerEmail\" text references \"users\" (\"email\") on delete no action, \"external\" text references \"billing_account\" (\"id\") on delete cascade, \"expiresAt\" timestamptz, \"requests\" bigint not null);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");\n\ncreate index \"member_organization_id_idx\" on \"member\" (\"organization_id\");\n\ncreate index \"api_key_key_idx\" on \"api_key\" (\"key\");\n\ncreate unique index \"member_organization_id_role_uidx\" on \"member\" (\"organization_id\", \"role\");\n\ncreate index \"member_created_at_named\" on \"member\" (\"createdAt\");",
+      "toBeCreated": [
+        {
+          "table": "users",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt",
+            "role",
+            "banned"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "organizations",
+          "fields": [
+            "name",
+            "slug",
+            "logo",
+            "metadata",
+            "createdAt"
+          ]
+        },
+        {
+          "table": "member",
+          "fields": [
+            "organization_id",
+            "userId",
+            "role",
+            "seats",
+            "createdAt"
+          ]
+        },
+        {
+          "table": "api_key",
+          "fields": [
+            "key",
+            "ownerEmail",
+            "external",
+            "expiresAt",
+            "requests"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [
+        {
+          "table": "member",
+          "name": "member_organization_id_role_uidx",
+          "columns": [
+            "organization_id",
+            "role"
+          ],
+          "unique": true
+        },
+        {
+          "table": "member",
+          "name": "member_created_at_named",
+          "columns": [
+            "createdAt"
+          ],
+          "unique": false
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": [
+        "Field requests in table api_key has a different type in the database. Expected number but got int8."
+      ]
+    },
+    {
+      "config": "plugin-tables",
+      "dialect": "mysql",
+      "sql": "create table `users` (`id` varchar(36) not null primary key, `name` varchar(255) not null, `email` varchar(255) not null unique, `emailVerified` boolean not null, `image` text, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `role` text, `banned` boolean);\n\ncreate table `session` (`id` varchar(36) not null primary key, `expiresAt` timestamp(3) not null, `token` varchar(255) not null unique, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) not null, `ipAddress` text, `userAgent` text, `userId` varchar(36) not null references `users` (`id`) on delete cascade);\n\ncreate table `account` (`id` varchar(36) not null primary key, `accountId` text not null, `providerId` text not null, `userId` varchar(36) not null references `users` (`id`) on delete cascade, `accessToken` text, `refreshToken` text, `idToken` text, `accessTokenExpiresAt` timestamp(3), `refreshTokenExpiresAt` timestamp(3), `scope` text, `password` text, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) not null);\n\ncreate table `verification` (`id` varchar(36) not null primary key, `identifier` varchar(255) not null, `value` text not null, `expiresAt` timestamp(3) not null, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null);\n\ncreate table `organizations` (`id` varchar(36) not null primary key, `name` varchar(255) not null, `slug` varchar(255) not null unique, `logo` text, `metadata` json, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null);\n\ncreate table `member` (`id` varchar(36) not null primary key, `organization_id` varchar(36) not null references `organizations` (`id`) on delete cascade, `userId` varchar(36) references `users` (`id`) on delete set null, `role` varchar(191) not null, `seats` integer not null, `createdAt` timestamp(3) not null);\n\ncreate table `api_key` (`id` varchar(36) not null primary key, `key` varchar(255) not null, `ownerEmail` varchar(36) references `users` (`email`) on delete no action, `external` varchar(36) references `billing_account` (`id`) on delete cascade, `expiresAt` timestamp(3), `requests` bigint not null);\n\ncreate index `session_userId_idx` on `session` (`userId`);\n\ncreate index `account_userId_idx` on `account` (`userId`);\n\ncreate index `verification_identifier_idx` on `verification` (`identifier`);\n\ncreate index `member_organization_id_idx` on `member` (`organization_id`);\n\ncreate index `api_key_key_idx` on `api_key` (`key`);\n\ncreate unique index `member_organization_id_role_uidx` on `member` (`organization_id`, `role`);\n\ncreate index `member_created_at_named` on `member` (`createdAt`);",
+      "toBeCreated": [
+        {
+          "table": "users",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt",
+            "role",
+            "banned"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "organizations",
+          "fields": [
+            "name",
+            "slug",
+            "logo",
+            "metadata",
+            "createdAt"
+          ]
+        },
+        {
+          "table": "member",
+          "fields": [
+            "organization_id",
+            "userId",
+            "role",
+            "seats",
+            "createdAt"
+          ]
+        },
+        {
+          "table": "api_key",
+          "fields": [
+            "key",
+            "ownerEmail",
+            "external",
+            "expiresAt",
+            "requests"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [
+        {
+          "table": "member",
+          "name": "member_organization_id_role_uidx",
+          "columns": [
+            "organization_id",
+            "role"
+          ],
+          "unique": true
+        },
+        {
+          "table": "member",
+          "name": "member_created_at_named",
+          "columns": [
+            "createdAt"
+          ],
+          "unique": false
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "plugin-tables",
+      "dialect": "mssql",
+      "sql": "create table \"users\" (\"id\" varchar(36) not null primary key, \"name\" varchar(255) not null, \"email\" varchar(255) not null unique, \"emailVerified\" smallint not null, \"image\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"role\" varchar(8000), \"banned\" smallint);\n\ncreate table \"session\" (\"id\" varchar(36) not null primary key, \"expiresAt\" datetime2(3) not null, \"token\" varchar(255) not null unique, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null, \"ipAddress\" varchar(8000), \"userAgent\" varchar(8000), \"userId\" varchar(36) not null references \"users\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" varchar(36) not null primary key, \"accountId\" varchar(8000) not null, \"providerId\" varchar(8000) not null, \"userId\" varchar(36) not null references \"users\" (\"id\") on delete cascade, \"accessToken\" varchar(8000), \"refreshToken\" varchar(8000), \"idToken\" varchar(8000), \"accessTokenExpiresAt\" datetime2(3), \"refreshTokenExpiresAt\" datetime2(3), \"scope\" varchar(8000), \"password\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null);\n\ncreate table \"verification\" (\"id\" varchar(36) not null primary key, \"identifier\" varchar(8000) not null, \"value\" varchar(8000) not null, \"expiresAt\" datetime2(3) not null, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate table \"organizations\" (\"id\" varchar(36) not null primary key, \"name\" varchar(255) not null, \"slug\" varchar(255) not null unique, \"logo\" varchar(8000), \"metadata\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate table \"member\" (\"id\" varchar(36) not null primary key, \"organization_id\" varchar(36) not null references \"organizations\" (\"id\") on delete cascade, \"userId\" varchar(36) references \"users\" (\"id\") on delete set null, \"role\" varchar(255) not null, \"seats\" integer not null, \"createdAt\" datetime2(3) not null);\n\ncreate table \"api_key\" (\"id\" varchar(36) not null primary key, \"key\" varchar(8000) not null, \"ownerEmail\" varchar(36) references \"users\" (\"email\") on delete no action, \"external\" varchar(36) references \"billing_account\" (\"id\") on delete cascade, \"expiresAt\" datetime2(3), \"requests\" bigint not null);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");\n\ncreate index \"member_organization_id_idx\" on \"member\" (\"organization_id\");\n\ncreate index \"api_key_key_idx\" on \"api_key\" (\"key\");\n\ncreate unique index \"member_organization_id_role_uidx\" on \"member\" (\"organization_id\", \"role\");\n\ncreate index \"member_created_at_named\" on \"member\" (\"createdAt\");",
+      "toBeCreated": [
+        {
+          "table": "users",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt",
+            "role",
+            "banned"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "organizations",
+          "fields": [
+            "name",
+            "slug",
+            "logo",
+            "metadata",
+            "createdAt"
+          ]
+        },
+        {
+          "table": "member",
+          "fields": [
+            "organization_id",
+            "userId",
+            "role",
+            "seats",
+            "createdAt"
+          ]
+        },
+        {
+          "table": "api_key",
+          "fields": [
+            "key",
+            "ownerEmail",
+            "external",
+            "expiresAt",
+            "requests"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [
+        {
+          "table": "member",
+          "name": "member_organization_id_role_uidx",
+          "columns": [
+            "organization_id",
+            "role"
+          ],
+          "unique": true
+        },
+        {
+          "table": "member",
+          "name": "member_created_at_named",
+          "columns": [
+            "createdAt"
+          ],
+          "unique": false
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": []
+    },
+    {
+      "config": "serial-ids",
+      "dialect": "sqlite",
+      "sql": "create table \"user\" (\"id\" integer not null primary key, \"name\" text not null, \"email\" text not null unique, \"emailVerified\" integer not null, \"image\" text, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"session\" (\"id\" integer not null primary key, \"expiresAt\" date not null, \"token\" text not null unique, \"createdAt\" date not null, \"updatedAt\" date not null, \"ipAddress\" text, \"userAgent\" text, \"userId\" integer not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" integer not null primary key, \"accountId\" text not null, \"providerId\" text not null, \"userId\" integer not null references \"user\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" date, \"refreshTokenExpiresAt\" date, \"scope\" text, \"password\" text, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"verification\" (\"id\" integer not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" date not null, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"organization\" (\"id\" integer not null primary key, \"name\" text not null, \"slug\" text not null unique);\n\ncreate table \"member\" (\"id\" integer not null primary key, \"organizationId\" integer not null references \"organization\" (\"id\") on delete cascade, \"userId\" integer not null references \"user\" (\"id\") on delete cascade);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "organization",
+          "fields": [
+            "name",
+            "slug"
+          ]
+        },
+        {
+          "table": "member",
+          "fields": [
+            "organizationId",
+            "userId"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": [
+        "Field userId in table session has a different type in the database. Expected string but got INTEGER.",
+        "Field userId in table account has a different type in the database. Expected string but got INTEGER.",
+        "Field organizationId in table member has a different type in the database. Expected string but got INTEGER.",
+        "Field userId in table member has a different type in the database. Expected string but got INTEGER."
+      ]
+    },
+    {
+      "config": "serial-ids",
+      "dialect": "postgres",
+      "sql": "create table \"user\" (\"id\" integer GENERATED BY DEFAULT AS IDENTITY not null primary key, \"name\" text not null, \"email\" text not null unique, \"emailVerified\" boolean not null, \"image\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate table \"session\" (\"id\" integer GENERATED BY DEFAULT AS IDENTITY not null primary key, \"expiresAt\" timestamptz not null, \"token\" text not null unique, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null, \"ipAddress\" text, \"userAgent\" text, \"userId\" integer not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" integer GENERATED BY DEFAULT AS IDENTITY not null primary key, \"accountId\" text not null, \"providerId\" text not null, \"userId\" integer not null references \"user\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" timestamptz, \"refreshTokenExpiresAt\" timestamptz, \"scope\" text, \"password\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null);\n\ncreate table \"verification\" (\"id\" integer GENERATED BY DEFAULT AS IDENTITY not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" timestamptz not null, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate table \"organization\" (\"id\" integer GENERATED BY DEFAULT AS IDENTITY not null primary key, \"name\" text not null, \"slug\" text not null unique);\n\ncreate table \"member\" (\"id\" integer GENERATED BY DEFAULT AS IDENTITY not null primary key, \"organizationId\" integer not null references \"organization\" (\"id\") on delete cascade, \"userId\" integer not null references \"user\" (\"id\") on delete cascade);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "organization",
+          "fields": [
+            "name",
+            "slug"
+          ]
+        },
+        {
+          "table": "member",
+          "fields": [
+            "organizationId",
+            "userId"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": [
+        "Field userId in table session has a different type in the database. Expected string but got int4.",
+        "Field userId in table account has a different type in the database. Expected string but got int4.",
+        "Field organizationId in table member has a different type in the database. Expected string but got int4.",
+        "Field userId in table member has a different type in the database. Expected string but got int4."
+      ]
+    },
+    {
+      "config": "serial-ids",
+      "dialect": "mysql",
+      "sql": "create table `user` (`id` integer not null primary key auto_increment, `name` varchar(255) not null, `email` varchar(255) not null unique, `emailVerified` boolean not null, `image` text, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null);\n\ncreate table `session` (`id` integer not null primary key auto_increment, `expiresAt` timestamp(3) not null, `token` varchar(255) not null unique, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) not null, `ipAddress` text, `userAgent` text, `userId` integer not null references `user` (`id`) on delete cascade);\n\ncreate table `account` (`id` integer not null primary key auto_increment, `accountId` text not null, `providerId` text not null, `userId` integer not null references `user` (`id`) on delete cascade, `accessToken` text, `refreshToken` text, `idToken` text, `accessTokenExpiresAt` timestamp(3), `refreshTokenExpiresAt` timestamp(3), `scope` text, `password` text, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) not null);\n\ncreate table `verification` (`id` integer not null primary key auto_increment, `identifier` varchar(255) not null, `value` text not null, `expiresAt` timestamp(3) not null, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null);\n\ncreate table `organization` (`id` integer not null primary key auto_increment, `name` text not null, `slug` varchar(255) not null unique);\n\ncreate table `member` (`id` integer not null primary key auto_increment, `organizationId` integer not null references `organization` (`id`) on delete cascade, `userId` integer not null references `user` (`id`) on delete cascade);\n\ncreate index `session_userId_idx` on `session` (`userId`);\n\ncreate index `account_userId_idx` on `account` (`userId`);\n\ncreate index `verification_identifier_idx` on `verification` (`identifier`);",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "organization",
+          "fields": [
+            "name",
+            "slug"
+          ]
+        },
+        {
+          "table": "member",
+          "fields": [
+            "organizationId",
+            "userId"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": [
+        "Field userId in table session has a different type in the database. Expected string but got int.",
+        "Field userId in table account has a different type in the database. Expected string but got int.",
+        "Field organizationId in table member has a different type in the database. Expected string but got int.",
+        "Field userId in table member has a different type in the database. Expected string but got int."
+      ]
+    },
+    {
+      "config": "serial-ids",
+      "dialect": "mssql",
+      "sql": "create table \"user\" (\"id\" integer identity not null primary key, \"name\" varchar(255) not null, \"email\" varchar(255) not null unique, \"emailVerified\" smallint not null, \"image\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate table \"session\" (\"id\" integer identity not null primary key, \"expiresAt\" datetime2(3) not null, \"token\" varchar(255) not null unique, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null, \"ipAddress\" varchar(8000), \"userAgent\" varchar(8000), \"userId\" integer not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" integer identity not null primary key, \"accountId\" varchar(8000) not null, \"providerId\" varchar(8000) not null, \"userId\" integer not null references \"user\" (\"id\") on delete cascade, \"accessToken\" varchar(8000), \"refreshToken\" varchar(8000), \"idToken\" varchar(8000), \"accessTokenExpiresAt\" datetime2(3), \"refreshTokenExpiresAt\" datetime2(3), \"scope\" varchar(8000), \"password\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null);\n\ncreate table \"verification\" (\"id\" integer identity not null primary key, \"identifier\" varchar(8000) not null, \"value\" varchar(8000) not null, \"expiresAt\" datetime2(3) not null, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate table \"organization\" (\"id\" integer identity not null primary key, \"name\" varchar(8000) not null, \"slug\" varchar(255) not null unique);\n\ncreate table \"member\" (\"id\" integer identity not null primary key, \"organizationId\" integer not null references \"organization\" (\"id\") on delete cascade, \"userId\" integer not null references \"user\" (\"id\") on delete cascade);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "organization",
+          "fields": [
+            "name",
+            "slug"
+          ]
+        },
+        {
+          "table": "member",
+          "fields": [
+            "organizationId",
+            "userId"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": []
+    },
+    {
+      "config": "uuid-ids",
+      "dialect": "sqlite",
+      "sql": "create table \"user\" (\"id\" text not null primary key, \"name\" text not null, \"email\" text not null unique, \"emailVerified\" integer not null, \"image\" text, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"session\" (\"id\" text not null primary key, \"expiresAt\" date not null, \"token\" text not null unique, \"createdAt\" date not null, \"updatedAt\" date not null, \"ipAddress\" text, \"userAgent\" text, \"userId\" text not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" text not null primary key, \"accountId\" text not null, \"providerId\" text not null, \"userId\" text not null references \"user\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" date, \"refreshTokenExpiresAt\" date, \"scope\" text, \"password\" text, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"verification\" (\"id\" text not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" date not null, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"member\" (\"id\" text not null primary key, \"userId\" text not null references \"user\" (\"id\") on delete cascade);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "member",
+          "fields": [
+            "userId"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "uuid-ids",
+      "dialect": "postgres",
+      "sql": "create table \"user\" (\"id\" uuid default pg_catalog.gen_random_uuid() not null primary key, \"name\" text not null, \"email\" text not null unique, \"emailVerified\" boolean not null, \"image\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate table \"session\" (\"id\" uuid default pg_catalog.gen_random_uuid() not null primary key, \"expiresAt\" timestamptz not null, \"token\" text not null unique, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null, \"ipAddress\" text, \"userAgent\" text, \"userId\" uuid not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" uuid default pg_catalog.gen_random_uuid() not null primary key, \"accountId\" text not null, \"providerId\" text not null, \"userId\" uuid not null references \"user\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" timestamptz, \"refreshTokenExpiresAt\" timestamptz, \"scope\" text, \"password\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null);\n\ncreate table \"verification\" (\"id\" uuid default pg_catalog.gen_random_uuid() not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" timestamptz not null, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate table \"member\" (\"id\" uuid default pg_catalog.gen_random_uuid() not null primary key, \"userId\" uuid not null references \"user\" (\"id\") on delete cascade);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "member",
+          "fields": [
+            "userId"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "uuid-ids",
+      "dialect": "mysql",
+      "sql": "create table `user` (`id` varchar(36) not null primary key, `name` varchar(255) not null, `email` varchar(255) not null unique, `emailVerified` boolean not null, `image` text, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null);\n\ncreate table `session` (`id` varchar(36) not null primary key, `expiresAt` timestamp(3) not null, `token` varchar(255) not null unique, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) not null, `ipAddress` text, `userAgent` text, `userId` varchar(36) not null references `user` (`id`) on delete cascade);\n\ncreate table `account` (`id` varchar(36) not null primary key, `accountId` text not null, `providerId` text not null, `userId` varchar(36) not null references `user` (`id`) on delete cascade, `accessToken` text, `refreshToken` text, `idToken` text, `accessTokenExpiresAt` timestamp(3), `refreshTokenExpiresAt` timestamp(3), `scope` text, `password` text, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) not null);\n\ncreate table `verification` (`id` varchar(36) not null primary key, `identifier` varchar(255) not null, `value` text not null, `expiresAt` timestamp(3) not null, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null);\n\ncreate table `member` (`id` varchar(36) not null primary key, `userId` varchar(36) not null references `user` (`id`) on delete cascade);\n\ncreate index `session_userId_idx` on `session` (`userId`);\n\ncreate index `account_userId_idx` on `account` (`userId`);\n\ncreate index `verification_identifier_idx` on `verification` (`identifier`);",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "member",
+          "fields": [
+            "userId"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "uuid-ids",
+      "dialect": "mssql",
+      "sql": "create table \"user\" (\"id\" varchar(36) not null primary key, \"name\" varchar(255) not null, \"email\" varchar(255) not null unique, \"emailVerified\" smallint not null, \"image\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate table \"session\" (\"id\" varchar(36) not null primary key, \"expiresAt\" datetime2(3) not null, \"token\" varchar(255) not null unique, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null, \"ipAddress\" varchar(8000), \"userAgent\" varchar(8000), \"userId\" varchar(36) not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" varchar(36) not null primary key, \"accountId\" varchar(8000) not null, \"providerId\" varchar(8000) not null, \"userId\" varchar(36) not null references \"user\" (\"id\") on delete cascade, \"accessToken\" varchar(8000), \"refreshToken\" varchar(8000), \"idToken\" varchar(8000), \"accessTokenExpiresAt\" datetime2(3), \"refreshTokenExpiresAt\" datetime2(3), \"scope\" varchar(8000), \"password\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null);\n\ncreate table \"verification\" (\"id\" varchar(36) not null primary key, \"identifier\" varchar(8000) not null, \"value\" varchar(8000) not null, \"expiresAt\" datetime2(3) not null, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate table \"member\" (\"id\" varchar(36) not null primary key, \"userId\" varchar(36) not null references \"user\" (\"id\") on delete cascade);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "member",
+          "fields": [
+            "userId"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": []
+    },
+    {
+      "config": "rate-limit",
+      "dialect": "sqlite",
+      "sql": "create table \"user\" (\"id\" text not null primary key, \"name\" text not null, \"email\" text not null unique, \"emailVerified\" integer not null, \"image\" text, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"session\" (\"id\" text not null primary key, \"expiresAt\" date not null, \"token\" text not null unique, \"createdAt\" date not null, \"updatedAt\" date not null, \"ipAddress\" text, \"userAgent\" text, \"userId\" text not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" text not null primary key, \"accountId\" text not null, \"providerId\" text not null, \"userId\" text not null references \"user\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" date, \"refreshTokenExpiresAt\" date, \"scope\" text, \"password\" text, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"verification\" (\"id\" text not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" date not null, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"rateLimit\" (\"id\" text not null primary key, \"key\" text not null unique, \"count\" integer not null, \"lastRequest\" bigint not null);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "rateLimit",
+          "fields": [
+            "key",
+            "count",
+            "lastRequest"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "rate-limit",
+      "dialect": "postgres",
+      "sql": "create table \"user\" (\"id\" text not null primary key, \"name\" text not null, \"email\" text not null unique, \"emailVerified\" boolean not null, \"image\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate table \"session\" (\"id\" text not null primary key, \"expiresAt\" timestamptz not null, \"token\" text not null unique, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null, \"ipAddress\" text, \"userAgent\" text, \"userId\" text not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" text not null primary key, \"accountId\" text not null, \"providerId\" text not null, \"userId\" text not null references \"user\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" timestamptz, \"refreshTokenExpiresAt\" timestamptz, \"scope\" text, \"password\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null);\n\ncreate table \"verification\" (\"id\" text not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" timestamptz not null, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate table \"rateLimit\" (\"id\" text not null primary key, \"key\" text not null unique, \"count\" integer not null, \"lastRequest\" bigint not null);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "rateLimit",
+          "fields": [
+            "key",
+            "count",
+            "lastRequest"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": [
+        "Field lastRequest in table rateLimit has a different type in the database. Expected number but got int8."
+      ]
+    },
+    {
+      "config": "rate-limit",
+      "dialect": "mysql",
+      "sql": "create table `user` (`id` varchar(36) not null primary key, `name` varchar(255) not null, `email` varchar(255) not null unique, `emailVerified` boolean not null, `image` text, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null);\n\ncreate table `session` (`id` varchar(36) not null primary key, `expiresAt` timestamp(3) not null, `token` varchar(255) not null unique, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) not null, `ipAddress` text, `userAgent` text, `userId` varchar(36) not null references `user` (`id`) on delete cascade);\n\ncreate table `account` (`id` varchar(36) not null primary key, `accountId` text not null, `providerId` text not null, `userId` varchar(36) not null references `user` (`id`) on delete cascade, `accessToken` text, `refreshToken` text, `idToken` text, `accessTokenExpiresAt` timestamp(3), `refreshTokenExpiresAt` timestamp(3), `scope` text, `password` text, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) not null);\n\ncreate table `verification` (`id` varchar(36) not null primary key, `identifier` varchar(255) not null, `value` text not null, `expiresAt` timestamp(3) not null, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null);\n\ncreate table `rateLimit` (`id` varchar(36) not null primary key, `key` varchar(255) not null unique, `count` integer not null, `lastRequest` bigint not null);\n\ncreate index `session_userId_idx` on `session` (`userId`);\n\ncreate index `account_userId_idx` on `account` (`userId`);\n\ncreate index `verification_identifier_idx` on `verification` (`identifier`);",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "rateLimit",
+          "fields": [
+            "key",
+            "count",
+            "lastRequest"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "rate-limit",
+      "dialect": "mssql",
+      "sql": "create table \"user\" (\"id\" varchar(36) not null primary key, \"name\" varchar(255) not null, \"email\" varchar(255) not null unique, \"emailVerified\" smallint not null, \"image\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate table \"session\" (\"id\" varchar(36) not null primary key, \"expiresAt\" datetime2(3) not null, \"token\" varchar(255) not null unique, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null, \"ipAddress\" varchar(8000), \"userAgent\" varchar(8000), \"userId\" varchar(36) not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" varchar(36) not null primary key, \"accountId\" varchar(8000) not null, \"providerId\" varchar(8000) not null, \"userId\" varchar(36) not null references \"user\" (\"id\") on delete cascade, \"accessToken\" varchar(8000), \"refreshToken\" varchar(8000), \"idToken\" varchar(8000), \"accessTokenExpiresAt\" datetime2(3), \"refreshTokenExpiresAt\" datetime2(3), \"scope\" varchar(8000), \"password\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null);\n\ncreate table \"verification\" (\"id\" varchar(36) not null primary key, \"identifier\" varchar(8000) not null, \"value\" varchar(8000) not null, \"expiresAt\" datetime2(3) not null, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate table \"rateLimit\" (\"id\" varchar(36) not null primary key, \"key\" varchar(255) not null unique, \"count\" integer not null, \"lastRequest\" bigint not null);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "rateLimit",
+          "fields": [
+            "key",
+            "count",
+            "lastRequest"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": []
+    },
+    {
+      "config": "compound-string-indexes",
+      "dialect": "sqlite",
+      "sql": "create table \"user\" (\"id\" text not null primary key, \"name\" text not null, \"email\" text not null unique, \"emailVerified\" integer not null, \"image\" text, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"session\" (\"id\" text not null primary key, \"expiresAt\" date not null, \"token\" text not null unique, \"createdAt\" date not null, \"updatedAt\" date not null, \"ipAddress\" text, \"userAgent\" text, \"userId\" text not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" text not null primary key, \"accountId\" text not null, \"providerId\" text not null, \"userId\" text not null references \"user\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" date, \"refreshTokenExpiresAt\" date, \"scope\" text, \"password\" text, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"verification\" (\"id\" text not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" date not null, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"directory_user\" (\"id\" text not null primary key, \"connection_id\" text not null, \"external_id\" text not null, \"tenant\" text not null, \"seq\" integer not null, \"kind\" text not null);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");\n\ncreate unique index \"directory_user_connection_id_external_id_uidx\" on \"directory_user\" (\"connection_id\", \"external_id\");\n\ncreate index \"directory_user_tenant_seq_connection_id_idx\" on \"directory_user\" (\"tenant\", \"seq\", \"connection_id\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "directory_user",
+          "fields": [
+            "connection_id",
+            "external_id",
+            "tenant",
+            "seq",
+            "kind"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [
+        {
+          "table": "directory_user",
+          "name": "directory_user_connection_id_external_id_uidx",
+          "columns": [
+            "connection_id",
+            "external_id"
+          ],
+          "unique": true
+        },
+        {
+          "table": "directory_user",
+          "name": "directory_user_tenant_seq_connection_id_idx",
+          "columns": [
+            "tenant",
+            "seq",
+            "connection_id"
+          ],
+          "unique": false
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "compound-string-indexes",
+      "dialect": "postgres",
+      "sql": "create table \"user\" (\"id\" text not null primary key, \"name\" text not null, \"email\" text not null unique, \"emailVerified\" boolean not null, \"image\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate table \"session\" (\"id\" text not null primary key, \"expiresAt\" timestamptz not null, \"token\" text not null unique, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null, \"ipAddress\" text, \"userAgent\" text, \"userId\" text not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" text not null primary key, \"accountId\" text not null, \"providerId\" text not null, \"userId\" text not null references \"user\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" timestamptz, \"refreshTokenExpiresAt\" timestamptz, \"scope\" text, \"password\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null);\n\ncreate table \"verification\" (\"id\" text not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" timestamptz not null, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate table \"directory_user\" (\"id\" text not null primary key, \"connection_id\" text not null, \"external_id\" text not null, \"tenant\" text not null, \"seq\" integer not null, \"kind\" text not null);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");\n\ncreate unique index \"directory_user_connection_id_external_id_uidx\" on \"directory_user\" (\"connection_id\", \"external_id\");\n\ncreate index \"directory_user_tenant_seq_connection_id_idx\" on \"directory_user\" (\"tenant\", \"seq\", \"connection_id\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "directory_user",
+          "fields": [
+            "connection_id",
+            "external_id",
+            "tenant",
+            "seq",
+            "kind"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [
+        {
+          "table": "directory_user",
+          "name": "directory_user_connection_id_external_id_uidx",
+          "columns": [
+            "connection_id",
+            "external_id"
+          ],
+          "unique": true
+        },
+        {
+          "table": "directory_user",
+          "name": "directory_user_tenant_seq_connection_id_idx",
+          "columns": [
+            "tenant",
+            "seq",
+            "connection_id"
+          ],
+          "unique": false
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "compound-string-indexes",
+      "dialect": "mysql",
+      "sql": "create table `user` (`id` varchar(36) not null primary key, `name` varchar(255) not null, `email` varchar(255) not null unique, `emailVerified` boolean not null, `image` text, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null);\n\ncreate table `session` (`id` varchar(36) not null primary key, `expiresAt` timestamp(3) not null, `token` varchar(255) not null unique, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) not null, `ipAddress` text, `userAgent` text, `userId` varchar(36) not null references `user` (`id`) on delete cascade);\n\ncreate table `account` (`id` varchar(36) not null primary key, `accountId` text not null, `providerId` text not null, `userId` varchar(36) not null references `user` (`id`) on delete cascade, `accessToken` text, `refreshToken` text, `idToken` text, `accessTokenExpiresAt` timestamp(3), `refreshTokenExpiresAt` timestamp(3), `scope` text, `password` text, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) not null);\n\ncreate table `verification` (`id` varchar(36) not null primary key, `identifier` varchar(255) not null, `value` text not null, `expiresAt` timestamp(3) not null, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null);\n\ncreate table `directory_user` (`id` varchar(36) not null primary key, `connection_id` varchar(191) not null, `external_id` varchar(191) not null, `tenant` varchar(191) not null, `seq` integer not null, `kind` text not null);\n\ncreate index `session_userId_idx` on `session` (`userId`);\n\ncreate index `account_userId_idx` on `account` (`userId`);\n\ncreate index `verification_identifier_idx` on `verification` (`identifier`);\n\ncreate unique index `directory_user_connection_id_external_id_uidx` on `directory_user` (`connection_id`, `external_id`);\n\ncreate index `directory_user_tenant_seq_connection_id_idx` on `directory_user` (`tenant`, `seq`, `connection_id`);",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "directory_user",
+          "fields": [
+            "connection_id",
+            "external_id",
+            "tenant",
+            "seq",
+            "kind"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [
+        {
+          "table": "directory_user",
+          "name": "directory_user_connection_id_external_id_uidx",
+          "columns": [
+            "connection_id",
+            "external_id"
+          ],
+          "unique": true
+        },
+        {
+          "table": "directory_user",
+          "name": "directory_user_tenant_seq_connection_id_idx",
+          "columns": [
+            "tenant",
+            "seq",
+            "connection_id"
+          ],
+          "unique": false
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "compound-string-indexes",
+      "dialect": "mssql",
+      "sql": "create table \"user\" (\"id\" varchar(36) not null primary key, \"name\" varchar(255) not null, \"email\" varchar(255) not null unique, \"emailVerified\" smallint not null, \"image\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate table \"session\" (\"id\" varchar(36) not null primary key, \"expiresAt\" datetime2(3) not null, \"token\" varchar(255) not null unique, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null, \"ipAddress\" varchar(8000), \"userAgent\" varchar(8000), \"userId\" varchar(36) not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" varchar(36) not null primary key, \"accountId\" varchar(8000) not null, \"providerId\" varchar(8000) not null, \"userId\" varchar(36) not null references \"user\" (\"id\") on delete cascade, \"accessToken\" varchar(8000), \"refreshToken\" varchar(8000), \"idToken\" varchar(8000), \"accessTokenExpiresAt\" datetime2(3), \"refreshTokenExpiresAt\" datetime2(3), \"scope\" varchar(8000), \"password\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null);\n\ncreate table \"verification\" (\"id\" varchar(36) not null primary key, \"identifier\" varchar(8000) not null, \"value\" varchar(8000) not null, \"expiresAt\" datetime2(3) not null, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate table \"directory_user\" (\"id\" varchar(36) not null primary key, \"connection_id\" varchar(255) not null, \"external_id\" varchar(255) not null, \"tenant\" varchar(255) not null, \"seq\" integer not null, \"kind\" text not null);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");\n\ncreate unique index \"directory_user_connection_id_external_id_uidx\" on \"directory_user\" (\"connection_id\", \"external_id\");\n\ncreate index \"directory_user_tenant_seq_connection_id_idx\" on \"directory_user\" (\"tenant\", \"seq\", \"connection_id\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "directory_user",
+          "fields": [
+            "connection_id",
+            "external_id",
+            "tenant",
+            "seq",
+            "kind"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [
+        {
+          "table": "directory_user",
+          "name": "directory_user_connection_id_external_id_uidx",
+          "columns": [
+            "connection_id",
+            "external_id"
+          ],
+          "unique": true
+        },
+        {
+          "table": "directory_user",
+          "name": "directory_user_tenant_seq_connection_id_idx",
+          "columns": [
+            "tenant",
+            "seq",
+            "connection_id"
+          ],
+          "unique": false
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": []
+    },
+    {
+      "config": "schema-name",
+      "dialect": "postgres",
+      "sql": "create schema if not exists \"auth\";\n\ncreate table \"auth\".\"user\" (\"id\" text not null primary key, \"name\" text not null, \"email\" text not null unique, \"emailVerified\" boolean not null, \"image\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate table \"auth\".\"session\" (\"id\" text not null primary key, \"expiresAt\" timestamptz not null, \"token\" text not null unique, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null, \"ipAddress\" text, \"userAgent\" text, \"userId\" text not null references \"auth\".\"user\" (\"id\") on delete cascade);\n\ncreate table \"auth\".\"account\" (\"id\" text not null primary key, \"accountId\" text not null, \"providerId\" text not null, \"userId\" text not null references \"auth\".\"user\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" timestamptz, \"refreshTokenExpiresAt\" timestamptz, \"scope\" text, \"password\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null);\n\ncreate table \"auth\".\"verification\" (\"id\" text not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" timestamptz not null, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate table \"auth\".\"member\" (\"id\" text not null primary key, \"userId\" text not null references \"auth\".\"user\" (\"id\") on delete cascade);\n\ncreate index \"session_userId_idx\" on \"auth\".\"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"auth\".\"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"auth\".\"verification\" (\"identifier\");\n\ncreate index \"member_userId_idx\" on \"auth\".\"member\" (\"userId\");\n\ncreate unique index \"member_user_uidx\" on \"auth\".\"member\" (\"userId\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "member",
+          "fields": [
+            "userId"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [
+        {
+          "table": "member",
+          "name": "member_user_uidx",
+          "columns": [
+            "userId"
+          ],
+          "unique": true
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "schema-name-partial",
+      "dialect": "postgres",
+      "sql": "alter table \"auth\".\"user\" add column \"role\" text;\n\ncreate index \"user_role_idx\" on \"auth\".\"user\" (\"role\");\n\ncreate index \"user_email_name_idx\" on \"auth\".\"user\" (\"email\", \"name\");",
+      "toBeCreated": [],
+      "toBeAdded": [
+        {
+          "table": "user",
+          "fields": [
+            "role"
+          ]
+        }
+      ],
+      "toBeAddedIndexes": [
+        {
+          "table": "user",
+          "name": "user_email_name_idx",
+          "columns": [
+            "email",
+            "name"
+          ],
+          "unique": false
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "search-path",
+      "dialect": "postgres",
+      "sql": "create table \"user\" (\"id\" text not null primary key, \"name\" text not null, \"email\" text not null unique, \"emailVerified\" boolean not null, \"image\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate table \"session\" (\"id\" text not null primary key, \"expiresAt\" timestamptz not null, \"token\" text not null unique, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null, \"ipAddress\" text, \"userAgent\" text, \"userId\" text not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" text not null primary key, \"accountId\" text not null, \"providerId\" text not null, \"userId\" text not null references \"user\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" timestamptz, \"refreshTokenExpiresAt\" timestamptz, \"scope\" text, \"password\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null);\n\ncreate table \"verification\" (\"id\" text not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" timestamptz not null, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "partial-add-columns",
+      "dialect": "sqlite",
+      "sql": "alter table \"user\" add column \"role\" text;\n\nalter table \"user\" add column \"credits\" integer default 10 not null;\n\nalter table \"user\" add column \"isAdmin\" integer default 1 not null;\n\nalter table \"user\" add column \"plan\" text default 'it''s free' not null;\n\nalter table \"user\" add column \"inviteCode\" text;\n\nalter table \"user\" add column \"lastSeen\" date not null;\n\nalter table \"session\" add column \"orgId\" text references \"user\" (\"id\") on delete set null;\n\ncreate table \"deviceCode\" (\"id\" text not null primary key, \"deviceCode\" text not null, \"userCode\" text not null, \"userId\" text references \"user\" (\"id\") on delete cascade);\n\ncreate index \"user_role_idx\" on \"user\" (\"role\");\n\ncreate unique index \"user_inviteCode_uidx\" on \"user\" (\"inviteCode\");\n\ncreate index \"deviceCode_userCode_idx\" on \"deviceCode\" (\"userCode\");\n\ncreate unique index \"deviceCode_deviceCode_uidx\" on \"deviceCode\" (\"deviceCode\");",
+      "toBeCreated": [
+        {
+          "table": "deviceCode",
+          "fields": [
+            "deviceCode",
+            "userCode",
+            "userId"
+          ]
+        }
+      ],
+      "toBeAdded": [
+        {
+          "table": "user",
+          "fields": [
+            "role",
+            "credits",
+            "isAdmin",
+            "plan",
+            "inviteCode",
+            "lastSeen"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "orgId"
+          ]
+        }
+      ],
+      "toBeAddedIndexes": [
+        {
+          "table": "deviceCode",
+          "name": "deviceCode_deviceCode_uidx",
+          "columns": [
+            "deviceCode"
+          ],
+          "unique": true
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "partial-add-columns",
+      "dialect": "postgres",
+      "sql": "alter table \"user\" add column \"role\" text;\n\nalter table \"user\" add column \"credits\" integer default 10 not null;\n\nalter table \"user\" add column \"isAdmin\" boolean default true not null;\n\nalter table \"user\" add column \"plan\" text default 'it''s free' not null;\n\nalter table \"user\" add column \"inviteCode\" text;\n\nalter table \"user\" add column \"lastSeen\" timestamptz default CURRENT_TIMESTAMP not null;\n\nalter table \"session\" add column \"orgId\" text references \"user\" (\"id\") on delete set null;\n\ncreate table \"deviceCode\" (\"id\" text not null primary key, \"deviceCode\" text not null, \"userCode\" text not null, \"userId\" text references \"user\" (\"id\") on delete cascade);\n\ncreate index \"user_role_idx\" on \"user\" (\"role\");\n\ncreate unique index \"user_inviteCode_uidx\" on \"user\" (\"inviteCode\");\n\ncreate index \"deviceCode_userCode_idx\" on \"deviceCode\" (\"userCode\");\n\ncreate unique index \"deviceCode_deviceCode_uidx\" on \"deviceCode\" (\"deviceCode\");",
+      "toBeCreated": [
+        {
+          "table": "deviceCode",
+          "fields": [
+            "deviceCode",
+            "userCode",
+            "userId"
+          ]
+        }
+      ],
+      "toBeAdded": [
+        {
+          "table": "user",
+          "fields": [
+            "role",
+            "credits",
+            "isAdmin",
+            "plan",
+            "inviteCode",
+            "lastSeen"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "orgId"
+          ]
+        }
+      ],
+      "toBeAddedIndexes": [
+        {
+          "table": "deviceCode",
+          "name": "deviceCode_deviceCode_uidx",
+          "columns": [
+            "deviceCode"
+          ],
+          "unique": true
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "partial-add-columns",
+      "dialect": "mysql",
+      "sql": "alter table `user` add column `role` varchar(255);\n\nalter table `user` add column `credits` integer default 10 not null;\n\nalter table `user` add column `isAdmin` boolean default true not null;\n\nalter table `user` add column `plan` varchar(255) default 'it''s free' not null;\n\nalter table `user` add column `inviteCode` varchar(255);\n\nalter table `user` add column `lastSeen` timestamp(3) default CURRENT_TIMESTAMP(3) not null;\n\nalter table `session` add column `orgId` varchar(36) references `user` (`id`) on delete set null;\n\ncreate table `deviceCode` (`id` varchar(36) not null primary key, `deviceCode` varchar(191) not null, `userCode` varchar(255) not null, `userId` varchar(36) references `user` (`id`) on delete cascade);\n\ncreate index `user_role_idx` on `user` (`role`);\n\ncreate unique index `user_inviteCode_uidx` on `user` (`inviteCode`);\n\ncreate index `deviceCode_userCode_idx` on `deviceCode` (`userCode`);\n\ncreate unique index `deviceCode_deviceCode_uidx` on `deviceCode` (`deviceCode`);",
+      "toBeCreated": [
+        {
+          "table": "deviceCode",
+          "fields": [
+            "deviceCode",
+            "userCode",
+            "userId"
+          ]
+        }
+      ],
+      "toBeAdded": [
+        {
+          "table": "user",
+          "fields": [
+            "role",
+            "credits",
+            "isAdmin",
+            "plan",
+            "inviteCode",
+            "lastSeen"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "orgId"
+          ]
+        }
+      ],
+      "toBeAddedIndexes": [
+        {
+          "table": "deviceCode",
+          "name": "deviceCode_deviceCode_uidx",
+          "columns": [
+            "deviceCode"
+          ],
+          "unique": true
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "existing-table-index",
+      "dialect": "sqlite",
+      "sql": "create index \"session_userId_expiresAt_idx\" on \"session\" (\"userId\", \"expiresAt\");\n\ncreate unique index \"account_providerId_accountId_uidx\" on \"account\" (\"providerId\", \"accountId\");",
+      "toBeCreated": [],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [
+        {
+          "table": "session",
+          "name": "session_userId_expiresAt_idx",
+          "columns": [
+            "userId",
+            "expiresAt"
+          ],
+          "unique": false
+        },
+        {
+          "table": "account",
+          "name": "account_providerId_accountId_uidx",
+          "columns": [
+            "providerId",
+            "accountId"
+          ],
+          "unique": true
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "existing-table-index",
+      "dialect": "postgres",
+      "sql": "create index \"session_userId_expiresAt_idx\" on \"session\" (\"userId\", \"expiresAt\");\n\ncreate unique index \"account_providerId_accountId_uidx\" on \"account\" (\"providerId\", \"accountId\");",
+      "toBeCreated": [],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [
+        {
+          "table": "session",
+          "name": "session_userId_expiresAt_idx",
+          "columns": [
+            "userId",
+            "expiresAt"
+          ],
+          "unique": false
+        },
+        {
+          "table": "account",
+          "name": "account_providerId_accountId_uidx",
+          "columns": [
+            "providerId",
+            "accountId"
+          ],
+          "unique": true
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "existing-table-index",
+      "dialect": "mysql",
+      "error": "BetterAuthError: Cannot create database index \"account_providerId_accountId_uidx\" on existing table \"account\" because its columns can exceed MySQL's 3072-byte index-key limit. Bound the indexed string columns to the generated schema lengths, resolve oversized values, then run the migration again.",
+      "warnings": []
+    },
+    {
+      "config": "partial-populated-unsafe",
+      "dialect": "sqlite",
+      "sql": "alter table \"user\" add column \"tier\" text not null;\n\nalter table \"user\" add column \"seats\" integer not null;\n\nalter table \"user\" add column \"code\" text default 'unset' not null;\n\nalter table \"user\" add column \"optional\" text;\n\ncreate unique index \"user_code_uidx\" on \"user\" (\"code\");",
+      "toBeCreated": [],
+      "toBeAdded": [
+        {
+          "table": "user",
+          "fields": [
+            "tier",
+            "seats",
+            "code",
+            "optional"
+          ]
+        }
+      ],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [
+        "Cannot add required column \"tier\" to populated table \"user\": the schema declares no default value, so existing rows have no value to backfill. MySQL accepts this statement instead of rejecting it and fills every existing row with an implicit default for the column type, reporting a successful migration over corrupted data. For a text column, every existing row ends up with the same empty string. Add the column as nullable, backfill a correct value for every row, then make it NOT NULL.",
+        "Cannot add required column \"seats\" to populated table \"user\": the schema declares no default value, so existing rows have no value to backfill. MySQL accepts this statement instead of rejecting it and fills every existing row with an implicit default for the column type, reporting a successful migration over corrupted data. Add the column as nullable, backfill a correct value for every row, then make it NOT NULL."
+      ],
+      "schemaProblems": [],
+      "warnings": [
+        "Adding unique column \"code\" to existing table \"user\" backfills every existing row with its default value. If the table has more than one row, creating the unique index \"user_code_uidx\" will fail; backfill distinct values manually, then re-run the migration or create the index yourself."
+      ]
+    },
+    {
+      "config": "partial-populated-unsafe",
+      "dialect": "postgres",
+      "sql": "alter table \"user\" add column \"tier\" text not null;\n\nalter table \"user\" add column \"seats\" integer not null;\n\nalter table \"user\" add column \"code\" text default 'unset' not null;\n\nalter table \"user\" add column \"optional\" text;\n\ncreate unique index \"user_code_uidx\" on \"user\" (\"code\");",
+      "toBeCreated": [],
+      "toBeAdded": [
+        {
+          "table": "user",
+          "fields": [
+            "tier",
+            "seats",
+            "code",
+            "optional"
+          ]
+        }
+      ],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [
+        "Cannot add required column \"tier\" to populated table \"user\": the schema declares no default value, so existing rows have no value to backfill. MySQL accepts this statement instead of rejecting it and fills every existing row with an implicit default for the column type, reporting a successful migration over corrupted data. For a text column, every existing row ends up with the same empty string. Add the column as nullable, backfill a correct value for every row, then make it NOT NULL.",
+        "Cannot add required column \"seats\" to populated table \"user\": the schema declares no default value, so existing rows have no value to backfill. MySQL accepts this statement instead of rejecting it and fills every existing row with an implicit default for the column type, reporting a successful migration over corrupted data. Add the column as nullable, backfill a correct value for every row, then make it NOT NULL."
+      ],
+      "schemaProblems": [],
+      "warnings": [
+        "Adding unique column \"code\" to existing table \"user\" backfills every existing row with its default value. If the table has more than one row, creating the unique index \"user_code_uidx\" will fail; backfill distinct values manually, then re-run the migration or create the index yourself."
+      ]
+    },
+    {
+      "config": "partial-populated-unsafe",
+      "dialect": "mysql",
+      "sql": "alter table `user` add column `tier` text not null;\n\nalter table `user` add column `seats` integer not null;\n\nalter table `user` add column `code` varchar(255) default 'unset' not null;\n\nalter table `user` add column `optional` text;\n\ncreate unique index `user_code_uidx` on `user` (`code`);",
+      "toBeCreated": [],
+      "toBeAdded": [
+        {
+          "table": "user",
+          "fields": [
+            "tier",
+            "seats",
+            "code",
+            "optional"
+          ]
+        }
+      ],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [
+        "Cannot add required column \"tier\" to populated table \"user\": the schema declares no default value, so existing rows have no value to backfill. MySQL accepts this statement instead of rejecting it and fills every existing row with an implicit default for the column type, reporting a successful migration over corrupted data. For a text column, every existing row ends up with the same empty string. Add the column as nullable, backfill a correct value for every row, then make it NOT NULL.",
+        "Cannot add required column \"seats\" to populated table \"user\": the schema declares no default value, so existing rows have no value to backfill. MySQL accepts this statement instead of rejecting it and fills every existing row with an implicit default for the column type, reporting a successful migration over corrupted data. Add the column as nullable, backfill a correct value for every row, then make it NOT NULL."
+      ],
+      "schemaProblems": [],
+      "warnings": [
+        "Adding unique column \"code\" to existing table \"user\" backfills every existing row with its default value. If the table has more than one row, creating the unique index \"user_code_uidx\" will fail; backfill distinct values manually, then re-run the migration or create the index yourself."
+      ]
+    },
+    {
+      "config": "unexpected-required-column",
+      "dialect": "sqlite",
+      "sql": ";",
+      "toBeCreated": [],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [
+        "Column \"legacy\" on table \"verification\" is required but Better Auth never writes it, so every insert into \"verification\" fails. Drop the column, make it nullable, or give it a database default."
+      ],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "unexpected-required-column",
+      "dialect": "postgres",
+      "sql": ";",
+      "toBeCreated": [],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [
+        "Column \"issuer\" on table \"account\" is required but Better Auth never writes it, so every insert into \"account\" fails. Drop the column, make it nullable, or give it a database default. If this column came from Better Auth 1.7.0 through 1.7.2, follow the upgrade guide before removing it: https://www.better-auth.com/docs/guides/1-7-upgrade-guide"
+      ],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "unexpected-required-column",
+      "dialect": "mysql",
+      "sql": ";",
+      "toBeCreated": [],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [
+        "Column \"issuer\" on table \"account\" is required but Better Auth never writes it, so every insert into \"account\" fails. Drop the column, make it nullable, or give it a database default. If this column came from Better Auth 1.7.0 through 1.7.2, follow the upgrade guide before removing it: https://www.better-auth.com/docs/guides/1-7-upgrade-guide"
+      ],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "index-conflict",
+      "dialect": "sqlite",
+      "error": "BetterAuthError: Database index \"directory_identity_uidx\" on table \"directory_user\" does not match the configured fields and uniqueness. Rename or replace the existing index, then run the migration again.",
+      "warnings": []
+    },
+    {
+      "config": "index-conflict",
+      "dialect": "postgres",
+      "error": "BetterAuthError: Database index \"directory_identity_uidx\" on table \"directory_user\" does not match the configured fields and uniqueness. Rename or replace the existing index, then run the migration again.",
+      "warnings": []
+    },
+    {
+      "config": "index-conflict",
+      "dialect": "mysql",
+      "error": "BetterAuthError: Database index \"directory_identity_uidx\" on table \"directory_user\" does not match the configured fields and uniqueness. Rename or replace the existing index, then run the migration again.",
+      "warnings": []
+    },
+    {
+      "config": "index-conflict",
+      "dialect": "mssql",
+      "sql": "create table \"user\" (\"id\" varchar(36) not null primary key, \"name\" varchar(255) not null, \"email\" varchar(255) not null unique, \"emailVerified\" smallint not null, \"image\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate table \"session\" (\"id\" varchar(36) not null primary key, \"expiresAt\" datetime2(3) not null, \"token\" varchar(255) not null unique, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null, \"ipAddress\" varchar(8000), \"userAgent\" varchar(8000), \"userId\" varchar(36) not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" varchar(36) not null primary key, \"accountId\" varchar(8000) not null, \"providerId\" varchar(8000) not null, \"userId\" varchar(36) not null references \"user\" (\"id\") on delete cascade, \"accessToken\" varchar(8000), \"refreshToken\" varchar(8000), \"idToken\" varchar(8000), \"accessTokenExpiresAt\" datetime2(3), \"refreshTokenExpiresAt\" datetime2(3), \"scope\" varchar(8000), \"password\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null);\n\ncreate table \"verification\" (\"id\" varchar(36) not null primary key, \"identifier\" varchar(8000) not null, \"value\" varchar(8000) not null, \"expiresAt\" datetime2(3) not null, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate table \"directory_user\" (\"id\" varchar(36) not null primary key, \"connection_id\" varchar(255) not null, \"external_id\" varchar(255) not null);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");\n\ncreate unique index \"directory_identity_uidx\" on \"directory_user\" (\"connection_id\", \"external_id\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "directory_user",
+          "fields": [
+            "connection_id",
+            "external_id"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [
+        {
+          "table": "directory_user",
+          "name": "directory_identity_uidx",
+          "columns": [
+            "connection_id",
+            "external_id"
+          ],
+          "unique": true
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": []
+    },
+    {
+      "config": "index-existing-bounded",
+      "dialect": "sqlite",
+      "sql": "alter table \"directory_user\" add column \"note\" text;\n\ncreate table \"user\" (\"id\" text not null primary key, \"name\" text not null, \"email\" text not null unique, \"emailVerified\" integer not null, \"image\" text, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"session\" (\"id\" text not null primary key, \"expiresAt\" date not null, \"token\" text not null unique, \"createdAt\" date not null, \"updatedAt\" date not null, \"ipAddress\" text, \"userAgent\" text, \"userId\" text not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" text not null primary key, \"accountId\" text not null, \"providerId\" text not null, \"userId\" text not null references \"user\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" date, \"refreshTokenExpiresAt\" date, \"scope\" text, \"password\" text, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"verification\" (\"id\" text not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" date not null, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate index \"directory_user_note_idx\" on \"directory_user\" (\"note\");\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        }
+      ],
+      "toBeAdded": [
+        {
+          "table": "directory_user",
+          "fields": [
+            "note"
+          ]
+        }
+      ],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [
+        "Field connection_id in table directory_user has a different type in the database. Expected string but got varchar(100).",
+        "Field external_id in table directory_user has a different type in the database. Expected string but got varchar(100)."
+      ],
+      "afterApply": ";",
+      "afterApplyWarnings": [
+        "Field connection_id in table directory_user has a different type in the database. Expected string but got varchar(100).",
+        "Field external_id in table directory_user has a different type in the database. Expected string but got varchar(100)."
+      ]
+    },
+    {
+      "config": "index-existing-bounded",
+      "dialect": "postgres",
+      "sql": "alter table \"directory_user\" add column \"note\" text;\n\ncreate table \"user\" (\"id\" text not null primary key, \"name\" text not null, \"email\" text not null unique, \"emailVerified\" boolean not null, \"image\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate table \"session\" (\"id\" text not null primary key, \"expiresAt\" timestamptz not null, \"token\" text not null unique, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null, \"ipAddress\" text, \"userAgent\" text, \"userId\" text not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" text not null primary key, \"accountId\" text not null, \"providerId\" text not null, \"userId\" text not null references \"user\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" timestamptz, \"refreshTokenExpiresAt\" timestamptz, \"scope\" text, \"password\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null);\n\ncreate table \"verification\" (\"id\" text not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" timestamptz not null, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate index \"directory_user_note_idx\" on \"directory_user\" (\"note\");\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        }
+      ],
+      "toBeAdded": [
+        {
+          "table": "directory_user",
+          "fields": [
+            "note"
+          ]
+        }
+      ],
+      "toBeAddedIndexes": [],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "index-existing-bounded",
+      "dialect": "mysql",
+      "sql": "alter table `directory_user` add column `note` varchar(255);\n\ncreate table `user` (`id` varchar(36) not null primary key, `name` varchar(255) not null, `email` varchar(255) not null unique, `emailVerified` boolean not null, `image` text, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null);\n\ncreate table `session` (`id` varchar(36) not null primary key, `expiresAt` timestamp(3) not null, `token` varchar(255) not null unique, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) not null, `ipAddress` text, `userAgent` text, `userId` varchar(36) not null references `user` (`id`) on delete cascade);\n\ncreate table `account` (`id` varchar(36) not null primary key, `accountId` text not null, `providerId` text not null, `userId` varchar(36) not null references `user` (`id`) on delete cascade, `accessToken` text, `refreshToken` text, `idToken` text, `accessTokenExpiresAt` timestamp(3), `refreshTokenExpiresAt` timestamp(3), `scope` text, `password` text, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) not null);\n\ncreate table `verification` (`id` varchar(36) not null primary key, `identifier` varchar(255) not null, `value` text not null, `expiresAt` timestamp(3) not null, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null);\n\ncreate index `directory_user_note_idx` on `directory_user` (`note`);\n\ncreate index `session_userId_idx` on `session` (`userId`);\n\ncreate index `account_userId_idx` on `account` (`userId`);\n\ncreate index `verification_identifier_idx` on `verification` (`identifier`);\n\ncreate unique index `directory_identity_uidx` on `directory_user` (`connection_id`, `external_id`);",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        }
+      ],
+      "toBeAdded": [
+        {
+          "table": "directory_user",
+          "fields": [
+            "note"
+          ]
+        }
+      ],
+      "toBeAddedIndexes": [
+        {
+          "table": "directory_user",
+          "name": "directory_identity_uidx",
+          "columns": [
+            "connection_id",
+            "external_id"
+          ],
+          "unique": true
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "index-existing-bounded",
+      "dialect": "mssql",
+      "sql": "create table \"user\" (\"id\" varchar(36) not null primary key, \"name\" varchar(255) not null, \"email\" varchar(255) not null unique, \"emailVerified\" smallint not null, \"image\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate table \"session\" (\"id\" varchar(36) not null primary key, \"expiresAt\" datetime2(3) not null, \"token\" varchar(255) not null unique, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null, \"ipAddress\" varchar(8000), \"userAgent\" varchar(8000), \"userId\" varchar(36) not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" varchar(36) not null primary key, \"accountId\" varchar(8000) not null, \"providerId\" varchar(8000) not null, \"userId\" varchar(36) not null references \"user\" (\"id\") on delete cascade, \"accessToken\" varchar(8000), \"refreshToken\" varchar(8000), \"idToken\" varchar(8000), \"accessTokenExpiresAt\" datetime2(3), \"refreshTokenExpiresAt\" datetime2(3), \"scope\" varchar(8000), \"password\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null);\n\ncreate table \"verification\" (\"id\" varchar(36) not null primary key, \"identifier\" varchar(8000) not null, \"value\" varchar(8000) not null, \"expiresAt\" datetime2(3) not null, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate table \"directory_user\" (\"id\" varchar(36) not null primary key, \"connection_id\" varchar(255) not null, \"external_id\" varchar(255) not null, \"note\" varchar(8000));\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");\n\ncreate index \"directory_user_note_idx\" on \"directory_user\" (\"note\");\n\ncreate unique index \"directory_identity_uidx\" on \"directory_user\" (\"connection_id\", \"external_id\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "directory_user",
+          "fields": [
+            "connection_id",
+            "external_id",
+            "note"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [
+        {
+          "table": "directory_user",
+          "name": "directory_identity_uidx",
+          "columns": [
+            "connection_id",
+            "external_id"
+          ],
+          "unique": true
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": []
+    },
+    {
+      "config": "long-index-names",
+      "dialect": "sqlite",
+      "sql": "create table \"user\" (\"id\" text not null primary key, \"name\" text not null, \"email\" text not null unique, \"emailVerified\" integer not null, \"image\" text, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"session\" (\"id\" text not null primary key, \"expiresAt\" date not null, \"token\" text not null unique, \"createdAt\" date not null, \"updatedAt\" date not null, \"ipAddress\" text, \"userAgent\" text, \"userId\" text not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" text not null primary key, \"accountId\" text not null, \"providerId\" text not null, \"userId\" text not null references \"user\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" date, \"refreshTokenExpiresAt\" date, \"scope\" text, \"password\" text, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"verification\" (\"id\" text not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" date not null, \"createdAt\" date not null, \"updatedAt\" date not null);\n\ncreate table \"enterprise_directory_user_identity\" (\"id\" text not null primary key, \"provisioning_connection_identifier\" text not null, \"external_directory_subject_identifier\" text not null, \"étiquette_ünïcödé_subject_identifier\" text);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");\n\ncreate index \"enterprise_directory_user_identity_étiquette_ün_6c9ffb65_idx\" on \"enterprise_directory_user_identity\" (\"étiquette_ünïcödé_subject_identifier\");\n\ncreate unique index \"enterprise_directory_user_identity_provisioning_c_e1bb1624_uidx\" on \"enterprise_directory_user_identity\" (\"provisioning_connection_identifier\", \"external_directory_subject_identifier\");\n\ncreate index \"enterprise_directory_user_identity_external_direct_11de5bfe_idx\" on \"enterprise_directory_user_identity\" (\"external_directory_subject_identifier\", \"étiquette_ünïcödé_subject_identifier\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "enterprise_directory_user_identity",
+          "fields": [
+            "provisioning_connection_identifier",
+            "external_directory_subject_identifier",
+            "étiquette_ünïcödé_subject_identifier"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [
+        {
+          "table": "enterprise_directory_user_identity",
+          "name": "enterprise_directory_user_identity_provisioning_c_e1bb1624_uidx",
+          "columns": [
+            "provisioning_connection_identifier",
+            "external_directory_subject_identifier"
+          ],
+          "unique": true
+        },
+        {
+          "table": "enterprise_directory_user_identity",
+          "name": "enterprise_directory_user_identity_external_direct_11de5bfe_idx",
+          "columns": [
+            "external_directory_subject_identifier",
+            "étiquette_ünïcödé_subject_identifier"
+          ],
+          "unique": false
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "long-index-names",
+      "dialect": "postgres",
+      "sql": "create table \"user\" (\"id\" text not null primary key, \"name\" text not null, \"email\" text not null unique, \"emailVerified\" boolean not null, \"image\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate table \"session\" (\"id\" text not null primary key, \"expiresAt\" timestamptz not null, \"token\" text not null unique, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null, \"ipAddress\" text, \"userAgent\" text, \"userId\" text not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" text not null primary key, \"accountId\" text not null, \"providerId\" text not null, \"userId\" text not null references \"user\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" timestamptz, \"refreshTokenExpiresAt\" timestamptz, \"scope\" text, \"password\" text, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz not null);\n\ncreate table \"verification\" (\"id\" text not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" timestamptz not null, \"createdAt\" timestamptz default CURRENT_TIMESTAMP not null, \"updatedAt\" timestamptz default CURRENT_TIMESTAMP not null);\n\ncreate table \"enterprise_directory_user_identity\" (\"id\" text not null primary key, \"provisioning_connection_identifier\" text not null, \"external_directory_subject_identifier\" text not null, \"étiquette_ünïcödé_subject_identifier\" text);\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");\n\ncreate index \"enterprise_directory_user_identity_étiquette_ün_6c9ffb65_idx\" on \"enterprise_directory_user_identity\" (\"étiquette_ünïcödé_subject_identifier\");\n\ncreate unique index \"enterprise_directory_user_identity_provisioning_c_e1bb1624_uidx\" on \"enterprise_directory_user_identity\" (\"provisioning_connection_identifier\", \"external_directory_subject_identifier\");\n\ncreate index \"enterprise_directory_user_identity_external_direct_11de5bfe_idx\" on \"enterprise_directory_user_identity\" (\"external_directory_subject_identifier\", \"étiquette_ünïcödé_subject_identifier\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "enterprise_directory_user_identity",
+          "fields": [
+            "provisioning_connection_identifier",
+            "external_directory_subject_identifier",
+            "étiquette_ünïcödé_subject_identifier"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [
+        {
+          "table": "enterprise_directory_user_identity",
+          "name": "enterprise_directory_user_identity_provisioning_c_e1bb1624_uidx",
+          "columns": [
+            "provisioning_connection_identifier",
+            "external_directory_subject_identifier"
+          ],
+          "unique": true
+        },
+        {
+          "table": "enterprise_directory_user_identity",
+          "name": "enterprise_directory_user_identity_external_direct_11de5bfe_idx",
+          "columns": [
+            "external_directory_subject_identifier",
+            "étiquette_ünïcödé_subject_identifier"
+          ],
+          "unique": false
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "long-index-names",
+      "dialect": "mysql",
+      "sql": "create table `user` (`id` varchar(36) not null primary key, `name` varchar(255) not null, `email` varchar(255) not null unique, `emailVerified` boolean not null, `image` text, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null);\n\ncreate table `session` (`id` varchar(36) not null primary key, `expiresAt` timestamp(3) not null, `token` varchar(255) not null unique, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) not null, `ipAddress` text, `userAgent` text, `userId` varchar(36) not null references `user` (`id`) on delete cascade);\n\ncreate table `account` (`id` varchar(36) not null primary key, `accountId` text not null, `providerId` text not null, `userId` varchar(36) not null references `user` (`id`) on delete cascade, `accessToken` text, `refreshToken` text, `idToken` text, `accessTokenExpiresAt` timestamp(3), `refreshTokenExpiresAt` timestamp(3), `scope` text, `password` text, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) not null);\n\ncreate table `verification` (`id` varchar(36) not null primary key, `identifier` varchar(255) not null, `value` text not null, `expiresAt` timestamp(3) not null, `createdAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null, `updatedAt` timestamp(3) default CURRENT_TIMESTAMP(3) not null);\n\ncreate table `enterprise_directory_user_identity` (`id` varchar(36) not null primary key, `provisioning_connection_identifier` varchar(191) not null, `external_directory_subject_identifier` varchar(191) not null, `étiquette_ünïcödé_subject_identifier` varchar(191));\n\ncreate index `session_userId_idx` on `session` (`userId`);\n\ncreate index `account_userId_idx` on `account` (`userId`);\n\ncreate index `verification_identifier_idx` on `verification` (`identifier`);\n\ncreate index `enterprise_directory_user_identity_étiquette_ün_6c9ffb65_idx` on `enterprise_directory_user_identity` (`étiquette_ünïcödé_subject_identifier`);\n\ncreate unique index `enterprise_directory_user_identity_provisioning_c_e1bb1624_uidx` on `enterprise_directory_user_identity` (`provisioning_connection_identifier`, `external_directory_subject_identifier`);\n\ncreate index `enterprise_directory_user_identity_external_direct_11de5bfe_idx` on `enterprise_directory_user_identity` (`external_directory_subject_identifier`, `étiquette_ünïcödé_subject_identifier`);",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "enterprise_directory_user_identity",
+          "fields": [
+            "provisioning_connection_identifier",
+            "external_directory_subject_identifier",
+            "étiquette_ünïcödé_subject_identifier"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [
+        {
+          "table": "enterprise_directory_user_identity",
+          "name": "enterprise_directory_user_identity_provisioning_c_e1bb1624_uidx",
+          "columns": [
+            "provisioning_connection_identifier",
+            "external_directory_subject_identifier"
+          ],
+          "unique": true
+        },
+        {
+          "table": "enterprise_directory_user_identity",
+          "name": "enterprise_directory_user_identity_external_direct_11de5bfe_idx",
+          "columns": [
+            "external_directory_subject_identifier",
+            "étiquette_ünïcödé_subject_identifier"
+          ],
+          "unique": false
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": [],
+      "afterApply": ";",
+      "afterApplyWarnings": []
+    },
+    {
+      "config": "long-index-names",
+      "dialect": "mssql",
+      "sql": "create table \"user\" (\"id\" varchar(36) not null primary key, \"name\" varchar(255) not null, \"email\" varchar(255) not null unique, \"emailVerified\" smallint not null, \"image\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate table \"session\" (\"id\" varchar(36) not null primary key, \"expiresAt\" datetime2(3) not null, \"token\" varchar(255) not null unique, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null, \"ipAddress\" varchar(8000), \"userAgent\" varchar(8000), \"userId\" varchar(36) not null references \"user\" (\"id\") on delete cascade);\n\ncreate table \"account\" (\"id\" varchar(36) not null primary key, \"accountId\" varchar(8000) not null, \"providerId\" varchar(8000) not null, \"userId\" varchar(36) not null references \"user\" (\"id\") on delete cascade, \"accessToken\" varchar(8000), \"refreshToken\" varchar(8000), \"idToken\" varchar(8000), \"accessTokenExpiresAt\" datetime2(3), \"refreshTokenExpiresAt\" datetime2(3), \"scope\" varchar(8000), \"password\" varchar(8000), \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) not null);\n\ncreate table \"verification\" (\"id\" varchar(36) not null primary key, \"identifier\" varchar(8000) not null, \"value\" varchar(8000) not null, \"expiresAt\" datetime2(3) not null, \"createdAt\" datetime2(3) default CURRENT_TIMESTAMP not null, \"updatedAt\" datetime2(3) default CURRENT_TIMESTAMP not null);\n\ncreate table \"enterprise_directory_user_identity\" (\"id\" varchar(36) not null primary key, \"provisioning_connection_identifier\" varchar(255) not null, \"external_directory_subject_identifier\" varchar(255) not null, \"étiquette_ünïcödé_subject_identifier\" varchar(255));\n\ncreate index \"session_userId_idx\" on \"session\" (\"userId\");\n\ncreate index \"account_userId_idx\" on \"account\" (\"userId\");\n\ncreate index \"verification_identifier_idx\" on \"verification\" (\"identifier\");\n\ncreate index \"enterprise_directory_user_identity_étiquette_ün_6c9ffb65_idx\" on \"enterprise_directory_user_identity\" (\"étiquette_ünïcödé_subject_identifier\");\n\ncreate unique index \"enterprise_directory_user_identity_provisioning_c_e1bb1624_uidx\" on \"enterprise_directory_user_identity\" (\"provisioning_connection_identifier\", \"external_directory_subject_identifier\");\n\ncreate index \"enterprise_directory_user_identity_external_direct_11de5bfe_idx\" on \"enterprise_directory_user_identity\" (\"external_directory_subject_identifier\", \"étiquette_ünïcödé_subject_identifier\");",
+      "toBeCreated": [
+        {
+          "table": "user",
+          "fields": [
+            "name",
+            "email",
+            "emailVerified",
+            "image",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "session",
+          "fields": [
+            "expiresAt",
+            "token",
+            "createdAt",
+            "updatedAt",
+            "ipAddress",
+            "userAgent",
+            "userId"
+          ]
+        },
+        {
+          "table": "account",
+          "fields": [
+            "accountId",
+            "providerId",
+            "userId",
+            "accessToken",
+            "refreshToken",
+            "idToken",
+            "accessTokenExpiresAt",
+            "refreshTokenExpiresAt",
+            "scope",
+            "password",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "verification",
+          "fields": [
+            "identifier",
+            "value",
+            "expiresAt",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        {
+          "table": "enterprise_directory_user_identity",
+          "fields": [
+            "provisioning_connection_identifier",
+            "external_directory_subject_identifier",
+            "étiquette_ünïcödé_subject_identifier"
+          ]
+        }
+      ],
+      "toBeAdded": [],
+      "toBeAddedIndexes": [
+        {
+          "table": "enterprise_directory_user_identity",
+          "name": "enterprise_directory_user_identity_provisioning_c_e1bb1624_uidx",
+          "columns": [
+            "provisioning_connection_identifier",
+            "external_directory_subject_identifier"
+          ],
+          "unique": true
+        },
+        {
+          "table": "enterprise_directory_user_identity",
+          "name": "enterprise_directory_user_identity_external_direct_11de5bfe_idx",
+          "columns": [
+            "external_directory_subject_identifier",
+            "étiquette_ünïcödé_subject_identifier"
+          ],
+          "unique": false
+        }
+      ],
+      "unsafeChanges": [],
+      "schemaProblems": [],
+      "warnings": []
+    }
+  ]
+}

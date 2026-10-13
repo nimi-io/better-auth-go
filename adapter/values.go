@@ -38,6 +38,9 @@ func ToString(v any) string {
 		return "false"
 	case time.Time:
 		return jsonx.ISOTime(t)
+	case interface{ Hex() string }:
+		// e.g. MongoDB ObjectIDs: JS String(objectId) is the hex string
+		return t.Hex()
 	case fmt.Stringer:
 		return t.String()
 	}

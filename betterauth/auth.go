@@ -12,6 +12,7 @@
 package betterauth
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"math"
@@ -656,4 +657,27 @@ func (a *Auth) trustedProviders(r *http.Request) ([]string, error) {
 		}
 	}
 	return out, nil
+}
+
+// PlanMigrations compares the auth schema (core tables, plugins, additional fields) with the
+// database (getMigrations upstream). It fails with adapter.ErrMigrationsNotSupported when the
+// configured adapter cannot migrate (e.g. memory or MongoDB).
+func (a *Auth) PlanMigrations(ctx context.Context) (*adapter.MigrationPlan, error) {
+	if a.ctx.Adapter == nil {
+		return nil, adapter.ErrMigrationsNotSupported
+	}
+	m, ok := adapter.AsMigrator(a.ctx.Adapter)
+	if !ok {
+		return nil, adapter.ErrMigrationsNotSupported
+	}
+	return m.PlanMigrations(ctx, a.ctx.Adapter.Schema())
+}
+
+// RunMigrations creates missing tables and columns (ctx.runMigrations upstream).
+func (a *Auth) RunMigrations(ctx context.Context) error {
+	plan, err := a.PlanMigrations(ctx)
+	if err != nil {
+		return err
+	}
+	return plan.Run(ctx)
 }

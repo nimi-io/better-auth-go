@@ -15,7 +15,7 @@ import (
 // Port of better-auth/src/api/routes/sign-up.test.ts
 
 func paStrField(name string) db.Field {
-	return db.Field{Name: name, Type: db.TypeString, Required: false}
+	return db.Field{Name: name, Type: db.TypeString, Required: db.False}
 }
 
 // describe("sign-up with custom fields")
@@ -27,7 +27,7 @@ func TestPortAuthSignUpWithCustomFields(t *testing.T) {
 			paStrField("newField"),
 			paStrField("newField2"),
 			{Name: "isAdmin", Type: db.TypeBoolean, DefaultValue: true, Input: Bool(false)},
-			{Name: "role", Type: db.TypeString, Required: false, Input: Bool(false)},
+			{Name: "role", Type: db.TypeString, Required: db.False, Input: Bool(false)},
 		}}}
 		c.EmailVerification = &EmailVerificationConfig{
 			SendOnSignUp: Bool(true),

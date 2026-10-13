@@ -1,0 +1,842 @@
+{
+  "_comment": "Schema configurations shared by e2e/scripts/gen-migration-fixtures.mjs (which turns them into BetterAuthOptions) and the Go tests (which turn them into db.Options). Field attributes use the upstream shape; a field without \"required\" is required, as upstream. {\"$fn\": \"date\"} is a function default returning new Date(), {\"$fn\": \"now\"} one returning Date.now(). \"base\" is migrated first (by the implementation under test), then \"setup\" SQL runs, then the plan for \"options\" is recorded. \"dialects\" restricts a config; \"skipApply\" lists dialects on which the target plan is not applied (e.g. SQLite cannot add a NOT NULL column without a default); \"reportUnsafe\" plans with throwOnUnsafe: false.",
+  "configs": [
+    {
+      "name": "default",
+      "options": {}
+    },
+    {
+      "name": "additional-fields",
+      "options": {
+        "user": {
+          "additionalFields": {
+            "role": {
+              "type": "string",
+              "required": false
+            },
+            "age": {
+              "type": "number",
+              "required": false
+            },
+            "isAdmin": {
+              "type": "boolean",
+              "required": true,
+              "defaultValue": false
+            },
+            "prefs": {
+              "type": "json",
+              "required": false
+            },
+            "tags": {
+              "type": "string[]",
+              "required": false
+            },
+            "lucky": {
+              "type": "number[]",
+              "required": false
+            },
+            "status": {
+              "type": [
+                "active",
+                "banned"
+              ],
+              "required": false
+            },
+            "score": {
+              "type": "number",
+              "bigint": true,
+              "required": false
+            },
+            "birthday": {
+              "type": "date",
+              "required": false
+            },
+            "nickname": {
+              "type": "string",
+              "required": false,
+              "sortable": true
+            },
+            "handle": {
+              "type": "string",
+              "required": true,
+              "unique": true
+            },
+            "joinedAt": {
+              "type": "date",
+              "required": true,
+              "defaultValue": {
+                "$fn": "date"
+              }
+            }
+          }
+        },
+        "session": {
+          "additionalFields": {
+            "deviceId": {
+              "type": "string",
+              "required": false,
+              "index": true
+            },
+            "activeOrganizationId": {
+              "type": "string",
+              "required": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "renames",
+      "options": {
+        "user": {
+          "modelName": "users",
+          "fields": {
+            "email": "email_address",
+            "emailVerified": "email_verified",
+            "createdAt": "created_at",
+            "updatedAt": "updated_at"
+          }
+        },
+        "session": {
+          "modelName": "user_sessions",
+          "fields": {
+            "userId": "user_id",
+            "token": "session_token",
+            "expiresAt": "expires_at"
+          }
+        },
+        "account": {
+          "modelName": "accounts",
+          "fields": {
+            "userId": "user_id",
+            "accountId": "account_id",
+            "providerId": "provider_id"
+          }
+        },
+        "verification": {
+          "modelName": "verifications",
+          "fields": {
+            "identifier": "ident"
+          }
+        },
+        "rateLimit": {
+          "storage": "database",
+          "modelName": "rate_limits",
+          "fields": {
+            "lastRequest": "last_request"
+          }
+        }
+      }
+    },
+    {
+      "name": "plugin-tables",
+      "options": {
+        "user": {
+          "modelName": "users"
+        },
+        "plugins": [
+          {
+            "id": "org",
+            "schema": {
+              "user": {
+                "fields": {
+                  "role": {
+                    "type": "string",
+                    "required": false
+                  },
+                  "banned": {
+                    "type": "boolean",
+                    "required": false,
+                    "defaultValue": false
+                  }
+                }
+              },
+              "organization": {
+                "modelName": "organizations",
+                "fields": {
+                  "name": {
+                    "type": "string",
+                    "sortable": true
+                  },
+                  "slug": {
+                    "type": "string",
+                    "unique": true
+                  },
+                  "logo": {
+                    "type": "string",
+                    "required": false
+                  },
+                  "metadata": {
+                    "type": "json",
+                    "required": false
+                  },
+                  "createdAt": {
+                    "type": "date",
+                    "defaultValue": {
+                      "$fn": "date"
+                    }
+                  }
+                }
+              },
+              "member": {
+                "fields": {
+                  "organizationId": {
+                    "type": "string",
+                    "fieldName": "organization_id",
+                    "references": {
+                      "model": "organization",
+                      "field": "id"
+                    },
+                    "index": true
+                  },
+                  "userId": {
+                    "type": "string",
+                    "references": {
+                      "model": "user",
+                      "field": "id",
+                      "onDelete": "set null"
+                    },
+                    "required": false
+                  },
+                  "role": {
+                    "type": "string",
+                    "defaultValue": "member"
+                  },
+                  "seats": {
+                    "type": "number",
+                    "defaultValue": 1
+                  },
+                  "createdAt": {
+                    "type": "date"
+                  }
+                },
+                "indexes": [
+                  {
+                    "fields": [
+                      "organizationId",
+                      "role"
+                    ],
+                    "unique": true
+                  },
+                  {
+                    "fields": [
+                      "createdAt"
+                    ],
+                    "name": "member_created_at_named"
+                  }
+                ]
+              },
+              "apiKey": {
+                "modelName": "api_key",
+                "fields": {
+                  "key": {
+                    "type": "string",
+                    "index": true
+                  },
+                  "ownerEmail": {
+                    "type": "string",
+                    "references": {
+                      "model": "user",
+                      "field": "email",
+                      "onDelete": "no action"
+                    },
+                    "required": false
+                  },
+                  "external": {
+                    "type": "string",
+                    "references": {
+                      "model": "billing_account",
+                      "field": "id"
+                    },
+                    "required": false
+                  },
+                  "expiresAt": {
+                    "type": "date",
+                    "required": false
+                  },
+                  "requests": {
+                    "type": "number",
+                    "bigint": true,
+                    "defaultValue": 0
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "setup": {
+        "sqlite": [
+          "CREATE TABLE \"billing_account\" (\"id\" text primary key)"
+        ],
+        "postgres": [
+          "CREATE TABLE \"billing_account\" (\"id\" text primary key)"
+        ],
+        "mysql": [
+          "CREATE TABLE `billing_account` (`id` varchar(36) primary key)"
+        ]
+      }
+    },
+    {
+      "name": "serial-ids",
+      "options": {
+        "advanced": {
+          "database": {
+            "generateId": "serial"
+          }
+        },
+        "plugins": [
+          {
+            "id": "org",
+            "schema": {
+              "organization": {
+                "fields": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "slug": {
+                    "type": "string",
+                    "unique": true
+                  }
+                }
+              },
+              "member": {
+                "fields": {
+                  "organizationId": {
+                    "type": "string",
+                    "references": {
+                      "model": "organization",
+                      "field": "id"
+                    }
+                  },
+                  "userId": {
+                    "type": "string",
+                    "references": {
+                      "model": "user",
+                      "field": "id"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "uuid-ids",
+      "options": {
+        "advanced": {
+          "database": {
+            "generateId": "uuid"
+          }
+        },
+        "plugins": [
+          {
+            "id": "org",
+            "schema": {
+              "member": {
+                "fields": {
+                  "userId": {
+                    "type": "string",
+                    "references": {
+                      "model": "user",
+                      "field": "id"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "rate-limit",
+      "options": {
+        "rateLimit": {
+          "storage": "database"
+        }
+      }
+    },
+    {
+      "name": "compound-string-indexes",
+      "options": {
+        "plugins": [
+          {
+            "id": "directory",
+            "schema": {
+              "directoryUser": {
+                "modelName": "directory_user",
+                "fields": {
+                  "connectionId": {
+                    "type": "string",
+                    "fieldName": "connection_id"
+                  },
+                  "externalId": {
+                    "type": "string",
+                    "fieldName": "external_id"
+                  },
+                  "tenant": {
+                    "type": "string"
+                  },
+                  "seq": {
+                    "type": "number"
+                  },
+                  "kind": {
+                    "type": [
+                      "a",
+                      "b"
+                    ]
+                  }
+                },
+                "indexes": [
+                  {
+                    "fields": [
+                      "connectionId",
+                      "externalId"
+                    ],
+                    "unique": true
+                  },
+                  {
+                    "fields": [
+                      "tenant",
+                      "seq",
+                      "connectionId"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "schema-name",
+      "dialects": [
+        "postgres"
+      ],
+      "schemaName": "auth",
+      "options": {
+        "plugins": [
+          {
+            "id": "org",
+            "schema": {
+              "member": {
+                "fields": {
+                  "userId": {
+                    "type": "string",
+                    "references": {
+                      "model": "user",
+                      "field": "id"
+                    },
+                    "index": true
+                  }
+                },
+                "indexes": [
+                  {
+                    "fields": [
+                      "userId"
+                    ],
+                    "unique": true,
+                    "name": "member_user_uidx"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "schema-name-partial",
+      "dialects": [
+        "postgres"
+      ],
+      "schemaName": "auth",
+      "base": {},
+      "options": {
+        "user": {
+          "additionalFields": {
+            "role": {
+              "type": "string",
+              "required": false,
+              "index": true
+            }
+          }
+        },
+        "plugins": [
+          {
+            "id": "p",
+            "schema": {
+              "user": {
+                "fields": {},
+                "indexes": [
+                  {
+                    "fields": [
+                      "email",
+                      "name"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "search-path",
+      "dialects": [
+        "postgres"
+      ],
+      "searchPath": "custom_auth",
+      "setup": {
+        "postgres": [
+          "CREATE SCHEMA custom_auth",
+          "CREATE TABLE public.\"user\" (id serial primary key, email varchar(255) not null)"
+        ]
+      },
+      "options": {}
+    },
+    {
+      "name": "partial-add-columns",
+      "base": {},
+      "options": {
+        "user": {
+          "additionalFields": {
+            "role": {
+              "type": "string",
+              "required": false,
+              "index": true
+            },
+            "credits": {
+              "type": "number",
+              "required": true,
+              "defaultValue": 10
+            },
+            "isAdmin": {
+              "type": "boolean",
+              "required": true,
+              "defaultValue": true
+            },
+            "plan": {
+              "type": "string",
+              "required": true,
+              "defaultValue": "it's free",
+              "sortable": true
+            },
+            "inviteCode": {
+              "type": "string",
+              "required": false,
+              "unique": true
+            },
+            "lastSeen": {
+              "type": "date",
+              "required": true,
+              "defaultValue": {
+                "$fn": "date"
+              }
+            }
+          }
+        },
+        "session": {
+          "additionalFields": {
+            "orgId": {
+              "type": "string",
+              "required": false,
+              "references": {
+                "model": "user",
+                "field": "id",
+                "onDelete": "set null"
+              }
+            }
+          }
+        },
+        "plugins": [
+          {
+            "id": "device",
+            "schema": {
+              "deviceCode": {
+                "fields": {
+                  "deviceCode": {
+                    "type": "string"
+                  },
+                  "userCode": {
+                    "type": "string",
+                    "index": true
+                  },
+                  "userId": {
+                    "type": "string",
+                    "required": false,
+                    "references": {
+                      "model": "user",
+                      "field": "id"
+                    }
+                  }
+                },
+                "indexes": [
+                  {
+                    "fields": [
+                      "deviceCode"
+                    ],
+                    "unique": true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "existing-table-index",
+      "base": {},
+      "options": {
+        "plugins": [
+          {
+            "id": "idx",
+            "schema": {
+              "account": {
+                "fields": {},
+                "indexes": [
+                  {
+                    "fields": [
+                      "providerId",
+                      "accountId"
+                    ],
+                    "unique": true
+                  }
+                ]
+              },
+              "session": {
+                "fields": {},
+                "indexes": [
+                  {
+                    "fields": [
+                      "userId",
+                      "expiresAt"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "partial-populated-unsafe",
+      "base": {},
+      "reportUnsafe": true,
+      "setup": {
+        "sqlite": [
+          "INSERT INTO \"user\" (\"id\", \"name\", \"email\", \"emailVerified\", \"createdAt\", \"updatedAt\") VALUES ('u1', 'Ada', 'ada@example.com', 1, '2020-01-01', '2020-01-01')"
+        ],
+        "postgres": [
+          "INSERT INTO \"user\" (\"id\", \"name\", \"email\", \"emailVerified\", \"createdAt\", \"updatedAt\") VALUES ('u1', 'Ada', 'ada@example.com', true, now(), now())"
+        ],
+        "mysql": [
+          "INSERT INTO `user` (`id`, `name`, `email`, `emailVerified`, `createdAt`, `updatedAt`) VALUES ('u1', 'Ada', 'ada@example.com', 1, now(), now())"
+        ]
+      },
+      "options": {
+        "user": {
+          "additionalFields": {
+            "tier": {
+              "type": "string",
+              "required": true
+            },
+            "seats": {
+              "type": "number",
+              "required": true
+            },
+            "code": {
+              "type": "string",
+              "required": true,
+              "unique": true,
+              "defaultValue": "unset"
+            },
+            "optional": {
+              "type": "string",
+              "required": false
+            }
+          }
+        }
+      },
+      "skipApply": [
+        "sqlite",
+        "postgres",
+        "mysql"
+      ]
+    },
+    {
+      "name": "unexpected-required-column",
+      "base": {},
+      "setup": {
+        "sqlite": [
+          "DROP TABLE \"verification\"",
+          "CREATE TABLE \"verification\" (\"id\" text not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" date not null, \"createdAt\" date not null, \"updatedAt\" date not null, \"legacy\" text not null)"
+        ],
+        "postgres": [
+          "ALTER TABLE \"account\" ADD COLUMN \"issuer\" text not null",
+          "ALTER TABLE \"user\" ADD COLUMN \"legacy\" integer not null default 1"
+        ],
+        "mysql": [
+          "ALTER TABLE `account` ADD COLUMN `issuer` text not null",
+          "ALTER TABLE `user` ADD COLUMN `legacy` integer not null default 1"
+        ]
+      },
+      "options": {}
+    },
+    {
+      "name": "index-conflict",
+      "setup": {
+        "sqlite": [
+          "CREATE TABLE \"directory_user\" (\"id\" text primary key, \"connection_id\" varchar(100) not null, \"external_id\" varchar(100) not null)",
+          "CREATE INDEX \"directory_identity_uidx\" ON \"directory_user\" (\"external_id\")"
+        ],
+        "postgres": [
+          "CREATE TABLE \"directory_user\" (\"id\" text primary key, \"connection_id\" varchar(100) not null, \"external_id\" varchar(100) not null)",
+          "CREATE INDEX \"directory_identity_uidx\" ON \"directory_user\" (\"external_id\")"
+        ],
+        "mysql": [
+          "CREATE TABLE `directory_user` (`id` varchar(36) primary key, `connection_id` varchar(100) not null, `external_id` varchar(100) not null)",
+          "CREATE INDEX `directory_identity_uidx` ON `directory_user` (`external_id`)"
+        ]
+      },
+      "options": {
+        "plugins": [
+          {
+            "id": "directory",
+            "schema": {
+              "directoryUser": {
+                "modelName": "directory_user",
+                "fields": {
+                  "connectionId": {
+                    "type": "string",
+                    "fieldName": "connection_id"
+                  },
+                  "externalId": {
+                    "type": "string",
+                    "fieldName": "external_id"
+                  }
+                },
+                "indexes": [
+                  {
+                    "fields": [
+                      "connectionId",
+                      "externalId"
+                    ],
+                    "name": "directory_identity_uidx",
+                    "unique": true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "index-existing-bounded",
+      "setup": {
+        "sqlite": [
+          "CREATE TABLE \"directory_user\" (\"id\" text primary key, \"connection_id\" varchar(100) not null, \"external_id\" varchar(100) not null)",
+          "CREATE UNIQUE INDEX \"Directory_Identity_UIDX\" ON \"directory_user\" (\"connection_id\", \"external_id\")"
+        ],
+        "postgres": [
+          "CREATE TABLE \"directory_user\" (\"id\" text primary key, \"connection_id\" varchar(100) not null, \"external_id\" varchar(100) not null)",
+          "CREATE UNIQUE INDEX \"directory_identity_uidx\" ON \"directory_user\" (\"connection_id\", \"external_id\")"
+        ],
+        "mysql": [
+          "CREATE TABLE `directory_user` (`id` varchar(36) primary key, `connection_id` varchar(100) not null, `external_id` varchar(100) not null)"
+        ]
+      },
+      "options": {
+        "plugins": [
+          {
+            "id": "directory",
+            "schema": {
+              "directoryUser": {
+                "modelName": "directory_user",
+                "fields": {
+                  "connectionId": {
+                    "type": "string",
+                    "fieldName": "connection_id"
+                  },
+                  "externalId": {
+                    "type": "string",
+                    "fieldName": "external_id"
+                  },
+                  "note": {
+                    "type": "string",
+                    "required": false,
+                    "index": true
+                  }
+                },
+                "indexes": [
+                  {
+                    "fields": [
+                      "connectionId",
+                      "externalId"
+                    ],
+                    "name": "directory_identity_uidx",
+                    "unique": true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "long-index-names",
+      "options": {
+        "plugins": [
+          {
+            "id": "long",
+            "schema": {
+              "enterpriseIdentity": {
+                "modelName": "enterprise_directory_user_identity",
+                "fields": {
+                  "connection": {
+                    "type": "string",
+                    "fieldName": "provisioning_connection_identifier"
+                  },
+                  "subject": {
+                    "type": "string",
+                    "fieldName": "external_directory_subject_identifier"
+                  },
+                  "label": {
+                    "type": "string",
+                    "fieldName": "étiquette_ünïcödé_subject_identifier",
+                    "index": true,
+                    "required": false
+                  }
+                },
+                "indexes": [
+                  {
+                    "fields": [
+                      "connection",
+                      "subject"
+                    ],
+                    "unique": true
+                  },
+                  {
+                    "fields": [
+                      "subject",
+                      "label"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

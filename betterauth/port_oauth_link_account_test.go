@@ -896,7 +896,7 @@ func TestPortOAuthLinkSignUpRollback(t *testing.T) {
 		func(c *Config) {
 			c.EmailAndPassword = nil
 			c.Account = &AccountConfig{ModelConfig: ModelConfig{AdditionalFields: []db.Field{
-				{Name: "requiredAccountField", Type: db.TypeString, Required: true}}}}
+				{Name: "requiredAccountField", Type: db.TypeString, Required: db.True}}}}
 		},
 		poWrapAdapter(&spy),
 	}, poInstanceOpts{disableTestUser: true})

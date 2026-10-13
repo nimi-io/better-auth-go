@@ -4,7 +4,9 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -12,6 +14,16 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/nimi-io/better-auth-go/adapter/mongodb"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
+
+	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/nimi-io/better-auth-go/adapter"
+	"github.com/nimi-io/better-auth-go/adapter/sqladapter"
+	_ "modernc.org/sqlite"
 
 	"github.com/nimi-io/better-auth-go/adapter/memory"
 	"github.com/nimi-io/better-auth-go/betterauth"
@@ -147,6 +159,9 @@ func config(profile, baseURL string, mb *mailbox) betterauth.Config {
 		cfg.Database = nil
 	case "delete-verify":
 		cfg.User.DeleteUser.SendDeleteAccountVerification = capture("delete-account")
+	case "shared":
+		// Shares DB_URL with the TypeScript server (database compatibility tests).
+		cfg.Database = sharedDatabase(os.Getenv("DB_URL"))
 	case "oauth":
 		if idp := os.Getenv("IDP_URL"); idp != "" {
 			oauth2.HTTPClient.Transport = idpTransport{target: idp}
@@ -206,6 +221,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	if os.Getenv("MIGRATE") == "1" {
+		if err := auth.RunMigrations(context.Background()); err != nil {
+			log.Fatalf("migrate: %v", err)
+		}
+	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/__test/email", func(w http.ResponseWriter, r *http.Request) {
 		e := mb.last(r.URL.Query().Get("to"), r.URL.Query().Get("type"))
@@ -248,4 +268,41 @@ func errString(err error) string {
 		return ""
 	}
 	return err.Error()
+}
+
+// sharedDatabase opens DB_URL: "sqlite:<path>", "postgres://..." or "mysql://user:pass@host:port/db".
+func sharedDatabase(dbURL string) adapter.Factory {
+	var (
+		conn *sql.DB
+		err  error
+	)
+	switch {
+	case strings.HasPrefix(dbURL, "sqlite:"):
+		conn, err = sql.Open("sqlite", "file:"+strings.TrimPrefix(dbURL, "sqlite:")+"?_pragma=foreign_keys(1)&_pragma=busy_timeout(5000)")
+	case strings.HasPrefix(dbURL, "postgres://"), strings.HasPrefix(dbURL, "postgresql://"):
+		conn, err = sql.Open("pgx", dbURL)
+	case strings.HasPrefix(dbURL, "mysql://"):
+		u, perr := url.Parse(dbURL)
+		if perr != nil {
+			log.Fatal(perr)
+		}
+		pw, _ := u.User.Password()
+		conn, err = sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)%s?parseTime=true", u.User.Username(), pw, u.Host, u.Path))
+	case strings.HasPrefix(dbURL, "mongodb://"):
+		u, perr := url.Parse(dbURL)
+		if perr != nil {
+			log.Fatal(perr)
+		}
+		client, cerr := mongo.Connect(options.Client().ApplyURI(dbURL))
+		if cerr != nil {
+			log.Fatal(cerr)
+		}
+		return mongodb.New(client.Database(strings.TrimPrefix(u.Path, "/")), mongodb.Config{Client: client})
+	default:
+		log.Fatalf("unsupported DB_URL %q", dbURL)
+	}
+	if err != nil {
+		log.Fatal(err)
+	}
+	return sqladapter.New(conn, sqladapter.Config{})
 }

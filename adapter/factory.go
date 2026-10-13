@@ -187,7 +187,7 @@ func (f *factory) idField() db.Field {
 	if f.useNumberID() {
 		t = db.TypeNumber
 	}
-	return db.Field{Name: "id", Type: t, Required: true}
+	return db.Field{Name: "id", Type: t, Required: db.True}
 }
 
 func (f *factory) getFieldAttributes(model, field string) (db.Field, error) {
@@ -326,7 +326,7 @@ func (f *factory) transformInput(data Record, modelKey, action string, forceAllo
 			if f.cfg.CustomTransformInput != nil {
 				id = f.cfg.CustomTransformInput(TransformParams{Data: id, Field: key, Attr: f.idField(), Action: action, Model: physModel})
 			}
-			if id != nil {
+			if id != nil && id != jsonx.Undefined {
 				out[key] = id
 			}
 		}
@@ -357,7 +357,7 @@ func (f *factory) transformInput(data Record, modelKey, action string, forceAllo
 				value, present = fl.OnUpdate(), true
 			}
 		case "create":
-			if (!present || (fl.Required && value == nil)) && fl.HasDefault() {
+			if (!present || (fl.IsRequired() && value == nil)) && fl.HasDefault() {
 				value, present = fl.Default(), true
 			}
 		}
@@ -378,6 +378,10 @@ func (f *factory) transformInput(data Record, modelKey, action string, forceAllo
 		value = f.encodeValue(fl, value)
 		if f.cfg.CustomTransformInput != nil {
 			value = f.cfg.CustomTransformInput(TransformParams{Data: value, Field: newName, Attr: fl, Action: action, Model: physModel})
+		}
+		// A transform returning jsonx.Undefined drops the field (`newValue !== undefined`).
+		if value == jsonx.Undefined {
+			continue
 		}
 		out[newName] = value
 	}
@@ -407,7 +411,7 @@ func (f *factory) encodeValue(fl db.Field, value any) any {
 	case db.TypeJSON:
 		if !f.cfg.SupportsJSON {
 			if _, isStr := value.(string); !isStr {
-				b, err := json.Marshal(jsonx.ToPlain(value))
+				b, err := jsonx.Marshal(value)
 				if err == nil {
 					return string(b)
 				}
@@ -416,7 +420,7 @@ func (f *factory) encodeValue(fl db.Field, value any) any {
 	case db.TypeStringArray, db.TypeNumberArray:
 		if !f.cfg.SupportsArrays {
 			if _, isStr := value.(string); !isStr {
-				b, err := json.Marshal(value)
+				b, err := jsonx.Marshal(value)
 				if err == nil {
 					return string(b)
 				}
@@ -480,7 +484,8 @@ func (f *factory) transformSingleOutput(rec Record, modelKey string, sel []strin
 	}
 	fields := append(append([]db.Field(nil), t.Fields...), db.Field{Name: idKey, Type: f.idField().Type})
 	for _, fl := range fields {
-		if !contains(fl.Name) {
+		// A mapped id key (e.g. MongoDB's "_id") is selected by its logical name "id".
+		if !contains(fl.Name) && !(fl.Name == idKey && idKey != "id" && contains("id")) {
 			continue
 		}
 		originalKey := fl.Column()
@@ -693,7 +698,7 @@ func (f *factory) transformWhere(modelKey string, where []Where, action string) 
 		if attr.Type == db.TypeJSON && !f.cfg.SupportsJSON {
 			switch value.(type) {
 			case map[string]any, []any, *jsonx.Object:
-				b, err := json.Marshal(jsonx.ToPlain(value))
+				b, err := jsonx.Marshal(value)
 				if err != nil {
 					return nil, fmt.Errorf("Failed to stringify JSON value for field %s", fieldName)
 				}
@@ -830,9 +835,13 @@ func (f *factory) transformOutput(ctx context.Context, custom CustomAdapter, rec
 	out := f.transformSingleOutput(rec, modelKey, sel)
 	for _, j := range joins {
 		var joined any
+		native := false
 		if f.opts.Joins {
-			joined = rec[j.modelName]
-		} else {
+			// Use the nested rows when the driver returned them; otherwise fall back to
+			// separate queries (handleFallbackJoin).
+			joined, native = rec[j.modelName]
+		}
+		if !native {
 			// fallback join: query the related model directly
 			baseField, _ := f.getDefaultFieldName(modelKey, j.cfg.From)
 			value := out[baseField]
@@ -1201,24 +1210,91 @@ func (f *factory) Transaction(ctx context.Context, fn func(ctx context.Context, 
 
 // ---- atomic fallbacks (atomic-fallback.ts) ----
 
+const atomicFallbackMaxAttempts = 5
+
+// isScalar reports whether v can be compared in a snapshot guard (the zod "scalar" schema
+// upstream: string | number | boolean | Date | null).
 func isScalar(v any) bool {
 	switch v.(type) {
-	case nil, string, bool, float64, float32, int, int64, int32, time.Time:
+	case nil, string, bool, time.Time:
 		return true
+	}
+	f, ok := numeric(v)
+	return ok && !math.IsNaN(f) && !math.IsInf(f, 0)
+}
+
+// counterValue reads a stored counter (counterSchema upstream: a number or null; strings,
+// big integers and other values are rejected rather than coerced).
+func counterValue(v any) (float64, bool) {
+	if v == nil {
+		return 0, true
+	}
+	f, ok := numeric(v)
+	return f, ok && !math.IsNaN(f) && !math.IsInf(f, 0)
+}
+
+// sameValue is Object.is for stored values, with dates compared by instant.
+func sameValue(a, b any) bool {
+	if a == nil || b == nil {
+		return a == nil && b == nil
+	}
+	if fa, ok := numeric(a); ok {
+		fb, ok := numeric(b)
+		return ok && (fa == fb || (math.IsNaN(fa) && math.IsNaN(fb)))
+	}
+	switch at := a.(type) {
+	case time.Time:
+		bt, ok := b.(time.Time)
+		return ok && at.Equal(bt)
+	case string:
+		bt, ok := b.(string)
+		return ok && at == bt
+	case bool:
+		bt, ok := b.(bool)
+		return ok && at == bt
 	}
 	return false
 }
 
-func (f *factory) snapshotGuard(row Record, fields []string, q Query) ([]CleanedWhere, error) {
-	idCol := "id"
-	if m := f.mappedInputKey("id"); m != "" {
-		idCol = m
+// idWhere is the guard condition selecting the snapshot row by its id: the stored id is
+// mapped to its logical value through the output transform and back through the where
+// transform, so adapter-owned id encodings (e.g. ObjectIds) round-trip.
+func (f *factory) idWhere(row Record, modelKey, action string) (CleanedWhere, error) {
+	mappedID := f.mappedInputKey("id")
+	if mappedID == "" {
+		mappedID, _ = f.getFieldName(modelKey, "id")
 	}
-	idVal, ok := row[idCol]
-	if !ok || idVal == nil {
-		return nil, fmt.Errorf("Adapter \"%s\" must return the row id for atomic fallbacks.", f.cfg.AdapterID)
+	if row[mappedID] == nil {
+		return CleanedWhere{}, fmt.Errorf("Adapter \"%s\" must return the row id for atomic fallbacks.", f.cfg.AdapterID)
 	}
-	idWhere := CleanedWhere{Field: idCol, Value: idVal, Operator: Eq, Connector: And}
+	outputID := "id"
+	for k, v := range f.cfg.MapKeysTransformOutput {
+		if v == "id" {
+			outputID = k
+		}
+	}
+	out := f.transformSingleOutput(row, modelKey, []string{outputID})
+	id := out["id"]
+	if _, isNum := numeric(id); !isNum {
+		if _, isStr := id.(string); !isStr {
+			return CleanedWhere{}, fmt.Errorf("Adapter \"%s\" must expose a logical string or number id through its output transform.", f.cfg.AdapterID)
+		}
+	}
+	cw, err := f.transformWhere(modelKey, []Where{{Field: "id", Value: id}}, action)
+	if err != nil {
+		return CleanedWhere{}, err
+	}
+	if len(cw) == 0 {
+		return CleanedWhere{}, errors.New("The atomic fallback id condition was transformed away.")
+	}
+	return cw[0], nil
+}
+
+func (f *factory) snapshotGuard(row Record, fields []string, q Query, action string) ([]CleanedWhere, error) {
+	id, err := f.idWhere(row, q.ModelKey, action)
+	if err != nil {
+		return nil, err
+	}
 	hasOr := false
 	for _, w := range q.Where {
 		if w.Connector == Or {
@@ -1227,18 +1303,28 @@ func (f *factory) snapshotGuard(row Record, fields []string, q Query) ([]Cleaned
 	}
 	var guard []CleanedWhere
 	if hasOr {
-		guard = []CleanedWhere{idWhere}
+		guard = []CleanedWhere{id}
 	} else {
-		guard = append(append([]CleanedWhere(nil), q.Where...), idWhere)
+		guard = append(append([]CleanedWhere(nil), q.Where...), id)
 	}
 	seen := map[string]bool{}
 	for _, field := range fields {
-		if seen[field] || field == idCol {
+		if seen[field] {
 			continue
 		}
 		seen[field] = true
+		if field == id.Field {
+			continue
+		}
 		v := row[field]
 		if !isScalar(v) {
+			if hasOr {
+				for _, w := range q.Where {
+					if w.Field == field {
+						return nil, fmt.Errorf("Adapter \"%s\" must implement native atomic methods for OR predicates on structured values.", f.cfg.AdapterID)
+					}
+				}
+			}
 			continue
 		}
 		guard = append(guard, CleanedWhere{Field: field, Value: v, Operator: Eq, Connector: And})
@@ -1246,19 +1332,33 @@ func (f *factory) snapshotGuard(row Record, fields []string, q Query) ([]Cleaned
 	return guard, nil
 }
 
+// changedOne validates the affected row count of a guarded write.
+func (f *factory) changedOne(count int64) (bool, error) {
+	if count != 0 && count != 1 {
+		return false, fmt.Errorf("Adapter \"%s\" must return an affected row count of 0 or 1 from an atomic fallback.", f.cfg.AdapterID)
+	}
+	return count == 1, nil
+}
+
+func sortedKeys[V any](m map[string]V) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sortStrings(keys)
+	return keys
+}
+
 func (f *factory) fallbackConsumeOne(ctx context.Context, custom CustomAdapter, q Query) (Record, error) {
 	row, err := custom.FindOne(ctx, q)
 	if err != nil || row == nil {
 		return nil, err
 	}
-	var fields []string
-	for k := range row {
-		fields = append(fields, k)
-	}
+	fields := sortedKeys(row)
 	for _, w := range q.Where {
 		fields = append(fields, w.Field)
 	}
-	guard, err := f.snapshotGuard(row, fields, q)
+	guard, err := f.snapshotGuard(row, fields, q, "consumeOne")
 	if err != nil {
 		return nil, err
 	}
@@ -1266,24 +1366,26 @@ func (f *factory) fallbackConsumeOne(ctx context.Context, custom CustomAdapter, 
 	if err != nil {
 		return nil, err
 	}
-	if n == 1 {
-		return row, nil
+	if ok, err := f.changedOne(n); !ok || err != nil {
+		return nil, err
 	}
-	return nil, nil
+	return row, nil
 }
 
 func (f *factory) fallbackIncrementOne(ctx context.Context, custom CustomAdapter, q Query, inc map[string]float64, set Record) (Record, error) {
+	for _, delta := range inc {
+		if math.IsNaN(delta) || math.IsInf(delta, 0) {
+			return nil, errors.New("incrementOne requires finite increments and a set object for the atomic fallback.")
+		}
+	}
+	deltas := sortedKeys(inc)
 	var fields []string
 	for _, w := range q.Where {
 		fields = append(fields, w.Field)
 	}
-	for k := range inc {
-		fields = append(fields, k)
-	}
-	for k := range set {
-		fields = append(fields, k)
-	}
-	for attempt := 0; attempt < 5; attempt++ {
+	fields = append(fields, deltas...)
+	fields = append(fields, sortedKeys(set)...)
+	for attempt := 0; attempt < atomicFallbackMaxAttempts; attempt++ {
 		row, err := custom.FindOne(ctx, q)
 		if err != nil || row == nil {
 			return nil, err
@@ -1292,26 +1394,41 @@ func (f *factory) fallbackIncrementOne(ctx context.Context, custom CustomAdapter
 		for k, v := range set {
 			update[k] = v
 		}
-		for field, delta := range inc {
-			cur := 0.0
-			if v := row[field]; v != nil {
-				fv, ok := ToFloat(v)
-				if !ok {
-					return nil, fmt.Errorf("Adapter \"%s\" must return finite numeric counter values or null for atomic increments.", f.cfg.AdapterID)
-				}
-				cur = fv
+		for _, field := range deltas {
+			delta := inc[field]
+			current, ok := counterValue(row[field])
+			if !ok {
+				return nil, fmt.Errorf("Adapter \"%s\" must return finite numeric counter values or null for atomic increments.", f.cfg.AdapterID)
 			}
-			update[field] = toNumber(cur + delta)
+			next := current + delta
+			if math.IsInf(next, 0) || math.IsNaN(next) || (delta != 0 && next == current) {
+				return nil, fmt.Errorf("Adapter \"%s\" cannot represent the requested counter increment safely.", f.cfg.AdapterID)
+			}
+			update[field] = toNumber(next)
 		}
-		guard, err := f.snapshotGuard(row, fields, q)
+		guard, err := f.snapshotGuard(row, fields, q, "incrementOne")
 		if err != nil {
 			return nil, err
+		}
+		noop := true
+		for field, value := range update {
+			if !sameValue(row[field], value) {
+				noop = false
+				break
+			}
+		}
+		if noop {
+			return row, nil
 		}
 		n, err := custom.UpdateMany(ctx, Query{Model: q.Model, ModelKey: q.ModelKey, Where: guard}, update)
 		if err != nil {
 			return nil, err
 		}
-		if n == 1 {
+		changed, err := f.changedOne(n)
+		if err != nil {
+			return nil, err
+		}
+		if changed {
 			out := Record{}
 			for k, v := range row {
 				out[k] = v

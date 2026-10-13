@@ -4,3 +4,8 @@ e2e/.bin/
 coverage.out
 .DS_Store
 /goserver
+examples/*/chi
+examples/*/echo
+examples/*/fiber
+examples/*/gin
+examples/*/nethttp

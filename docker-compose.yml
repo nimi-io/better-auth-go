@@ -1,9 +1,11 @@
 # Test databases for the adapter conformance suite and e2e tests.
 #   docker compose up -d
 #   BA_TEST_POSTGRES_URL=postgres://better_auth:better_auth@localhost:5433/better_auth?sslmode=disable \
-#   BA_TEST_MYSQL_DSN='better_auth:better_auth@tcp(localhost:3307)/better_auth?parseTime=true' \
-#   BA_TEST_MONGO_URI=mongodb://localhost:27018 \
-#   go test ./adapter/...
+#   BA_TEST_MYSQL_DSN='root:root@tcp(localhost:3307)/?parseTime=true' \
+#   BA_TEST_MONGO_URI="mongodb://localhost:27018/?directConnection=true" \
+#   go test ./...
+# The variables are optional (these are the defaults); each test creates and drops its own
+# database, so the DSNs must name users allowed to create databases.
 services:
   postgres:
     image: postgres:17

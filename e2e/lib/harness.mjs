@@ -38,14 +38,14 @@ async function waitHealthy(base, proc, name) {
 }
 
 /** Starts both servers for a profile. Returns { go, ts, stop }. */
-export async function startServers(profile = "", { only, env: extraEnv = {} } = {}) {
+export async function startServers(profile = "", { only, env: extraEnv = {}, envFor = {} } = {}) {
   buildGoServer();
   const servers = {};
   const procs = [];
   const want = only ? [only] : ["go", "ts"];
   for (const kind of want) {
     const port = nextPort++;
-    const env = { ...process.env, ...extraEnv, PORT: String(port), PROFILE: profile, NODE_ENV: "test" };
+    const env = { ...process.env, ...extraEnv, ...(envFor[kind] ?? {}), PORT: String(port), PROFILE: profile, NODE_ENV: "test" };
     const proc = kind === "go"
       ? spawn(goBin, [], { env, stdio: ["ignore", "inherit", "inherit"] })
       : spawn(process.execPath, [path.join(e2eDir, "servers/ts-server.mjs")], { env, stdio: ["ignore", "inherit", "inherit"] });

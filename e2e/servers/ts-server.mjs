@@ -106,8 +106,24 @@ if (profile === "oauth") {
   };
 }
 
+if (profile === "shared") {
+  // Shares DB_URL with the Go server (database compatibility tests).
+  const dbURL = process.env.DB_URL;
+  if (dbURL.startsWith("sqlite:")) options.database = new Database(dbURL.slice("sqlite:".length));
+  else if (dbURL.startsWith("postgres")) options.database = new (await import("pg")).default.Pool({ connectionString: dbURL });
+  // timezone "Z": store UTC wall-clock times, as go-sql-driver does by default
+  else if (dbURL.startsWith("mysql")) options.database = (await import("mysql2/promise")).createPool({ uri: dbURL, timezone: "Z" });
+  else if (dbURL.startsWith("mongodb")) {
+    const { MongoClient } = await import("mongodb");
+    const { mongodbAdapter } = await import("better-auth/adapters/mongodb");
+    const client = new MongoClient(dbURL);
+    await client.connect();
+    options.database = mongodbAdapter(client.db(), { client });
+  } else throw new Error(`unsupported DB_URL ${dbURL}`);
+}
+
 const auth = betterAuth(options);
-if (options.database) await (await auth.$context).runMigrations();
+if (options.database && (profile !== "shared" || process.env.MIGRATE === "1")) await (await auth.$context).runMigrations();
 const handler = toNodeHandler(auth);
 
 createServer(async (req, res) => {

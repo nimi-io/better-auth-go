@@ -1658,8 +1658,8 @@ func psUpdateSessionInstance(t *testing.T) (*psInst, *psJar) {
 		s := psSessionCfg(c)
 		s.AdditionalFields = append(s.AdditionalFields,
 			db.Field{Name: "theme", Type: db.TypeString, DefaultValue: "light"},
-			db.Field{Name: "language", Type: db.TypeString, Required: false},
-			db.Field{Name: "internalNote", Type: db.TypeString, Input: Bool(false), Required: false},
+			db.Field{Name: "language", Type: db.TypeString, Required: db.False},
+			db.Field{Name: "internalNote", Type: db.TypeString, Input: Bool(false), Required: db.False},
 		)
 	})
 	jar := psNewJar()

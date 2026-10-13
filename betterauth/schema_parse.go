@@ -121,7 +121,7 @@ func parseInputData(data map[string]any, fields []db.Field, action string) (map[
 			out[f.Name] = f.Default()
 			continue
 		}
-		if f.Required && action == "create" {
+		if f.IsRequired() && action == "create" {
 			return nil, ErrFrom("BAD_REQUEST", ErrorCode{Code: ErrMissingField.Code, Message: f.Name + " is required"})
 		}
 	}
@@ -209,7 +209,7 @@ func (a *AuthContext) buildSyntheticUserOutput(data map[string]any) *jsonx.Objec
 			out.Set(f.Name, v)
 		} else if f.HasDefault() {
 			out.Set(f.Name, f.Default())
-		} else if !f.Required {
+		} else if !f.IsRequired() {
 			out.Set(f.Name, nil)
 		}
 	}

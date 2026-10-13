@@ -17,9 +17,10 @@ existing Better Auth databases.
 See [COMPATIBILITY.md](COMPATIBILITY.md) for the feature-by-feature status.
 
 > **Status:** Phase 1 (core email/password auth, sessions, cookie cache, CSRF/origin checks,
-> rate limiting, secondary storage, hooks) and Phase 2 (social OAuth: sign-in, callback,
-> linking, id-token sign-in, all upstream providers) are complete. SQL/Mongo adapters, the
-> CLI and plugins are being ported phase by phase; the matrix tracks progress.
+> rate limiting, secondary storage, hooks), Phase 2 (social OAuth: sign-in, callback,
+> linking, id-token sign-in, all upstream providers) and Phase 3 (PostgreSQL, MySQL, SQLite
+> and MongoDB adapters, migrations, CLI) are complete. Plugins are being ported next; the
+> matrix tracks progress.
 
 ## Install
 
@@ -166,6 +167,76 @@ Field names mirror the TypeScript options (`emailAndPassword` → `EmailAndPassw
 Durations use `time.Duration`; options whose zero value is meaningful use pointers
 (`betterauth.Bool`, `betterauth.Duration`).
 
+## Databases
+
+The Go server uses the same tables, columns and stored encodings as TypeScript Better Auth,
+so both can share one database (and the same `npx auth migrate` / `better-auth migrate`
+schema).
+
+```go
+import (
+	"database/sql"
+
+	_ "github.com/jackc/pgx/v5/stdlib" // or github.com/go-sql-driver/mysql, modernc.org/sqlite
+
+	"github.com/nimi-io/better-auth-go/adapter/sqladapter"
+)
+
+db, err := sql.Open("pgx", os.Getenv("DATABASE_URL"))
+// MySQL:  sql.Open("mysql", "user:pass@tcp(host:3306)/app?parseTime=true")
+// SQLite: sql.Open("sqlite", "file:app.db?_pragma=foreign_keys(1)")
+
+auth := betterauth.MustNew(betterauth.Config{
+	Database: sqladapter.New(db, sqladapter.Config{}), // dialect detected from the driver
+	// ...
+})
+
+// Create missing tables/columns/indexes (ctx.runMigrations() upstream) ...
+if err := auth.RunMigrations(ctx); err != nil { ... }
+// ... or inspect the plan first.
+plan, err := auth.PlanMigrations(ctx) // plan.ToBeCreated, plan.ToBeAdded, plan.SQL()
+```
+
+`sqladapter.Config` mirrors the Kysely adapter options (`Dialect`, `SchemaName` for a
+PostgreSQL schema, `UsePlural`, `Transaction`, `DebugLogs`).
+
+MongoDB:
+
+```go
+import "github.com/nimi-io/better-auth-go/adapter/mongodb"
+
+client, _ := mongo.Connect(options.Client().ApplyURI(uri))
+auth := betterauth.MustNew(betterauth.Config{
+	Database: mongodb.New(client.Database("app"), mongodb.Config{Client: client}), // Client enables transactions
+})
+```
+
+Notes: MySQL connections need `parseTime=true`, and a TypeScript server sharing a MySQL
+database must use mysql2 with `timezone: "Z"`. With pgx, statements prepared before a
+migration are re-prepared automatically; add `default_query_exec_mode=exec` to disable
+statement caching entirely.
+
+## CLI
+
+```sh
+go install github.com/nimi-io/better-auth-go/cmd/better-auth@latest
+
+better-auth secret                                   # BETTER_AUTH_SECRET=...
+better-auth migrate  --database-url "$DATABASE_URL"  # create missing tables/columns
+better-auth generate --database-url "$DATABASE_URL"  # write the SQL to better-auth_migrations/
+better-auth info --json
+```
+
+The standalone binary knows the default schema only. When you use plugins, additional
+fields or renamed models, embed the CLI in your own binary so it sees your configuration:
+
+```go
+// cmd/auth/main.go
+func main() {
+	os.Exit(cli.Run(context.Background(), os.Args[1:], cli.Options{Auth: myapp.Auth()}))
+}
+```
+
 ## Social sign-in
 
 Providers live in `providers/<id>` and are passed as `Config.SocialProviders`. Each package
@@ -231,6 +302,11 @@ func helloPlugin() *betterauth.Plugin {
 | `betterauth` | Config, `New`, HTTP handler, endpoints, cookies, sessions, hooks, server API |
 | `adapter` | Generic adapter interface + transform layer (`createAdapterFactory`) |
 | `adapter/memory` | In-memory adapter |
+| `adapter/sqladapter` | PostgreSQL / MySQL / SQLite adapter on `database/sql` (Kysely adapter port) |
+| `adapter/sqladapter/migration` | Schema migrations (`getMigrations` port) |
+| `adapter/mongodb` | MongoDB adapter |
+| `adapter/adaptertest` | Shared adapter conformance suite |
+| `cli`, `cmd/better-auth` | CLI: `migrate`, `generate`, `secret`, `info` |
 | `db` | Schema definitions (`GetAuthTables`, plugin tables, field options) |
 | `crypto` | scrypt passwords, XChaCha20-Poly1305, JWT/JWE, random ids (byte-compatible with TS) |
 | `jsonx` | JavaScript-compatible ordered JSON (needed for signature compatibility) |
@@ -243,7 +319,10 @@ func helloPlugin() *betterauth.Plugin {
 ## Testing
 
 ```sh
-go test ./...                     # unit tests (includes ports of the upstream test suites)
+docker compose up -d              # PostgreSQL, MySQL, MongoDB for the adapter tests
+go test ./...                     # unit tests (includes ports of the upstream test suites);
+                                  # database tests skip when a server is unreachable,
+                                  # BA_TEST_REQUIRE_DBS=1 makes that an error
 
 cd e2e && npm install && npm test # official JS client against the Go server, diffed
                                   # against the real better-auth@1.7.7 server
@@ -253,4 +332,6 @@ The e2e suite runs every scenario through `better-auth/client` against both the 
 and the reference TypeScript server, and asserts that normalised response bodies, status
 codes, `Location` and `Set-Cookie` headers are identical. It also checks cross-compatibility:
 session cookies and cookie caches issued by TypeScript validate in Go and vice versa, and
-password hashes verify in both directions.
+password hashes verify in both directions. The shared-database tests run both servers on
+one SQLite, PostgreSQL, MySQL or MongoDB database and use each other's users, sessions and
+tokens.

@@ -43,10 +43,13 @@ type Reference struct {
 // Field is a column definition (DBFieldAttribute). Name is the logical key used by Better
 // Auth; FieldName is the physical column name (defaults to Name).
 type Field struct {
-	Name      string
-	Type      FieldType
-	Enum      []string
-	Required  bool
+	Name string
+	Type FieldType
+	Enum []string
+	// Required is tri-state like upstream's `required`: nil (unset) makes the column NOT NULL
+	// in migrations but leaves the field optional in input validation; use True / False to
+	// set it explicitly. See IsRequired, NotNull and IsOptional.
+	Required  *bool
 	FieldName string
 	// Returned=false hides the field from API output (returned: false upstream).
 	Returned *bool
@@ -67,6 +70,18 @@ type Field struct {
 	Sortable   bool
 	Index      bool
 }
+
+// IsRequired reports `required === true` (input validation, defaults on create).
+func (f Field) IsRequired() bool { return f.Required != nil && *f.Required }
+
+// NotNull reports `required !== false`: unset or true (migrations create NOT NULL columns).
+func (f Field) NotNull() bool { return f.Required == nil || *f.Required }
+
+// IsOptional reports `required === false`.
+func (f Field) IsOptional() bool { return f.Required != nil && !*f.Required }
+
+// Bool returns a pointer to b (for Field.Required, Returned and Input).
+func Bool(b bool) *bool { return &b }
 
 // IsReturned reports whether the field appears in API output.
 func (f Field) IsReturned() bool { return f.Returned == nil || *f.Returned }
@@ -288,12 +303,12 @@ func GetAuthTables(o Options) *Schema {
 	s.Tables = append(s.Tables, &Table{
 		Key: "user", ModelName: orDefault(o.User.ModelName, "user"), Indexes: ui, Order: 1,
 		Fields: mergeFields([]Field{
-			{Name: "name", Type: TypeString, Required: true, FieldName: col(o.User, "name"), Sortable: true},
-			{Name: "email", Type: TypeString, Unique: true, Required: true, FieldName: col(o.User, "email"), Sortable: true},
-			{Name: "emailVerified", Type: TypeBoolean, DefaultValue: false, Required: true, FieldName: col(o.User, "emailVerified"), Input: False},
-			{Name: "image", Type: TypeString, Required: false, FieldName: col(o.User, "image")},
-			{Name: "createdAt", Type: TypeDate, DefaultFunc: now, Required: true, FieldName: col(o.User, "createdAt")},
-			{Name: "updatedAt", Type: TypeDate, DefaultFunc: now, OnUpdate: now, Required: true, FieldName: col(o.User, "updatedAt")},
+			{Name: "name", Type: TypeString, Required: True, FieldName: col(o.User, "name"), Sortable: true},
+			{Name: "email", Type: TypeString, Unique: true, Required: True, FieldName: col(o.User, "email"), Sortable: true},
+			{Name: "emailVerified", Type: TypeBoolean, DefaultValue: false, Required: True, FieldName: col(o.User, "emailVerified"), Input: False},
+			{Name: "image", Type: TypeString, Required: False, FieldName: col(o.User, "image")},
+			{Name: "createdAt", Type: TypeDate, DefaultFunc: now, Required: True, FieldName: col(o.User, "createdAt")},
+			{Name: "updatedAt", Type: TypeDate, DefaultFunc: now, OnUpdate: now, Required: True, FieldName: col(o.User, "updatedAt")},
 		}, uf, o.User.AdditionalFields),
 	})
 
@@ -302,14 +317,14 @@ func GetAuthTables(o Options) *Schema {
 		s.Tables = append(s.Tables, &Table{
 			Key: "session", ModelName: orDefault(o.Session.ModelName, "session"), Indexes: si, Order: 2,
 			Fields: mergeFields([]Field{
-				{Name: "expiresAt", Type: TypeDate, Required: true, FieldName: col(o.Session, "expiresAt")},
-				{Name: "token", Type: TypeString, Required: true, FieldName: col(o.Session, "token"), Unique: true},
-				{Name: "createdAt", Type: TypeDate, Required: true, FieldName: col(o.Session, "createdAt"), DefaultFunc: now},
-				{Name: "updatedAt", Type: TypeDate, Required: true, FieldName: col(o.Session, "updatedAt"), OnUpdate: now},
-				{Name: "ipAddress", Type: TypeString, Required: false, FieldName: col(o.Session, "ipAddress")},
-				{Name: "userAgent", Type: TypeString, Required: false, FieldName: col(o.Session, "userAgent")},
+				{Name: "expiresAt", Type: TypeDate, Required: True, FieldName: col(o.Session, "expiresAt")},
+				{Name: "token", Type: TypeString, Required: True, FieldName: col(o.Session, "token"), Unique: true},
+				{Name: "createdAt", Type: TypeDate, Required: True, FieldName: col(o.Session, "createdAt"), DefaultFunc: now},
+				{Name: "updatedAt", Type: TypeDate, Required: True, FieldName: col(o.Session, "updatedAt"), OnUpdate: now},
+				{Name: "ipAddress", Type: TypeString, Required: False, FieldName: col(o.Session, "ipAddress")},
+				{Name: "userAgent", Type: TypeString, Required: False, FieldName: col(o.Session, "userAgent")},
 				{Name: "userId", Type: TypeString, FieldName: col(o.Session, "userId"),
-					References: &Reference{Model: "user", Field: "id", OnDelete: OnDeleteCascade}, Required: true, Index: true},
+					References: &Reference{Model: "user", Field: "id", OnDelete: OnDeleteCascade}, Required: True, Index: true},
 			}, sf, o.Session.AdditionalFields),
 		})
 	}
@@ -318,19 +333,19 @@ func GetAuthTables(o Options) *Schema {
 	s.Tables = append(s.Tables, &Table{
 		Key: "account", ModelName: orDefault(o.Account.ModelName, "account"), Indexes: ai, Order: 3,
 		Fields: mergeFields([]Field{
-			{Name: "accountId", Type: TypeString, Required: true, FieldName: col(o.Account, "accountId")},
-			{Name: "providerId", Type: TypeString, Required: true, FieldName: col(o.Account, "providerId")},
+			{Name: "accountId", Type: TypeString, Required: True, FieldName: col(o.Account, "accountId")},
+			{Name: "providerId", Type: TypeString, Required: True, FieldName: col(o.Account, "providerId")},
 			{Name: "userId", Type: TypeString, References: &Reference{Model: "user", Field: "id", OnDelete: OnDeleteCascade},
-				Required: true, FieldName: col(o.Account, "userId"), Index: true},
-			{Name: "accessToken", Type: TypeString, Returned: False, FieldName: col(o.Account, "accessToken")},
-			{Name: "refreshToken", Type: TypeString, Returned: False, FieldName: col(o.Account, "refreshToken")},
-			{Name: "idToken", Type: TypeString, Returned: False, FieldName: col(o.Account, "idToken")},
-			{Name: "accessTokenExpiresAt", Type: TypeDate, Returned: False, FieldName: col(o.Account, "accessTokenExpiresAt")},
-			{Name: "refreshTokenExpiresAt", Type: TypeDate, Returned: False, FieldName: col(o.Account, "refreshTokenExpiresAt")},
-			{Name: "scope", Type: TypeString, FieldName: col(o.Account, "scope")},
-			{Name: "password", Type: TypeString, Returned: False, FieldName: col(o.Account, "password")},
-			{Name: "createdAt", Type: TypeDate, Required: true, FieldName: col(o.Account, "createdAt"), DefaultFunc: now},
-			{Name: "updatedAt", Type: TypeDate, Required: true, FieldName: col(o.Account, "updatedAt"), OnUpdate: now},
+				Required: True, FieldName: col(o.Account, "userId"), Index: true},
+			{Name: "accessToken", Type: TypeString, Returned: False, Required: False, FieldName: col(o.Account, "accessToken")},
+			{Name: "refreshToken", Type: TypeString, Returned: False, Required: False, FieldName: col(o.Account, "refreshToken")},
+			{Name: "idToken", Type: TypeString, Returned: False, Required: False, FieldName: col(o.Account, "idToken")},
+			{Name: "accessTokenExpiresAt", Type: TypeDate, Returned: False, Required: False, FieldName: col(o.Account, "accessTokenExpiresAt")},
+			{Name: "refreshTokenExpiresAt", Type: TypeDate, Returned: False, Required: False, FieldName: col(o.Account, "refreshTokenExpiresAt")},
+			{Name: "scope", Type: TypeString, Required: False, FieldName: col(o.Account, "scope")},
+			{Name: "password", Type: TypeString, Returned: False, Required: False, FieldName: col(o.Account, "password")},
+			{Name: "createdAt", Type: TypeDate, Required: True, FieldName: col(o.Account, "createdAt"), DefaultFunc: now},
+			{Name: "updatedAt", Type: TypeDate, Required: True, FieldName: col(o.Account, "updatedAt"), OnUpdate: now},
 		}, af, o.Account.AdditionalFields),
 	})
 
@@ -339,11 +354,11 @@ func GetAuthTables(o Options) *Schema {
 		s.Tables = append(s.Tables, &Table{
 			Key: "verification", ModelName: orDefault(o.Verification.ModelName, "verification"), Indexes: vi, Order: 4,
 			Fields: mergeFields([]Field{
-				{Name: "identifier", Type: TypeString, Required: true, FieldName: col(o.Verification, "identifier"), Index: true},
-				{Name: "value", Type: TypeString, Required: true, FieldName: col(o.Verification, "value")},
-				{Name: "expiresAt", Type: TypeDate, Required: true, FieldName: col(o.Verification, "expiresAt")},
-				{Name: "createdAt", Type: TypeDate, Required: true, DefaultFunc: now, FieldName: col(o.Verification, "createdAt")},
-				{Name: "updatedAt", Type: TypeDate, Required: true, DefaultFunc: now, OnUpdate: now, FieldName: col(o.Verification, "updatedAt")},
+				{Name: "identifier", Type: TypeString, Required: True, FieldName: col(o.Verification, "identifier"), Index: true},
+				{Name: "value", Type: TypeString, Required: True, FieldName: col(o.Verification, "value")},
+				{Name: "expiresAt", Type: TypeDate, Required: True, FieldName: col(o.Verification, "expiresAt")},
+				{Name: "createdAt", Type: TypeDate, Required: True, DefaultFunc: now, FieldName: col(o.Verification, "createdAt")},
+				{Name: "updatedAt", Type: TypeDate, Required: True, DefaultFunc: now, OnUpdate: now, FieldName: col(o.Verification, "updatedAt")},
 			}, vf, o.Verification.AdditionalFields),
 		})
 	}
@@ -363,9 +378,9 @@ func GetAuthTables(o Options) *Schema {
 		s.Tables = append(s.Tables, &Table{
 			Key: "rateLimit", ModelName: orDefault(o.RateLimit.ModelName, "rateLimit"),
 			Fields: []Field{
-				{Name: "key", Type: TypeString, Unique: true, Required: true, FieldName: col(o.RateLimit, "key")},
-				{Name: "count", Type: TypeNumber, Required: true, FieldName: col(o.RateLimit, "count")},
-				{Name: "lastRequest", Type: TypeNumber, BigInt: true, Required: true, FieldName: col(o.RateLimit, "lastRequest"),
+				{Name: "key", Type: TypeString, Unique: true, Required: True, FieldName: col(o.RateLimit, "key")},
+				{Name: "count", Type: TypeNumber, Required: True, FieldName: col(o.RateLimit, "count")},
+				{Name: "lastRequest", Type: TypeNumber, BigInt: true, Required: True, FieldName: col(o.RateLimit, "lastRequest"),
 					DefaultFunc: func() any { return time.Now().UnixMilli() }},
 			},
 		})
