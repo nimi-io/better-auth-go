@@ -1,0 +1,753 @@
+{
+  "schemas": [
+    {
+      "id": "urn:ietf:params:scim:schemas:core:2.0:User",
+      "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:Schema"
+      ],
+      "name": "User",
+      "description": "User Account",
+      "attributes": [
+        {
+          "name": "userName",
+          "type": "string",
+          "multiValued": false,
+          "description": "Unique identifier for the User within its provisioning connection.",
+          "required": true,
+          "caseExact": false,
+          "mutability": "readWrite",
+          "returned": "default",
+          "uniqueness": "server"
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "multiValued": false,
+          "description": "The name of the User, suitable for display to end-users.",
+          "required": false,
+          "caseExact": false,
+          "mutability": "readWrite",
+          "returned": "default",
+          "uniqueness": "none"
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "multiValued": false,
+          "description": "A Boolean value indicating the User's administrative status.",
+          "required": false,
+          "mutability": "readWrite",
+          "returned": "default"
+        },
+        {
+          "name": "name",
+          "type": "complex",
+          "multiValued": false,
+          "description": "The components of the User's real name.",
+          "required": false,
+          "subAttributes": [
+            {
+              "name": "formatted",
+              "type": "string",
+              "multiValued": false,
+              "description": "The complete formatted name.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "givenName",
+              "type": "string",
+              "multiValued": false,
+              "description": "The given name of the User.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "familyName",
+              "type": "string",
+              "multiValued": false,
+              "description": "The family name of the User.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "middleName",
+              "type": "string",
+              "multiValued": false,
+              "description": "The middle name of the User.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "honorificPrefix",
+              "type": "string",
+              "multiValued": false,
+              "description": "The honorific prefix of the User.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "honorificSuffix",
+              "type": "string",
+              "multiValued": false,
+              "description": "The honorific suffix of the User.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            }
+          ],
+          "mutability": "readWrite",
+          "returned": "default",
+          "uniqueness": "none"
+        },
+        {
+          "name": "emails",
+          "type": "complex",
+          "multiValued": true,
+          "description": "Email addresses for the User.",
+          "required": false,
+          "subAttributes": [
+            {
+              "name": "value",
+              "type": "string",
+              "multiValued": false,
+              "description": "Email address for the User.",
+              "required": true,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "multiValued": false,
+              "description": "A label indicating the attribute's function.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "primary",
+              "type": "boolean",
+              "multiValued": false,
+              "description": "Whether this is the primary value for the attribute.",
+              "required": false,
+              "mutability": "readWrite",
+              "returned": "default"
+            }
+          ],
+          "mutability": "readWrite",
+          "returned": "default",
+          "uniqueness": "none"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "multiValued": false,
+          "description": "The User's title.",
+          "required": false,
+          "caseExact": false,
+          "mutability": "readWrite",
+          "returned": "default",
+          "uniqueness": "none"
+        },
+        {
+          "name": "userType",
+          "type": "string",
+          "multiValued": false,
+          "description": "The User's relationship to the organization.",
+          "required": false,
+          "caseExact": false,
+          "mutability": "readWrite",
+          "returned": "default",
+          "uniqueness": "none"
+        },
+        {
+          "name": "preferredLanguage",
+          "type": "string",
+          "multiValued": false,
+          "description": "The User's preferred written or spoken language.",
+          "required": false,
+          "caseExact": false,
+          "mutability": "readWrite",
+          "returned": "default",
+          "uniqueness": "none"
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "multiValued": false,
+          "description": "The User's default location.",
+          "required": false,
+          "caseExact": false,
+          "mutability": "readWrite",
+          "returned": "default",
+          "uniqueness": "none"
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "multiValued": false,
+          "description": "The User's time zone.",
+          "required": false,
+          "caseExact": false,
+          "mutability": "readWrite",
+          "returned": "default",
+          "uniqueness": "none"
+        },
+        {
+          "name": "phoneNumbers",
+          "type": "complex",
+          "multiValued": true,
+          "description": "Phone numbers for the User.",
+          "required": false,
+          "subAttributes": [
+            {
+              "name": "value",
+              "type": "string",
+              "multiValued": false,
+              "description": "Phone number for the User.",
+              "required": true,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "multiValued": false,
+              "description": "A label indicating the attribute's function.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "primary",
+              "type": "boolean",
+              "multiValued": false,
+              "description": "Whether this is the primary value for the attribute.",
+              "required": false,
+              "mutability": "readWrite",
+              "returned": "default"
+            }
+          ],
+          "mutability": "readWrite",
+          "returned": "default",
+          "uniqueness": "none"
+        },
+        {
+          "name": "addresses",
+          "type": "complex",
+          "multiValued": true,
+          "description": "Postal addresses for the User.",
+          "required": false,
+          "subAttributes": [
+            {
+              "name": "formatted",
+              "type": "string",
+              "multiValued": false,
+              "description": "The complete formatted address.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "streetAddress",
+              "type": "string",
+              "multiValued": false,
+              "description": "The full street address.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "locality",
+              "type": "string",
+              "multiValued": false,
+              "description": "The city or locality.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "region",
+              "type": "string",
+              "multiValued": false,
+              "description": "The state or region.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "postalCode",
+              "type": "string",
+              "multiValued": false,
+              "description": "The postal code.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "country",
+              "type": "string",
+              "multiValued": false,
+              "description": "The country.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "multiValued": false,
+              "description": "A label indicating the attribute's function.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "primary",
+              "type": "boolean",
+              "multiValued": false,
+              "description": "Whether this is the primary value for the attribute.",
+              "required": false,
+              "mutability": "readWrite",
+              "returned": "default"
+            }
+          ],
+          "mutability": "readWrite",
+          "returned": "default",
+          "uniqueness": "none"
+        },
+        {
+          "name": "roles",
+          "type": "complex",
+          "multiValued": true,
+          "description": "Roles for the User.",
+          "required": false,
+          "subAttributes": [
+            {
+              "name": "value",
+              "type": "string",
+              "multiValued": false,
+              "description": "The role value.",
+              "required": true,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "display",
+              "type": "string",
+              "multiValued": false,
+              "description": "A human-readable role name.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "multiValued": false,
+              "description": "A label indicating the attribute's function.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "primary",
+              "type": "boolean",
+              "multiValued": false,
+              "description": "Whether this is the primary value for the attribute.",
+              "required": false,
+              "mutability": "readWrite",
+              "returned": "default"
+            }
+          ],
+          "mutability": "readWrite",
+          "returned": "default",
+          "uniqueness": "none"
+        },
+        {
+          "name": "entitlements",
+          "type": "complex",
+          "multiValued": true,
+          "description": "Entitlements for the User.",
+          "required": false,
+          "subAttributes": [
+            {
+              "name": "value",
+              "type": "string",
+              "multiValued": false,
+              "description": "The entitlement value.",
+              "required": true,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "display",
+              "type": "string",
+              "multiValued": false,
+              "description": "A human-readable entitlement name.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "multiValued": false,
+              "description": "A label indicating the attribute's function.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "primary",
+              "type": "boolean",
+              "multiValued": false,
+              "description": "Whether this is the primary value for the attribute.",
+              "required": false,
+              "mutability": "readWrite",
+              "returned": "default"
+            }
+          ],
+          "mutability": "readWrite",
+          "returned": "default",
+          "uniqueness": "none"
+        }
+      ],
+      "meta": {
+        "resourceType": "Schema",
+        "location": "/scim/v2/Schemas/urn:ietf:params:scim:schemas:core:2.0:User"
+      }
+    },
+    {
+      "id": "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User",
+      "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:Schema"
+      ],
+      "name": "EnterpriseUser",
+      "description": "Enterprise User",
+      "attributes": [
+        {
+          "name": "employeeNumber",
+          "type": "string",
+          "multiValued": false,
+          "description": "A number assigned to the User.",
+          "required": false,
+          "caseExact": false,
+          "mutability": "readWrite",
+          "returned": "default",
+          "uniqueness": "none"
+        },
+        {
+          "name": "costCenter",
+          "type": "string",
+          "multiValued": false,
+          "description": "The User's cost center.",
+          "required": false,
+          "caseExact": false,
+          "mutability": "readWrite",
+          "returned": "default",
+          "uniqueness": "none"
+        },
+        {
+          "name": "organization",
+          "type": "string",
+          "multiValued": false,
+          "description": "The User's organization.",
+          "required": false,
+          "caseExact": false,
+          "mutability": "readWrite",
+          "returned": "default",
+          "uniqueness": "none"
+        },
+        {
+          "name": "division",
+          "type": "string",
+          "multiValued": false,
+          "description": "The User's division.",
+          "required": false,
+          "caseExact": false,
+          "mutability": "readWrite",
+          "returned": "default",
+          "uniqueness": "none"
+        },
+        {
+          "name": "department",
+          "type": "string",
+          "multiValued": false,
+          "description": "The User's department.",
+          "required": false,
+          "caseExact": false,
+          "mutability": "readWrite",
+          "returned": "default",
+          "uniqueness": "none"
+        },
+        {
+          "name": "manager",
+          "type": "complex",
+          "multiValued": false,
+          "description": "The User's manager.",
+          "required": false,
+          "subAttributes": [
+            {
+              "name": "value",
+              "type": "string",
+              "multiValued": false,
+              "description": "The manager's identifier.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "$ref",
+              "type": "reference",
+              "referenceTypes": [
+                "User"
+              ],
+              "multiValued": false,
+              "description": "The URI of the manager's SCIM User resource.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readWrite",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "displayName",
+              "type": "string",
+              "multiValued": false,
+              "description": "The manager's display name.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readOnly",
+              "returned": "default",
+              "uniqueness": "none"
+            }
+          ],
+          "mutability": "readWrite",
+          "returned": "default",
+          "uniqueness": "none"
+        }
+      ],
+      "meta": {
+        "resourceType": "Schema",
+        "location": "/scim/v2/Schemas/urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"
+      }
+    },
+    {
+      "id": "urn:ietf:params:scim:schemas:core:2.0:Group",
+      "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:Schema"
+      ],
+      "name": "Group",
+      "description": "Group",
+      "attributes": [
+        {
+          "name": "displayName",
+          "type": "string",
+          "multiValued": false,
+          "description": "A human-readable name for the Group.",
+          "required": true,
+          "caseExact": false,
+          "mutability": "readWrite",
+          "returned": "default",
+          "uniqueness": "server"
+        },
+        {
+          "name": "members",
+          "type": "complex",
+          "multiValued": true,
+          "description": "A list of members of the Group.",
+          "required": false,
+          "mutability": "readWrite",
+          "returned": "default",
+          "uniqueness": "none",
+          "subAttributes": [
+            {
+              "name": "value",
+              "type": "string",
+              "multiValued": false,
+              "description": "Identifier of the member of this Group.",
+              "required": true,
+              "caseExact": false,
+              "mutability": "immutable",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "$ref",
+              "type": "reference",
+              "referenceTypes": [
+                "User"
+              ],
+              "multiValued": false,
+              "description": "The URI corresponding to a SCIM member resource.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "immutable",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "display",
+              "type": "string",
+              "multiValued": false,
+              "description": "A human-readable name for the member.",
+              "required": false,
+              "caseExact": false,
+              "mutability": "readOnly",
+              "returned": "default",
+              "uniqueness": "none"
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "multiValued": false,
+              "description": "A label indicating the member resource type.",
+              "required": false,
+              "caseExact": false,
+              "canonicalValues": [
+                "User"
+              ],
+              "mutability": "immutable",
+              "returned": "default",
+              "uniqueness": "none"
+            }
+          ]
+        }
+      ],
+      "meta": {
+        "resourceType": "Schema",
+        "location": "/scim/v2/Schemas/urn:ietf:params:scim:schemas:core:2.0:Group"
+      }
+    }
+  ],
+  "resourceTypes": [
+    {
+      "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:ResourceType"
+      ],
+      "id": "User",
+      "name": "User",
+      "endpoint": "/Users",
+      "description": "User Account",
+      "schema": "urn:ietf:params:scim:schemas:core:2.0:User",
+      "schemaExtensions": [
+        {
+          "schema": "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User",
+          "required": false
+        }
+      ],
+      "meta": {
+        "resourceType": "ResourceType",
+        "location": "/scim/v2/ResourceTypes/User"
+      }
+    },
+    {
+      "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:ResourceType"
+      ],
+      "id": "Group",
+      "name": "Group",
+      "endpoint": "/Groups",
+      "description": "Group",
+      "schema": "urn:ietf:params:scim:schemas:core:2.0:Group",
+      "meta": {
+        "resourceType": "ResourceType",
+        "location": "/scim/v2/ResourceTypes/Group"
+      }
+    }
+  ],
+  "serviceProviderConfig": {
+    "schemas": [
+      "urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"
+    ],
+    "patch": {
+      "supported": true
+    },
+    "bulk": {
+      "supported": false,
+      "maxOperations": 0,
+      "maxPayloadSize": 0
+    },
+    "filter": {
+      "supported": true,
+      "maxResults": 100
+    },
+    "changePassword": {
+      "supported": false
+    },
+    "sort": {
+      "supported": false
+    },
+    "etag": {
+      "supported": false
+    },
+    "authenticationSchemes": [
+      {
+        "name": "OAuth Bearer Token",
+        "description": "Authentication using a bearer token in the Authorization header.",
+        "specUri": "https://www.rfc-editor.org/info/rfc6750",
+        "type": "oauthbearertoken",
+        "primary": true
+      }
+    ],
+    "meta": {
+      "resourceType": "ServiceProviderConfig",
+      "location": "/scim/v2/ServiceProviderConfig"
+    }
+  }
+}

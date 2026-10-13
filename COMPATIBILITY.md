@@ -20,7 +20,7 @@ option) and its status in the Go port. Upstream reference: `better-auth/better-a
 | 2 | Social OAuth (sign-in/social, callback, state, PKCE, id-token sign-in, ~36 providers) | ✅ |
 | 3 | Adapters (Postgres, MySQL, SQLite, MongoDB), conformance suite, migrations, CLI | ✅ |
 | 4 | Plugins | ✅ |
-| 5 | Enterprise (SSO, SCIM, OAuth provider, MCP) | ⬜ |
+| 5 | Enterprise (SSO, SCIM, OAuth provider, MCP) | ✅ |
 
 ## Wire-level compatibility
 
@@ -217,13 +217,40 @@ values); verify responses of passkey hide `returned: false` fields.
 | open-api | `plugins/openapi` (upstream `plugins/open-api`) | ✅ |
 | siwe | `plugins/siwe` (upstream `plugins/siwe`) | ✅ |
 | additional-fields (client inference helper) | `plugins/additional-fields` | ➖ (TS type inference only) |
-| sso (OIDC + SAML 2.0, domain verification) | `packages/sso` | ⬜ |
-| scim (SCIM 2.0) | `packages/scim` | ⬜ |
-| oauth-provider / OIDC provider | `packages/oauth-provider` | ⬜ |
-| mcp | `packages/mcp`, `packages/cimd` | ⬜ |
+| sso (OIDC + SAML 2.0, domain verification) | `plugins/sso` (upstream `packages/sso`) | ✅ |
+| scim (SCIM 2.0) | `plugins/scim` (upstream `packages/scim`) | ✅ |
+| oauth-provider / OIDC provider | `plugins/oauthprovider` (upstream `packages/oauth-provider`) | ✅ |
+| mcp, cimd | `plugins/mcp`, `plugins/cimd` (upstream `packages/mcp`, `packages/cimd`) | ✅ |
 | stripe | `packages/stripe` | ⬜ (not in the requested scope) |
 | expo, electron | `packages/expo`, `packages/electron` | ⬜ (not in the requested scope) |
 | redis-storage | `packages/redis-storage` | ⬜ (not in the requested scope) |
+
+Enterprise packages (Phase 5):
+- **sso**: OIDC and SAML 2.0 SSO, provider management, domain verification, organization
+  assignment. SAML signatures are verified with goxmldsig (exclusive c14n) behind upstream's
+  structural checks (signature placement, XML-signature-wrapping and duplicate-ID rejection,
+  issuer/audience/recipient/destination binding, InResponseTo single use, assertion replay
+  protection, clock-skew windows, size limits, algorithm policy, encrypted assertions).
+  A Go port of the samlify subset upstream uses lives in `plugins/sso/internal/samlify`.
+  e2e: OIDC and SAML sign-in against a mock IdP on both servers, plus a shared database.
+- **scim**: 1.7.7's SCIM 2.0 (static, verifier-resolved and managed bearer connections,
+  identity linking, role projection, decommissioning), Users/Groups CRUD with the full PATCH
+  path/filter grammar, discovery endpoints, RFC 7644 errors. Managed tokens are
+  byte-compatible (verified across servers on a shared database).
+- **oauth-provider**: OAuth 2.1 / OIDC provider — authorize, consent, token
+  (authorization_code, refresh_token with reuse detection, client_credentials, device code),
+  introspection, revocation, userinfo, end-session and back-channel logout, dynamic client
+  registration, client/consent management, DPoP, private_key_jwt, pairwise subjects, RFC 8707
+  resources. Clients, codes, tokens and consents created by either server work on the other.
+- **mcp / cimd**: MCP protected-resource metadata, `RequireMcpAuth` (plus net/http
+  middleware), Client ID Metadata Documents with an SSRF-safe fetcher, HTTP caching and fetch
+  governor.
+- Empty form bodies on OAuth endpoints follow fetch runtimes (parsed as `{}`), as upstream's
+  tests pin; the TypeScript Node adapter (`toNodeHandler`) passes no body for an empty POST,
+  so an empty form POST to `/oauth2/token` answers `grant_type is required` in Go and
+  `expected object, received undefined` behind Node.
+- JSON columns decoded from the database (client metadata, SCIM resources, organization
+  permissions) are re-serialised with sorted keys; values are identical.
 
 ## Endpoints
 
@@ -240,6 +267,10 @@ Phase 1 notes:
   so real and synthetic duplicate-sign-up responses are indistinguishable. With a SQL
   database the TypeScript server returns the same `image: null`; only its in-memory
   adapter omits the key.
+
+Plugin and package endpoints are covered by their ported upstream tests and by the
+per-plugin e2e suites (`e2e/tests/plugin-*.test.mjs`), which drive the main flows of each
+plugin against both servers.
 
 Generated from every `createAuthEndpoint` in v1.7.7. "server-only" endpoints have no HTTP route
 and are reachable only through the Go server API (`auth.API`).
@@ -288,21 +319,21 @@ Upstream: `packages/better-auth/src/plugins/admin`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| POST | `/admin/ban-user` |  | ⬜ |
-| POST | `/admin/create-user` |  | ⬜ |
-| GET | `/admin/get-user` |  | ⬜ |
-| POST | `/admin/has-permission` |  | ⬜ |
-| POST | `/admin/impersonate-user` |  | ⬜ |
-| POST | `/admin/list-user-sessions` |  | ⬜ |
-| GET | `/admin/list-users` |  | ⬜ |
-| POST | `/admin/remove-user` |  | ⬜ |
-| POST | `/admin/revoke-user-session` |  | ⬜ |
-| POST | `/admin/revoke-user-sessions` |  | ⬜ |
-| POST | `/admin/set-role` |  | ⬜ |
-| POST | `/admin/set-user-password` |  | ⬜ |
-| POST | `/admin/stop-impersonating` |  | ⬜ |
-| POST | `/admin/unban-user` |  | ⬜ |
-| POST | `/admin/update-user` |  | ⬜ |
+| POST | `/admin/ban-user` |  | ✅ |
+| POST | `/admin/create-user` |  | ✅ |
+| GET | `/admin/get-user` |  | ✅ |
+| POST | `/admin/has-permission` |  | ✅ |
+| POST | `/admin/impersonate-user` |  | ✅ |
+| POST | `/admin/list-user-sessions` |  | ✅ |
+| GET | `/admin/list-users` |  | ✅ |
+| POST | `/admin/remove-user` |  | ✅ |
+| POST | `/admin/revoke-user-session` |  | ✅ |
+| POST | `/admin/revoke-user-sessions` |  | ✅ |
+| POST | `/admin/set-role` |  | ✅ |
+| POST | `/admin/set-user-password` |  | ✅ |
+| POST | `/admin/stop-impersonating` |  | ✅ |
+| POST | `/admin/unban-user` |  | ✅ |
+| POST | `/admin/update-user` |  | ✅ |
 
 ### plugin: anonymous
 
@@ -310,8 +341,8 @@ Upstream: `packages/better-auth/src/plugins/anonymous`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| POST | `/delete-anonymous-user` |  | ⬜ |
-| POST | `/sign-in/anonymous` |  | ⬜ |
+| POST | `/delete-anonymous-user` |  | ✅ |
+| POST | `/sign-in/anonymous` |  | ✅ |
 
 ### plugin: custom-session
 
@@ -319,7 +350,7 @@ Upstream: `packages/better-auth/src/plugins/custom-session`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| GET | `/get-session` |  | ⬜ |
+| GET | `/get-session` |  | ✅ |
 
 ### plugin: device-authorization
 
@@ -327,11 +358,11 @@ Upstream: `packages/better-auth/src/plugins/device-authorization`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| GET | `/device` |  | ⬜ |
-| POST | `/device/approve` |  | ⬜ |
-| POST | `/device/code` |  | ⬜ |
-| POST | `/device/deny` |  | ⬜ |
-| POST | `/device/token` |  | ⬜ |
+| GET | `/device` |  | ✅ |
+| POST | `/device/approve` |  | ✅ |
+| POST | `/device/code` |  | ✅ |
+| POST | `/device/deny` |  | ✅ |
+| POST | `/device/token` |  | ✅ |
 
 ### plugin: email-otp
 
@@ -339,15 +370,15 @@ Upstream: `packages/better-auth/src/plugins/email-otp`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| POST | `/email-otp/change-email` |  | ⬜ |
-| POST | `/email-otp/check-verification-otp` |  | ⬜ |
-| POST | `/email-otp/request-email-change` |  | ⬜ |
-| POST | `/email-otp/request-password-reset` |  | ⬜ |
-| POST | `/email-otp/reset-password` |  | ⬜ |
-| POST | `/email-otp/send-verification-otp` |  | ⬜ |
-| POST | `/email-otp/verify-email` |  | ⬜ |
-| POST | `/forget-password/email-otp` |  | ⬜ |
-| POST | `/sign-in/email-otp` |  | ⬜ |
+| POST | `/email-otp/change-email` |  | ✅ |
+| POST | `/email-otp/check-verification-otp` |  | ✅ |
+| POST | `/email-otp/request-email-change` |  | ✅ |
+| POST | `/email-otp/request-password-reset` |  | ✅ |
+| POST | `/email-otp/reset-password` |  | ✅ |
+| POST | `/email-otp/send-verification-otp` |  | ✅ |
+| POST | `/email-otp/verify-email` |  | ✅ |
+| POST | `/forget-password/email-otp` |  | ✅ |
+| POST | `/sign-in/email-otp` |  | ✅ |
 
 ### plugin: jwt
 
@@ -355,8 +386,8 @@ Upstream: `packages/better-auth/src/plugins/jwt`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| GET | `/jwks` |  | ⬜ |
-| GET | `/token` |  | ⬜ |
+| GET | `/jwks` |  | ✅ |
+| GET | `/token` |  | ✅ |
 
 ### plugin: magic-link
 
@@ -364,8 +395,8 @@ Upstream: `packages/better-auth/src/plugins/magic-link`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| GET | `/magic-link/verify` |  | ⬜ |
-| POST | `/sign-in/magic-link` |  | ⬜ |
+| GET | `/magic-link/verify` |  | ✅ |
+| POST | `/sign-in/magic-link` |  | ✅ |
 
 ### plugin: multi-session
 
@@ -373,9 +404,9 @@ Upstream: `packages/better-auth/src/plugins/multi-session`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| GET | `/multi-session/list-device-sessions` |  | ⬜ |
-| POST | `/multi-session/revoke` |  | ⬜ |
-| POST | `/multi-session/set-active` |  | ⬜ |
+| GET | `/multi-session/list-device-sessions` |  | ✅ |
+| POST | `/multi-session/revoke` |  | ✅ |
+| POST | `/multi-session/set-active` |  | ✅ |
 
 ### plugin: oauth-popup
 
@@ -383,7 +414,7 @@ Upstream: `packages/better-auth/src/plugins/oauth-popup`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| GET | `/oauth-popup/start` |  | ⬜ |
+| GET | `/oauth-popup/start` |  | ✅ |
 
 ### plugin: oauth-proxy
 
@@ -391,8 +422,8 @@ Upstream: `packages/better-auth/src/plugins/oauth-proxy`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| GET | `/callback/:id/oauth-proxy` |  | ⬜ |
-| GET | `/oauth-proxy-callback` |  | ⬜ |
+| GET | `/callback/:id/oauth-proxy` |  | ✅ |
+| GET | `/oauth-proxy-callback` |  | ✅ |
 
 ### plugin: one-tap
 
@@ -400,7 +431,7 @@ Upstream: `packages/better-auth/src/plugins/one-tap`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| POST | `/one-tap/callback` |  | ⬜ |
+| POST | `/one-tap/callback` |  | ✅ |
 
 ### plugin: one-time-token
 
@@ -408,8 +439,8 @@ Upstream: `packages/better-auth/src/plugins/one-time-token`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| GET | `/one-time-token/generate` |  | ⬜ |
-| POST | `/one-time-token/verify` |  | ⬜ |
+| GET | `/one-time-token/generate` |  | ✅ |
+| POST | `/one-time-token/verify` |  | ✅ |
 
 ### plugin: open-api
 
@@ -417,7 +448,7 @@ Upstream: `packages/better-auth/src/plugins/open-api`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| GET | `/open-api/generate-schema` |  | ⬜ |
+| GET | `/open-api/generate-schema` |  | ✅ |
 
 ### plugin: organization
 
@@ -425,42 +456,42 @@ Upstream: `packages/better-auth/src/plugins/organization`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| POST | `/organization/accept-invitation` |  | ⬜ |
-| POST | `/organization/add-team-member` |  | ⬜ |
-| POST | `/organization/cancel-invitation` |  | ⬜ |
-| POST | `/organization/check-slug` |  | ⬜ |
-| POST | `/organization/create` |  | ⬜ |
-| POST | `/organization/create-role` |  | ⬜ |
-| POST | `/organization/create-team` |  | ⬜ |
-| POST | `/organization/delete` |  | ⬜ |
-| POST | `/organization/delete-role` |  | ⬜ |
-| GET | `/organization/get-active-member` |  | ⬜ |
-| GET | `/organization/get-active-member-role` |  | ⬜ |
-| GET | `/organization/get-full-organization` |  | ⬜ |
-| GET | `/organization/get-invitation` |  | ⬜ |
-| GET | `/organization/get-organization` |  | ⬜ |
-| GET | `/organization/get-role` |  | ⬜ |
-| POST | `/organization/has-permission` |  | ⬜ |
-| POST | `/organization/invite-member` |  | ⬜ |
-| POST | `/organization/leave` |  | ⬜ |
-| GET | `/organization/list` |  | ⬜ |
-| GET | `/organization/list-invitations` |  | ⬜ |
-| GET | `/organization/list-members` |  | ⬜ |
-| GET | `/organization/list-roles` |  | ⬜ |
-| GET | `/organization/list-team-members` |  | ⬜ |
-| GET | `/organization/list-teams` |  | ⬜ |
-| GET | `/organization/list-user-invitations` |  | ⬜ |
-| GET | `/organization/list-user-teams` |  | ⬜ |
-| POST | `/organization/reject-invitation` |  | ⬜ |
-| POST | `/organization/remove-member` |  | ⬜ |
-| POST | `/organization/remove-team` |  | ⬜ |
-| POST | `/organization/remove-team-member` |  | ⬜ |
-| POST | `/organization/set-active` |  | ⬜ |
-| POST | `/organization/set-active-team` |  | ⬜ |
-| POST | `/organization/update` |  | ⬜ |
-| POST | `/organization/update-member-role` |  | ⬜ |
-| POST | `/organization/update-role` |  | ⬜ |
-| POST | `/organization/update-team` |  | ⬜ |
+| POST | `/organization/accept-invitation` |  | ✅ |
+| POST | `/organization/add-team-member` |  | ✅ |
+| POST | `/organization/cancel-invitation` |  | ✅ |
+| POST | `/organization/check-slug` |  | ✅ |
+| POST | `/organization/create` |  | ✅ |
+| POST | `/organization/create-role` |  | ✅ |
+| POST | `/organization/create-team` |  | ✅ |
+| POST | `/organization/delete` |  | ✅ |
+| POST | `/organization/delete-role` |  | ✅ |
+| GET | `/organization/get-active-member` |  | ✅ |
+| GET | `/organization/get-active-member-role` |  | ✅ |
+| GET | `/organization/get-full-organization` |  | ✅ |
+| GET | `/organization/get-invitation` |  | ✅ |
+| GET | `/organization/get-organization` |  | ✅ |
+| GET | `/organization/get-role` |  | ✅ |
+| POST | `/organization/has-permission` |  | ✅ |
+| POST | `/organization/invite-member` |  | ✅ |
+| POST | `/organization/leave` |  | ✅ |
+| GET | `/organization/list` |  | ✅ |
+| GET | `/organization/list-invitations` |  | ✅ |
+| GET | `/organization/list-members` |  | ✅ |
+| GET | `/organization/list-roles` |  | ✅ |
+| GET | `/organization/list-team-members` |  | ✅ |
+| GET | `/organization/list-teams` |  | ✅ |
+| GET | `/organization/list-user-invitations` |  | ✅ |
+| GET | `/organization/list-user-teams` |  | ✅ |
+| POST | `/organization/reject-invitation` |  | ✅ |
+| POST | `/organization/remove-member` |  | ✅ |
+| POST | `/organization/remove-team` |  | ✅ |
+| POST | `/organization/remove-team-member` |  | ✅ |
+| POST | `/organization/set-active` |  | ✅ |
+| POST | `/organization/set-active-team` |  | ✅ |
+| POST | `/organization/update` |  | ✅ |
+| POST | `/organization/update-member-role` |  | ✅ |
+| POST | `/organization/update-role` |  | ✅ |
+| POST | `/organization/update-team` |  | ✅ |
 
 ### plugin: phone-number
 
@@ -468,11 +499,11 @@ Upstream: `packages/better-auth/src/plugins/phone-number`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| POST | `/phone-number/request-password-reset` |  | ⬜ |
-| POST | `/phone-number/reset-password` |  | ⬜ |
-| POST | `/phone-number/send-otp` |  | ⬜ |
-| POST | `/phone-number/verify` |  | ⬜ |
-| POST | `/sign-in/phone-number` |  | ⬜ |
+| POST | `/phone-number/request-password-reset` |  | ✅ |
+| POST | `/phone-number/reset-password` |  | ✅ |
+| POST | `/phone-number/send-otp` |  | ✅ |
+| POST | `/phone-number/verify` |  | ✅ |
+| POST | `/sign-in/phone-number` |  | ✅ |
 
 ### plugin: siwe
 
@@ -480,7 +511,7 @@ Upstream: `packages/better-auth/src/plugins/siwe`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| POST | `/siwe/verify` |  | ⬜ |
+| POST | `/siwe/verify` |  | ✅ |
 
 ### plugin: two-factor
 
@@ -488,14 +519,14 @@ Upstream: `packages/better-auth/src/plugins/two-factor`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| POST | `/two-factor/disable` |  | ⬜ |
-| POST | `/two-factor/enable` |  | ⬜ |
-| POST | `/two-factor/generate-backup-codes` |  | ⬜ |
-| POST | `/two-factor/get-totp-uri` |  | ⬜ |
-| POST | `/two-factor/send-otp` |  | ⬜ |
-| POST | `/two-factor/verify-backup-code` |  | ⬜ |
-| POST | `/two-factor/verify-otp` |  | ⬜ |
-| POST | `/two-factor/verify-totp` |  | ⬜ |
+| POST | `/two-factor/disable` |  | ✅ |
+| POST | `/two-factor/enable` |  | ✅ |
+| POST | `/two-factor/generate-backup-codes` |  | ✅ |
+| POST | `/two-factor/get-totp-uri` |  | ✅ |
+| POST | `/two-factor/send-otp` |  | ✅ |
+| POST | `/two-factor/verify-backup-code` |  | ✅ |
+| POST | `/two-factor/verify-otp` |  | ✅ |
+| POST | `/two-factor/verify-totp` |  | ✅ |
 
 ### plugin: username
 
@@ -503,8 +534,8 @@ Upstream: `packages/better-auth/src/plugins/username`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| POST | `/is-username-available` |  | ⬜ |
-| POST | `/sign-in/username` |  | ⬜ |
+| POST | `/is-username-available` |  | ✅ |
+| POST | `/sign-in/username` |  | ✅ |
 
 ### package: @better-auth/api-key
 
@@ -512,11 +543,11 @@ Upstream: `packages/api-key`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| POST | `/api-key/create` |  | ⬜ |
-| POST | `/api-key/delete` |  | ⬜ |
-| GET | `/api-key/get` |  | ⬜ |
-| GET | `/api-key/list` |  | ⬜ |
-| POST | `/api-key/update` |  | ⬜ |
+| POST | `/api-key/create` |  | ✅ |
+| POST | `/api-key/delete` |  | ✅ |
+| GET | `/api-key/get` |  | ✅ |
+| GET | `/api-key/list` |  | ✅ |
+| POST | `/api-key/update` |  | ✅ |
 
 ### package: @better-auth/electron
 
@@ -542,39 +573,39 @@ Upstream: `packages/oauth-provider`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| GET | `/.well-known/oauth-authorization-server` | server-only (no HTTP route) | ⬜ |
-| GET | `/.well-known/openid-configuration` | server-only (no HTTP route) | ⬜ |
-| POST | `/admin/oauth2/create-client` | server-only (no HTTP route) | ⬜ |
-| GET | `/admin/oauth2/resources` | server-only (no HTTP route) | ⬜ |
-| POST | `/admin/oauth2/resources` | server-only (no HTTP route) | ⬜ |
-| DELETE | `/admin/oauth2/resources/:identifier` | server-only (no HTTP route) | ⬜ |
-| GET | `/admin/oauth2/resources/:identifier` | server-only (no HTTP route) | ⬜ |
-| PATCH | `/admin/oauth2/resources/:identifier` | server-only (no HTTP route) | ⬜ |
-| DELETE | `/admin/oauth2/resources/:identifier/clients/:client_id` | server-only (no HTTP route) | ⬜ |
-| POST | `/admin/oauth2/resources/:identifier/clients/:client_id` | server-only (no HTTP route) | ⬜ |
-| PATCH | `/admin/oauth2/update-client` | server-only (no HTTP route) | ⬜ |
-| GET | `/oauth2/authorize` |  | ⬜ |
-| POST | `/oauth2/client/rotate-secret` |  | ⬜ |
-| POST | `/oauth2/consent` |  | ⬜ |
-| POST | `/oauth2/continue` |  | ⬜ |
-| POST | `/oauth2/create-client` |  | ⬜ |
-| POST | `/oauth2/delete-client` |  | ⬜ |
-| POST | `/oauth2/delete-consent` |  | ⬜ |
-| GET | `/oauth2/end-session` |  | ⬜ |
-| POST | `/oauth2/end-session/confirm` |  | ⬜ |
-| GET | `/oauth2/get-client` |  | ⬜ |
-| GET | `/oauth2/get-clients` |  | ⬜ |
-| GET | `/oauth2/get-consent` |  | ⬜ |
-| GET | `/oauth2/get-consents` |  | ⬜ |
-| POST | `/oauth2/introspect` |  | ⬜ |
-| GET | `/oauth2/public-client` |  | ⬜ |
-| POST | `/oauth2/public-client-prelogin` |  | ⬜ |
-| POST | `/oauth2/register` |  | ⬜ |
-| POST | `/oauth2/revoke` |  | ⬜ |
-| POST | `/oauth2/token` |  | ⬜ |
-| POST | `/oauth2/update-client` |  | ⬜ |
-| POST | `/oauth2/update-consent` |  | ⬜ |
-| [GET, POST] | `/oauth2/userinfo` |  | ⬜ |
+| GET | `/.well-known/oauth-authorization-server` | server-only (no HTTP route) | ✅ |
+| GET | `/.well-known/openid-configuration` | server-only (no HTTP route) | ✅ |
+| POST | `/admin/oauth2/create-client` | server-only (no HTTP route) | ✅ |
+| GET | `/admin/oauth2/resources` | server-only (no HTTP route) | ✅ |
+| POST | `/admin/oauth2/resources` | server-only (no HTTP route) | ✅ |
+| DELETE | `/admin/oauth2/resources/:identifier` | server-only (no HTTP route) | ✅ |
+| GET | `/admin/oauth2/resources/:identifier` | server-only (no HTTP route) | ✅ |
+| PATCH | `/admin/oauth2/resources/:identifier` | server-only (no HTTP route) | ✅ |
+| DELETE | `/admin/oauth2/resources/:identifier/clients/:client_id` | server-only (no HTTP route) | ✅ |
+| POST | `/admin/oauth2/resources/:identifier/clients/:client_id` | server-only (no HTTP route) | ✅ |
+| PATCH | `/admin/oauth2/update-client` | server-only (no HTTP route) | ✅ |
+| GET | `/oauth2/authorize` |  | ✅ |
+| POST | `/oauth2/client/rotate-secret` |  | ✅ |
+| POST | `/oauth2/consent` |  | ✅ |
+| POST | `/oauth2/continue` |  | ✅ |
+| POST | `/oauth2/create-client` |  | ✅ |
+| POST | `/oauth2/delete-client` |  | ✅ |
+| POST | `/oauth2/delete-consent` |  | ✅ |
+| GET | `/oauth2/end-session` |  | ✅ |
+| POST | `/oauth2/end-session/confirm` |  | ✅ |
+| GET | `/oauth2/get-client` |  | ✅ |
+| GET | `/oauth2/get-clients` |  | ✅ |
+| GET | `/oauth2/get-consent` |  | ✅ |
+| GET | `/oauth2/get-consents` |  | ✅ |
+| POST | `/oauth2/introspect` |  | ✅ |
+| GET | `/oauth2/public-client` |  | ✅ |
+| POST | `/oauth2/public-client-prelogin` |  | ✅ |
+| POST | `/oauth2/register` |  | ✅ |
+| POST | `/oauth2/revoke` |  | ✅ |
+| POST | `/oauth2/token` |  | ✅ |
+| POST | `/oauth2/update-client` |  | ✅ |
+| POST | `/oauth2/update-consent` |  | ✅ |
+| [GET, POST] | `/oauth2/userinfo` |  | ✅ |
 
 ### package: @better-auth/passkey
 
@@ -582,13 +613,13 @@ Upstream: `packages/passkey`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| POST | `/passkey/delete-passkey` |  | ⬜ |
-| GET | `/passkey/generate-authenticate-options` |  | ⬜ |
-| GET | `/passkey/generate-register-options` |  | ⬜ |
-| GET | `/passkey/list-user-passkeys` |  | ⬜ |
-| POST | `/passkey/update-passkey` |  | ⬜ |
-| POST | `/passkey/verify-authentication` |  | ⬜ |
-| POST | `/passkey/verify-registration` |  | ⬜ |
+| POST | `/passkey/delete-passkey` |  | ✅ |
+| GET | `/passkey/generate-authenticate-options` |  | ✅ |
+| GET | `/passkey/generate-register-options` |  | ✅ |
+| GET | `/passkey/list-user-passkeys` |  | ✅ |
+| POST | `/passkey/update-passkey` |  | ✅ |
+| POST | `/passkey/verify-authentication` |  | ✅ |
+| POST | `/passkey/verify-registration` |  | ✅ |
 
 ### package: @better-auth/scim
 
@@ -596,23 +627,23 @@ Upstream: `packages/scim`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| GET | `/scim/v2/Groups` |  | ⬜ |
-| POST | `/scim/v2/Groups` |  | ⬜ |
-| DELETE | `/scim/v2/Groups/:groupId` |  | ⬜ |
-| GET | `/scim/v2/Groups/:groupId` |  | ⬜ |
-| PATCH | `/scim/v2/Groups/:groupId` |  | ⬜ |
-| PUT | `/scim/v2/Groups/:groupId` |  | ⬜ |
-| GET | `/scim/v2/ResourceTypes` |  | ⬜ |
-| GET | `/scim/v2/ResourceTypes/:resourceTypeId` |  | ⬜ |
-| GET | `/scim/v2/Schemas` |  | ⬜ |
-| GET | `/scim/v2/Schemas/:schemaId` |  | ⬜ |
-| GET | `/scim/v2/ServiceProviderConfig` |  | ⬜ |
-| GET | `/scim/v2/Users` |  | ⬜ |
-| POST | `/scim/v2/Users` |  | ⬜ |
-| DELETE | `/scim/v2/Users/:userId` |  | ⬜ |
-| GET | `/scim/v2/Users/:userId` |  | ⬜ |
-| PATCH | `/scim/v2/Users/:userId` |  | ⬜ |
-| PUT | `/scim/v2/Users/:userId` |  | ⬜ |
+| GET | `/scim/v2/Groups` |  | ✅ |
+| POST | `/scim/v2/Groups` |  | ✅ |
+| DELETE | `/scim/v2/Groups/:groupId` |  | ✅ |
+| GET | `/scim/v2/Groups/:groupId` |  | ✅ |
+| PATCH | `/scim/v2/Groups/:groupId` |  | ✅ |
+| PUT | `/scim/v2/Groups/:groupId` |  | ✅ |
+| GET | `/scim/v2/ResourceTypes` |  | ✅ |
+| GET | `/scim/v2/ResourceTypes/:resourceTypeId` |  | ✅ |
+| GET | `/scim/v2/Schemas` |  | ✅ |
+| GET | `/scim/v2/Schemas/:schemaId` |  | ✅ |
+| GET | `/scim/v2/ServiceProviderConfig` |  | ✅ |
+| GET | `/scim/v2/Users` |  | ✅ |
+| POST | `/scim/v2/Users` |  | ✅ |
+| DELETE | `/scim/v2/Users/:userId` |  | ✅ |
+| GET | `/scim/v2/Users/:userId` |  | ✅ |
+| PATCH | `/scim/v2/Users/:userId` |  | ✅ |
+| PUT | `/scim/v2/Users/:userId` |  | ✅ |
 
 ### package: @better-auth/sso
 
@@ -620,20 +651,20 @@ Upstream: `packages/sso`
 
 | Method | Path | Notes | Status |
 |---|---|---|---|
-| POST | `/sign-in/sso` |  | ⬜ |
-| [GET, POST] | `/sso/callback` |  | ⬜ |
-| [GET, POST] | `/sso/callback/:providerId` |  | ⬜ |
-| POST | `/sso/delete-provider` |  | ⬜ |
-| GET | `/sso/get-provider` |  | ⬜ |
-| GET | `/sso/providers` |  | ⬜ |
-| POST | `/sso/register` |  | ⬜ |
-| POST | `/sso/request-domain-verification` |  | ⬜ |
-| POST | `/sso/saml2/logout/:providerId` |  | ⬜ |
-| [GET, POST] | `/sso/saml2/sp/acs/:providerId` |  | ⬜ |
-| GET | `/sso/saml2/sp/metadata` |  | ⬜ |
-| [GET, POST] | `/sso/saml2/sp/slo/:providerId` |  | ⬜ |
-| POST | `/sso/update-provider` |  | ⬜ |
-| POST | `/sso/verify-domain` |  | ⬜ |
+| POST | `/sign-in/sso` |  | ✅ |
+| [GET, POST] | `/sso/callback` |  | ✅ |
+| [GET, POST] | `/sso/callback/:providerId` |  | ✅ |
+| POST | `/sso/delete-provider` |  | ✅ |
+| GET | `/sso/get-provider` |  | ✅ |
+| GET | `/sso/providers` |  | ✅ |
+| POST | `/sso/register` |  | ✅ |
+| POST | `/sso/request-domain-verification` |  | ✅ |
+| POST | `/sso/saml2/logout/:providerId` |  | ✅ |
+| [GET, POST] | `/sso/saml2/sp/acs/:providerId` |  | ✅ |
+| GET | `/sso/saml2/sp/metadata` |  | ✅ |
+| [GET, POST] | `/sso/saml2/sp/slo/:providerId` |  | ✅ |
+| POST | `/sso/update-provider` |  | ✅ |
+| POST | `/sso/verify-domain` |  | ✅ |
 
 ### package: @better-auth/stripe
 

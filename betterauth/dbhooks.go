@@ -82,6 +82,13 @@ func InTransaction(ctx context.Context) bool {
 // RunWithTransaction runs fn inside a database transaction (runWithTransaction). Nested
 // calls reuse the outer transaction. After-commit hooks run once the transaction commits.
 func (a *AuthContext) RunWithTransaction(ctx context.Context, fn func(ctx context.Context) error) error {
+	return a.RunWithTransactionOpts(ctx, fn, nil)
+}
+
+// RunWithTransactionOpts is RunWithTransaction with upstream's onAfterCommitHookError option:
+// when onAfterCommitHookError is set, a failing after-commit hook is reported to it and the
+// remaining hooks still run; otherwise the first failure is returned.
+func (a *AuthContext) RunWithTransactionOpts(ctx context.Context, fn func(ctx context.Context) error, onAfterCommitHookError func(error)) error {
 	if InTransaction(ctx) {
 		return fn(ctx)
 	}
@@ -97,7 +104,10 @@ func (a *AuthContext) RunWithTransaction(ctx context.Context, fn func(ctx contex
 	st.mu.Unlock()
 	for _, h := range hooks {
 		if err := h(ctx); err != nil {
-			return err
+			if onAfterCommitHookError == nil {
+				return err
+			}
+			onAfterCommitHookError(err)
 		}
 	}
 	return nil
@@ -126,12 +136,18 @@ func (a *AuthContext) QueueAfterTransactionHook(ctx context.Context, hook func(c
 
 // Transaction runs fn inside a database transaction bound to this endpoint context.
 func (c *EndpointContext) Transaction(fn func() error) error {
+	return c.TransactionOpts(fn, nil)
+}
+
+// TransactionOpts is Transaction with an after-commit hook error handler (see
+// RunWithTransactionOpts).
+func (c *EndpointContext) TransactionOpts(fn func() error, onAfterCommitHookError func(error)) error {
 	outer := c.Context()
-	return c.Auth.RunWithTransaction(outer, func(txCtx context.Context) error {
+	return c.Auth.RunWithTransactionOpts(outer, func(txCtx context.Context) error {
 		c.ctx = txCtx
 		defer func() { c.ctx = outer }()
 		return fn()
-	})
+	}, onAfterCommitHookError)
 }
 
 // ---- hook runners (db/with-hooks.ts) ----

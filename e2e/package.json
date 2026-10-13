@@ -6,9 +6,20 @@
     "test": "node --test --test-concurrency=1 \"tests/*.test.mjs\""
   },
   "dependencies": {
+    "@better-auth/api-key": "1.7.7",
+    "@better-auth/cimd": "1.7.7",
+    "@better-auth/mcp": "1.7.7",
+    "@better-auth/oauth-provider": "1.7.7",
     "@better-auth/passkey": "1.7.7",
+    "@better-auth/scim": "1.7.7",
+    "@better-auth/sso": "1.7.7",
+    "@better-auth/utils": "0.4.2",
+    "@noble/hashes": "2.4.0",
+    "@simplewebauthn/server": "13.3.3",
     "better-auth": "1.7.7",
-    "better-sqlite3": "12.4.1"
+    "better-sqlite3": "12.4.1",
+    "jose": "6.2.12",
+    "kysely": "0.29.6"
   },
   "devDependencies": {
     "mongodb": "7.6.0",

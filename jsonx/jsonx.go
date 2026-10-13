@@ -17,6 +17,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"math"
 	"reflect"
 	"sort"
@@ -546,7 +547,8 @@ func Parse(data []byte) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	if _, err := dec.Token(); err == nil {
+	// Like JSON.parse: only whitespace may follow the value.
+	if _, err := dec.Token(); err != io.EOF {
 		return nil, errors.New("jsonx: trailing data after JSON value")
 	}
 	return v, nil

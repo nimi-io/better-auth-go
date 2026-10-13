@@ -83,3 +83,16 @@ func TestJSSubstringUTF16(t *testing.T) {
 		t.Fatalf("substring %q", JSSubstring(s, 0, 3))
 	}
 }
+
+func TestParseRejectsTrailingText(t *testing.T) {
+	for _, in := range []string{`"ada" trailing`, `{"a":1}x`, `1 2`, `{} {}`} {
+		if _, err := Parse([]byte(in)); err == nil {
+			t.Errorf("Parse(%q) accepted trailing text", in)
+		}
+	}
+	for _, in := range []string{`{"a":1}`, " {\"a\":1}\n\t ", `"ada"`} {
+		if _, err := Parse([]byte(in)); err != nil {
+			t.Errorf("Parse(%q): %v", in, err)
+		}
+	}
+}

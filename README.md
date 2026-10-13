@@ -40,6 +40,7 @@ http.ListenAndServe(":3000", auth.Mount(app))
 - [Migrations and the CLI](#migrations-and-the-cli)
 - [Social sign-in](#social-sign-in)
 - [Plugins](#plugins)
+- [Enterprise](#enterprise)
 - [Hooks](#hooks)
 - [Security](#security)
 - [Errors](#errors)
@@ -75,7 +76,7 @@ brings the same server to Go without changing anything for your frontend or your
 | Crypto | scrypt password hashes, XChaCha20-Poly1305 `$ba$` envelopes, purpose-derived keys, JWE/JWT formats, secret rotation; values produced by one implementation verify in the other |
 | Database | Table and column names (camelCase), column types (migration DDL is byte-identical to Kysely's), stored encodings (dates, booleans, JSON, arrays), `modelName` / `fields` / `additionalFields` |
 | OAuth | Authorization URLs (parameter order included), state, PKCE, id-token sign-in, account linking rules, all 36 social providers |
-| Plugins | Endpoints, schema, error codes and stored data of 25 plugins |
+| Plugins | Endpoints, schema, error codes and stored data of 25 plugins and the 5 enterprise packages (SSO, SCIM, OAuth provider, MCP, CIMD) |
 
 How this is verified: the upstream `*.test.ts` files are ported to Go, and an e2e suite drives
 the official JS client against the Go server **and** the real `better-auth@1.7.7` server,
@@ -92,7 +93,7 @@ difference.
 | 2 | Social OAuth: sign-in, callback (GET + form_post), linking, id-token sign-in, 36 providers | ✅ |
 | 3 | PostgreSQL, MySQL, SQLite and MongoDB adapters, migrations, conformance suite, CLI | ✅ |
 | 4 | 25 plugins (two-factor, passkey, organization, admin, api-key, jwt, ...) | ✅ |
-| 5 | Enterprise: SSO (OIDC/SAML), SCIM, OAuth/OIDC provider, MCP | ⬜ |
+| 5 | Enterprise: SSO (OIDC/SAML), SCIM, OAuth/OIDC provider, MCP | ✅ |
 
 ## Install
 
@@ -696,6 +697,11 @@ schema.
 | captcha | `plugins/captcha` | Cloudflare Turnstile, reCAPTCHA, hCaptcha, CaptchaFox, Vercel BotID |
 | haveibeenpwned | `plugins/haveibeenpwned` | Reject passwords found in breaches |
 | open-api | `plugins/openapi` | OpenAPI 3.1 document of all endpoints and a Scalar reference page |
+| sso | `plugins/sso` | Enterprise SSO over OIDC and SAML 2.0, domain verification, organization assignment |
+| scim | `plugins/scim` | SCIM 2.0 user and group provisioning from identity providers |
+| oauth-provider | `plugins/oauthprovider` | Make your app an OAuth 2.1 / OpenID Connect provider |
+| mcp | `plugins/mcp` | Auth for MCP servers: protected-resource metadata and token checks |
+| cimd | `plugins/cimd` | Client ID Metadata Documents (clients identified by a URL) |
 
 ### Two-factor authentication
 
@@ -828,6 +834,76 @@ openapi.New(openapi.Options{})
 `GET /api/auth/open-api/generate-schema` returns an OpenAPI 3.1 document of every enabled
 endpoint (identical to the TypeScript output for the same configuration), and
 `/api/auth/reference` serves a Scalar API reference page.
+
+## Enterprise
+
+### Single sign-on (OIDC and SAML 2.0)
+
+```go
+sso.New(sso.Options{
+	ProvisionUserOnEveryLogin: true, // re-run provisioning hooks on every SSO sign-in
+	TrustEmailVerified:        true, // trust the IdP's email_verified claim
+})
+```
+
+Organisations register their identity provider at runtime (`POST /sso/register` with an
+OIDC issuer or SAML metadata); users then sign in with `authClient.signIn.sso({ email })`
+or by provider id. The service-provider metadata is served at
+`/api/auth/sso/saml2/sp/metadata`. SAML responses go through the same checks as upstream:
+XML signature verification (goxmldsig, exclusive c14n), signature-wrapping and duplicate-ID
+rejection, issuer, audience, recipient and destination binding, single-use InResponseTo,
+assertion replay protection, clock-skew windows, size limits and algorithm policy.
+Domain verification (`/sso/request-domain-verification`, `/sso/verify-domain`) proves
+ownership with a DNS TXT record and can assign users to organizations by email domain.
+
+### SCIM provisioning
+
+```go
+scim.New(scim.Options{
+	Connections: []scim.ConnectionOptions{{
+		ID:          "okta",
+		Credentials: []scim.BearerCredential{{Type: "bearer", ID: "okta-1", Token: os.Getenv("SCIM_TOKEN")}},
+	}},
+})
+```
+
+Identity providers such as Okta and Entra ID create, update and deactivate users and groups
+through `/api/auth/scim/v2/Users` and `/api/auth/scim/v2/Groups` (full PATCH and filter
+support, `ServiceProviderConfig`, `Schemas` and `ResourceTypes` discovery, RFC 7644
+errors). Managed connections with rotating tokens are available through the server API.
+
+### OAuth 2.1 / OpenID Connect provider
+
+```go
+oauthprovider.New(oauthprovider.Options{
+	LoginPage:   "/sign-in",
+	ConsentPage: "/consent",
+	Scopes:      []string{"openid", "profile", "email", "offline_access"},
+})
+```
+
+Your app becomes an authorization server for other applications: discovery
+(`/.well-known/openid-configuration`), authorization with PKCE and consent, the token
+endpoint (authorization code, refresh token with reuse detection, client credentials,
+device code), introspection, revocation, userinfo, end-session and back-channel logout,
+dynamic client registration, client and consent management, DPoP, `private_key_jwt`,
+pairwise subjects and RFC 8707 resource indicators. Tokens and clients are stored in the
+same format as TypeScript, so either implementation can serve the same clients.
+
+### MCP servers
+
+```go
+plugin := mcp.MustNew(mcp.Options{
+	Options:  oauthprovider.Options{LoginPage: "/sign-in", ConsentPage: "/consent"},
+	Resource: "https://mcp.example.com/mcp",
+})
+```
+
+`mcp` configures the OAuth provider for the Model Context Protocol and serves the protected
+resource metadata (`/.well-known/oauth-protected-resource`). Protect your MCP endpoint with
+`mcp.RequireMcpAuth` or the net/http `mcp.Middleware`; unauthenticated requests receive the
+`WWW-Authenticate` challenge MCP clients expect. Add `cimd` to let clients identify
+themselves with a Client ID Metadata Document URL instead of registering first.
 
 ## Hooks
 
@@ -1007,7 +1083,7 @@ The goal is behavioural identity; the differences are deliberate and documented 
 | `oauth2` | OAuth provider interface, provider framework, token, JWKS and id-token helpers |
 | `oauth2/oauth2test` | Mock IdP transport for tests |
 | `providers/*` | 36 social providers |
-| `plugins/*` | 25 plugins and the `access` control package |
+| `plugins/*` | 25 plugins, the enterprise packages (sso, scim, oauthprovider, mcp, cimd) and the `access` control package |
 | `cli`, `cmd/better-auth` | CLI: `migrate`, `generate`, `secret`, `info` |
 | `examples/*` | Runnable integrations for net/http, chi, Gin, Echo and Fiber |
 | `e2e` | Cross-implementation test suite against the real `better-auth@1.7.7` server |

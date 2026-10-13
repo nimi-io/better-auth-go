@@ -1,0 +1,6730 @@
+{
+  "createSCIMGroup": {
+    "summary": "Create SCIM Group",
+    "responses": {
+      "201": {
+        "description": "SCIM Group resource",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "externalId": {
+                  "type": "string"
+                },
+                "displayName": {
+                  "type": "string"
+                },
+                "members": {
+                  "type": "array",
+                  "maxItems": 1000,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string"
+                      },
+                      "$ref": {
+                        "type": "string"
+                      },
+                      "display": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "User"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "meta": {
+                  "type": "object",
+                  "properties": {
+                    "resourceType": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "lastModified": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "location": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "schemas",
+                "id"
+              ]
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request. Usually due to missing parameters, or invalid parameters",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized. Due to missing or invalid authentication.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden. The authenticated principal lacks permission.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found. The requested resource was not found.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict. A resource uniqueness constraint was violated.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests. You have exceeded the rate limit. Try again later.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error. This is a problem with the server that you cannot fix.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "deleteSCIMGroup": {
+    "summary": "Delete SCIM Group",
+    "responses": {
+      "204": {
+        "description": "SCIM Group deleted"
+      },
+      "400": {
+        "description": "Bad Request. Usually due to missing parameters, or invalid parameters",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized. Due to missing or invalid authentication.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden. The authenticated principal lacks permission.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found. The requested resource was not found.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict. A resource uniqueness constraint was violated.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests. You have exceeded the rate limit. Try again later.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error. This is a problem with the server that you cannot fix.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "getSCIMGroup": {
+    "summary": "Get SCIM Group",
+    "responses": {
+      "200": {
+        "description": "SCIM Group resource",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "externalId": {
+                  "type": "string"
+                },
+                "displayName": {
+                  "type": "string"
+                },
+                "members": {
+                  "type": "array",
+                  "maxItems": 1000,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string"
+                      },
+                      "$ref": {
+                        "type": "string"
+                      },
+                      "display": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "User"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "meta": {
+                  "type": "object",
+                  "properties": {
+                    "resourceType": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "lastModified": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "location": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "schemas",
+                "id"
+              ]
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request. Usually due to missing parameters, or invalid parameters",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized. Due to missing or invalid authentication.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden. The authenticated principal lacks permission.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found. The requested resource was not found.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict. A resource uniqueness constraint was violated.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests. You have exceeded the rate limit. Try again later.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error. This is a problem with the server that you cannot fix.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "listSCIMGroups": {
+    "summary": "List SCIM Groups",
+    "responses": {
+      "200": {
+        "description": "SCIM Group list",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "totalResults": {
+                  "type": "number"
+                },
+                "itemsPerPage": {
+                  "type": "number"
+                },
+                "startIndex": {
+                  "type": "number"
+                },
+                "Resources": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "externalId": {
+                        "type": "string"
+                      },
+                      "displayName": {
+                        "type": "string"
+                      },
+                      "members": {
+                        "type": "array",
+                        "maxItems": 1000,
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "string"
+                            },
+                            "$ref": {
+                              "type": "string"
+                            },
+                            "display": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "User"
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "meta": {
+                        "type": "object",
+                        "properties": {
+                          "resourceType": {
+                            "type": "string"
+                          },
+                          "created": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "lastModified": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "location": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "schemas": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "schemas",
+                      "id"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request. Usually due to missing parameters, or invalid parameters",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized. Due to missing or invalid authentication.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden. The authenticated principal lacks permission.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found. The requested resource was not found.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict. A resource uniqueness constraint was violated.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests. You have exceeded the rate limit. Try again later.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error. This is a problem with the server that you cannot fix.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "patchSCIMGroup": {
+    "summary": "Patch SCIM Group",
+    "responses": {
+      "200": {
+        "description": "Updated SCIM Group resource",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "externalId": {
+                  "type": "string"
+                },
+                "displayName": {
+                  "type": "string"
+                },
+                "members": {
+                  "type": "array",
+                  "maxItems": 1000,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string"
+                      },
+                      "$ref": {
+                        "type": "string"
+                      },
+                      "display": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "User"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "meta": {
+                  "type": "object",
+                  "properties": {
+                    "resourceType": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "lastModified": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "location": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "schemas",
+                "id"
+              ]
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request. Usually due to missing parameters, or invalid parameters",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized. Due to missing or invalid authentication.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden. The authenticated principal lacks permission.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found. The requested resource was not found.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict. A resource uniqueness constraint was violated.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests. You have exceeded the rate limit. Try again later.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error. This is a problem with the server that you cannot fix.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "replaceSCIMGroup": {
+    "summary": "Replace SCIM Group",
+    "responses": {
+      "200": {
+        "description": "SCIM Group resource",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "externalId": {
+                  "type": "string"
+                },
+                "displayName": {
+                  "type": "string"
+                },
+                "members": {
+                  "type": "array",
+                  "maxItems": 1000,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string"
+                      },
+                      "$ref": {
+                        "type": "string"
+                      },
+                      "display": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "User"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "meta": {
+                  "type": "object",
+                  "properties": {
+                    "resourceType": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "lastModified": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "location": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "schemas",
+                "id"
+              ]
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request. Usually due to missing parameters, or invalid parameters",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized. Due to missing or invalid authentication.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden. The authenticated principal lacks permission.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found. The requested resource was not found.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict. A resource uniqueness constraint was violated.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests. You have exceeded the rate limit. Try again later.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error. This is a problem with the server that you cannot fix.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "createSCIMUser": {
+    "summary": "Create SCIM User",
+    "responses": {
+      "201": {
+        "description": "SCIM User resource",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "externalId": {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                "meta": {
+                  "type": "object",
+                  "properties": {
+                    "resourceType": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "lastModified": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "location": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "userName": {
+                  "type": "string",
+                  "maxLength": 512
+                },
+                "name": {
+                  "type": "object",
+                  "properties": {
+                    "formatted": {
+                      "type": "string",
+                      "maxLength": 1024
+                    },
+                    "givenName": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "familyName": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "middleName": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "honorificPrefix": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "honorificSuffix": {
+                      "type": "string",
+                      "maxLength": 256
+                    }
+                  }
+                },
+                "displayName": {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                "title": {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                "userType": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "preferredLanguage": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "locale": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "timezone": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "active": {
+                  "type": "boolean"
+                },
+                "emails": {
+                  "type": "array",
+                  "maxItems": 20,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 254
+                      },
+                      "type": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "phoneNumbers": {
+                  "type": "array",
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "type": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "addresses": {
+                  "type": "array",
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "formatted": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "streetAddress": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "locality": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "region": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "postalCode": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "country": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "type": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "roles": {
+                  "type": "array",
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "display": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "type": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "entitlements": {
+                  "type": "array",
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "display": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "type": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User": {
+                  "type": "object",
+                  "properties": {
+                    "employeeNumber": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "costCenter": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "organization": {
+                      "type": "string",
+                      "maxLength": 1024
+                    },
+                    "division": {
+                      "type": "string",
+                      "maxLength": 1024
+                    },
+                    "department": {
+                      "type": "string",
+                      "maxLength": 1024
+                    },
+                    "manager": {
+                      "type": "object",
+                      "properties": {
+                        "value": {
+                          "type": "string",
+                          "maxLength": 256
+                        },
+                        "$ref": {
+                          "type": "string",
+                          "maxLength": 2048
+                        }
+                      }
+                    }
+                  }
+                },
+                "schemas": {
+                  "type": "array",
+                  "maxItems": 2,
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "urn:ietf:params:scim:schemas:core:2.0:User",
+                      "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "schemas",
+                "id"
+              ]
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request. Usually due to missing parameters, or invalid parameters",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized. Due to missing or invalid authentication.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden. The authenticated principal lacks permission.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found. The requested resource was not found.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict. A resource uniqueness constraint was violated.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests. You have exceeded the rate limit. Try again later.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error. This is a problem with the server that you cannot fix.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "deleteSCIMUser": {
+    "summary": "Delete SCIM User",
+    "responses": {
+      "204": {
+        "description": "SCIM User deleted"
+      },
+      "400": {
+        "description": "Bad Request. Usually due to missing parameters, or invalid parameters",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized. Due to missing or invalid authentication.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden. The authenticated principal lacks permission.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found. The requested resource was not found.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict. A resource uniqueness constraint was violated.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests. You have exceeded the rate limit. Try again later.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error. This is a problem with the server that you cannot fix.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "getSCIMUser": {
+    "summary": "Get SCIM User",
+    "responses": {
+      "200": {
+        "description": "SCIM User resource",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "externalId": {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                "meta": {
+                  "type": "object",
+                  "properties": {
+                    "resourceType": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "lastModified": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "location": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "userName": {
+                  "type": "string",
+                  "maxLength": 512
+                },
+                "name": {
+                  "type": "object",
+                  "properties": {
+                    "formatted": {
+                      "type": "string",
+                      "maxLength": 1024
+                    },
+                    "givenName": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "familyName": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "middleName": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "honorificPrefix": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "honorificSuffix": {
+                      "type": "string",
+                      "maxLength": 256
+                    }
+                  }
+                },
+                "displayName": {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                "title": {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                "userType": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "preferredLanguage": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "locale": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "timezone": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "active": {
+                  "type": "boolean"
+                },
+                "emails": {
+                  "type": "array",
+                  "maxItems": 20,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 254
+                      },
+                      "type": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "phoneNumbers": {
+                  "type": "array",
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "type": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "addresses": {
+                  "type": "array",
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "formatted": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "streetAddress": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "locality": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "region": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "postalCode": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "country": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "type": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "roles": {
+                  "type": "array",
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "display": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "type": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "entitlements": {
+                  "type": "array",
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "display": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "type": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User": {
+                  "type": "object",
+                  "properties": {
+                    "employeeNumber": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "costCenter": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "organization": {
+                      "type": "string",
+                      "maxLength": 1024
+                    },
+                    "division": {
+                      "type": "string",
+                      "maxLength": 1024
+                    },
+                    "department": {
+                      "type": "string",
+                      "maxLength": 1024
+                    },
+                    "manager": {
+                      "type": "object",
+                      "properties": {
+                        "value": {
+                          "type": "string",
+                          "maxLength": 256
+                        },
+                        "$ref": {
+                          "type": "string",
+                          "maxLength": 2048
+                        }
+                      }
+                    }
+                  }
+                },
+                "schemas": {
+                  "type": "array",
+                  "maxItems": 2,
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "urn:ietf:params:scim:schemas:core:2.0:User",
+                      "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "schemas",
+                "id"
+              ]
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request. Usually due to missing parameters, or invalid parameters",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized. Due to missing or invalid authentication.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden. The authenticated principal lacks permission.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found. The requested resource was not found.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict. A resource uniqueness constraint was violated.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests. You have exceeded the rate limit. Try again later.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error. This is a problem with the server that you cannot fix.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "listSCIMUsers": {
+    "summary": "List SCIM Users",
+    "responses": {
+      "200": {
+        "description": "SCIM User list",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "totalResults": {
+                  "type": "number"
+                },
+                "itemsPerPage": {
+                  "type": "number"
+                },
+                "startIndex": {
+                  "type": "number"
+                },
+                "Resources": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "externalId": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "meta": {
+                        "type": "object",
+                        "properties": {
+                          "resourceType": {
+                            "type": "string"
+                          },
+                          "created": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "lastModified": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "location": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "userName": {
+                        "type": "string",
+                        "maxLength": 512
+                      },
+                      "name": {
+                        "type": "object",
+                        "properties": {
+                          "formatted": {
+                            "type": "string",
+                            "maxLength": 1024
+                          },
+                          "givenName": {
+                            "type": "string",
+                            "maxLength": 256
+                          },
+                          "familyName": {
+                            "type": "string",
+                            "maxLength": 256
+                          },
+                          "middleName": {
+                            "type": "string",
+                            "maxLength": 256
+                          },
+                          "honorificPrefix": {
+                            "type": "string",
+                            "maxLength": 256
+                          },
+                          "honorificSuffix": {
+                            "type": "string",
+                            "maxLength": 256
+                          }
+                        }
+                      },
+                      "displayName": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "title": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "userType": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "preferredLanguage": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "locale": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "timezone": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "active": {
+                        "type": "boolean"
+                      },
+                      "emails": {
+                        "type": "array",
+                        "maxItems": 20,
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "string",
+                              "format": "email",
+                              "maxLength": 254
+                            },
+                            "type": {
+                              "type": "string",
+                              "maxLength": 256
+                            },
+                            "primary": {
+                              "type": "boolean"
+                            }
+                          }
+                        }
+                      },
+                      "phoneNumbers": {
+                        "type": "array",
+                        "maxItems": 10,
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "string",
+                              "maxLength": 1024
+                            },
+                            "type": {
+                              "type": "string",
+                              "maxLength": 256
+                            },
+                            "primary": {
+                              "type": "boolean"
+                            }
+                          }
+                        }
+                      },
+                      "addresses": {
+                        "type": "array",
+                        "maxItems": 10,
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "formatted": {
+                              "type": "string",
+                              "maxLength": 1024
+                            },
+                            "streetAddress": {
+                              "type": "string",
+                              "maxLength": 1024
+                            },
+                            "locality": {
+                              "type": "string",
+                              "maxLength": 256
+                            },
+                            "region": {
+                              "type": "string",
+                              "maxLength": 256
+                            },
+                            "postalCode": {
+                              "type": "string",
+                              "maxLength": 256
+                            },
+                            "country": {
+                              "type": "string",
+                              "maxLength": 256
+                            },
+                            "type": {
+                              "type": "string",
+                              "maxLength": 256
+                            },
+                            "primary": {
+                              "type": "boolean"
+                            }
+                          }
+                        }
+                      },
+                      "roles": {
+                        "type": "array",
+                        "maxItems": 10,
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "string",
+                              "maxLength": 1024
+                            },
+                            "display": {
+                              "type": "string",
+                              "maxLength": 1024
+                            },
+                            "type": {
+                              "type": "string",
+                              "maxLength": 256
+                            },
+                            "primary": {
+                              "type": "boolean"
+                            }
+                          }
+                        }
+                      },
+                      "entitlements": {
+                        "type": "array",
+                        "maxItems": 10,
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "string",
+                              "maxLength": 1024
+                            },
+                            "display": {
+                              "type": "string",
+                              "maxLength": 1024
+                            },
+                            "type": {
+                              "type": "string",
+                              "maxLength": 256
+                            },
+                            "primary": {
+                              "type": "boolean"
+                            }
+                          }
+                        }
+                      },
+                      "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User": {
+                        "type": "object",
+                        "properties": {
+                          "employeeNumber": {
+                            "type": "string",
+                            "maxLength": 256
+                          },
+                          "costCenter": {
+                            "type": "string",
+                            "maxLength": 256
+                          },
+                          "organization": {
+                            "type": "string",
+                            "maxLength": 1024
+                          },
+                          "division": {
+                            "type": "string",
+                            "maxLength": 1024
+                          },
+                          "department": {
+                            "type": "string",
+                            "maxLength": 1024
+                          },
+                          "manager": {
+                            "type": "object",
+                            "properties": {
+                              "value": {
+                                "type": "string",
+                                "maxLength": 256
+                              },
+                              "$ref": {
+                                "type": "string",
+                                "maxLength": 2048
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "schemas": {
+                        "type": "array",
+                        "maxItems": 2,
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "urn:ietf:params:scim:schemas:core:2.0:User",
+                            "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "schemas",
+                      "id"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request. Usually due to missing parameters, or invalid parameters",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized. Due to missing or invalid authentication.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden. The authenticated principal lacks permission.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found. The requested resource was not found.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict. A resource uniqueness constraint was violated.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests. You have exceeded the rate limit. Try again later.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error. This is a problem with the server that you cannot fix.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "patchSCIMUser": {
+    "summary": "Patch SCIM User",
+    "responses": {
+      "200": {
+        "description": "Updated SCIM User resource",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "externalId": {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                "meta": {
+                  "type": "object",
+                  "properties": {
+                    "resourceType": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "lastModified": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "location": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "userName": {
+                  "type": "string",
+                  "maxLength": 512
+                },
+                "name": {
+                  "type": "object",
+                  "properties": {
+                    "formatted": {
+                      "type": "string",
+                      "maxLength": 1024
+                    },
+                    "givenName": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "familyName": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "middleName": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "honorificPrefix": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "honorificSuffix": {
+                      "type": "string",
+                      "maxLength": 256
+                    }
+                  }
+                },
+                "displayName": {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                "title": {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                "userType": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "preferredLanguage": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "locale": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "timezone": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "active": {
+                  "type": "boolean"
+                },
+                "emails": {
+                  "type": "array",
+                  "maxItems": 20,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 254
+                      },
+                      "type": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "phoneNumbers": {
+                  "type": "array",
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "type": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "addresses": {
+                  "type": "array",
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "formatted": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "streetAddress": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "locality": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "region": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "postalCode": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "country": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "type": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "roles": {
+                  "type": "array",
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "display": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "type": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "entitlements": {
+                  "type": "array",
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "display": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "type": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User": {
+                  "type": "object",
+                  "properties": {
+                    "employeeNumber": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "costCenter": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "organization": {
+                      "type": "string",
+                      "maxLength": 1024
+                    },
+                    "division": {
+                      "type": "string",
+                      "maxLength": 1024
+                    },
+                    "department": {
+                      "type": "string",
+                      "maxLength": 1024
+                    },
+                    "manager": {
+                      "type": "object",
+                      "properties": {
+                        "value": {
+                          "type": "string",
+                          "maxLength": 256
+                        },
+                        "$ref": {
+                          "type": "string",
+                          "maxLength": 2048
+                        }
+                      }
+                    }
+                  }
+                },
+                "schemas": {
+                  "type": "array",
+                  "maxItems": 2,
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "urn:ietf:params:scim:schemas:core:2.0:User",
+                      "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "schemas",
+                "id"
+              ]
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request. Usually due to missing parameters, or invalid parameters",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized. Due to missing or invalid authentication.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden. The authenticated principal lacks permission.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found. The requested resource was not found.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict. A resource uniqueness constraint was violated.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests. You have exceeded the rate limit. Try again later.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error. This is a problem with the server that you cannot fix.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "replaceSCIMUser": {
+    "summary": "Replace SCIM User",
+    "responses": {
+      "200": {
+        "description": "SCIM User resource",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "externalId": {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                "meta": {
+                  "type": "object",
+                  "properties": {
+                    "resourceType": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "lastModified": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "location": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "userName": {
+                  "type": "string",
+                  "maxLength": 512
+                },
+                "name": {
+                  "type": "object",
+                  "properties": {
+                    "formatted": {
+                      "type": "string",
+                      "maxLength": 1024
+                    },
+                    "givenName": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "familyName": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "middleName": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "honorificPrefix": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "honorificSuffix": {
+                      "type": "string",
+                      "maxLength": 256
+                    }
+                  }
+                },
+                "displayName": {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                "title": {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                "userType": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "preferredLanguage": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "locale": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "timezone": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "active": {
+                  "type": "boolean"
+                },
+                "emails": {
+                  "type": "array",
+                  "maxItems": 20,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 254
+                      },
+                      "type": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "phoneNumbers": {
+                  "type": "array",
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "type": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "addresses": {
+                  "type": "array",
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "formatted": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "streetAddress": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "locality": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "region": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "postalCode": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "country": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "type": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "roles": {
+                  "type": "array",
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "display": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "type": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "entitlements": {
+                  "type": "array",
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "display": {
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "type": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User": {
+                  "type": "object",
+                  "properties": {
+                    "employeeNumber": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "costCenter": {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    "organization": {
+                      "type": "string",
+                      "maxLength": 1024
+                    },
+                    "division": {
+                      "type": "string",
+                      "maxLength": 1024
+                    },
+                    "department": {
+                      "type": "string",
+                      "maxLength": 1024
+                    },
+                    "manager": {
+                      "type": "object",
+                      "properties": {
+                        "value": {
+                          "type": "string",
+                          "maxLength": 256
+                        },
+                        "$ref": {
+                          "type": "string",
+                          "maxLength": 2048
+                        }
+                      }
+                    }
+                  }
+                },
+                "schemas": {
+                  "type": "array",
+                  "maxItems": 2,
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "urn:ietf:params:scim:schemas:core:2.0:User",
+                      "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "schemas",
+                "id"
+              ]
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request. Usually due to missing parameters, or invalid parameters",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized. Due to missing or invalid authentication.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden. The authenticated principal lacks permission.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found. The requested resource was not found.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict. A resource uniqueness constraint was violated.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests. You have exceeded the rate limit. Try again later.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error. This is a problem with the server that you cannot fix.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "getSCIMServiceProviderConfig": {
+    "summary": "Get SCIM service provider configuration",
+    "description": "Describes the SCIM protocol features supported by this service provider.",
+    "responses": {
+      "200": {
+        "description": "SCIM service provider configuration",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "patch": {
+                  "type": "object",
+                  "properties": {
+                    "supported": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "supported"
+                  ]
+                },
+                "bulk": {
+                  "type": "object",
+                  "properties": {
+                    "supported": {
+                      "type": "boolean"
+                    },
+                    "maxOperations": {
+                      "type": "integer"
+                    },
+                    "maxPayloadSize": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "supported",
+                    "maxOperations",
+                    "maxPayloadSize"
+                  ]
+                },
+                "filter": {
+                  "type": "object",
+                  "properties": {
+                    "supported": {
+                      "type": "boolean"
+                    },
+                    "maxResults": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "supported",
+                    "maxResults"
+                  ]
+                },
+                "changePassword": {
+                  "type": "object",
+                  "properties": {
+                    "supported": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "supported"
+                  ]
+                },
+                "sort": {
+                  "type": "object",
+                  "properties": {
+                    "supported": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "supported"
+                  ]
+                },
+                "etag": {
+                  "type": "object",
+                  "properties": {
+                    "supported": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "supported"
+                  ]
+                },
+                "authenticationSchemes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "specUri": {
+                        "type": "string"
+                      },
+                      "documentationUri": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "name",
+                      "description"
+                    ]
+                  }
+                },
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "meta": {
+                  "type": "object",
+                  "properties": {
+                    "resourceType": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "schemas",
+                "patch",
+                "bulk",
+                "filter",
+                "changePassword",
+                "sort",
+                "etag",
+                "authenticationSchemes"
+              ]
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request. Usually due to missing parameters, or invalid parameters",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized. Due to missing or invalid authentication.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden. The authenticated principal lacks permission.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found. The requested resource was not found.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict. A resource uniqueness constraint was violated.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests. You have exceeded the rate limit. Try again later.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error. This is a problem with the server that you cannot fix.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "getSCIMSchemas": {
+    "summary": "List SCIM schemas",
+    "description": "Lists the resource schemas supported by this SCIM service provider.",
+    "responses": {
+      "200": {
+        "description": "SCIM schema ListResponse",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "totalResults": {
+                  "type": "number"
+                },
+                "itemsPerPage": {
+                  "type": "number"
+                },
+                "startIndex": {
+                  "type": "number"
+                },
+                "Resources": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "schemas": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "attributes": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "multiValued": {
+                              "type": "boolean"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "required": {
+                              "type": "boolean"
+                            },
+                            "caseExact": {
+                              "type": "boolean"
+                            },
+                            "mutability": {
+                              "type": "string"
+                            },
+                            "returned": {
+                              "type": "string"
+                            },
+                            "uniqueness": {
+                              "type": "string"
+                            },
+                            "canonicalValues": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "referenceTypes": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "subAttributes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  },
+                                  "multiValued": {
+                                    "type": "boolean"
+                                  },
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "required": {
+                                    "type": "boolean"
+                                  },
+                                  "caseExact": {
+                                    "type": "boolean"
+                                  },
+                                  "mutability": {
+                                    "type": "string"
+                                  },
+                                  "returned": {
+                                    "type": "string"
+                                  },
+                                  "uniqueness": {
+                                    "type": "string"
+                                  },
+                                  "canonicalValues": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "referenceTypes": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "meta": {
+                        "type": "object",
+                        "properties": {
+                          "resourceType": {
+                            "type": "string"
+                          },
+                          "location": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "resourceType",
+                          "location"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "schemas",
+                      "id",
+                      "attributes"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request. Usually due to missing parameters, or invalid parameters",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized. Due to missing or invalid authentication.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden. The authenticated principal lacks permission.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found. The requested resource was not found.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict. A resource uniqueness constraint was violated.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests. You have exceeded the rate limit. Try again later.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error. This is a problem with the server that you cannot fix.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "getSCIMSchema": {
+    "summary": "Get a SCIM schema",
+    "description": "Returns one resource schema supported by this SCIM service provider.",
+    "responses": {
+      "200": {
+        "description": "SCIM schema",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "attributes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "multiValued": {
+                        "type": "boolean"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "required": {
+                        "type": "boolean"
+                      },
+                      "caseExact": {
+                        "type": "boolean"
+                      },
+                      "mutability": {
+                        "type": "string"
+                      },
+                      "returned": {
+                        "type": "string"
+                      },
+                      "uniqueness": {
+                        "type": "string"
+                      },
+                      "canonicalValues": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "referenceTypes": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "subAttributes": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "multiValued": {
+                              "type": "boolean"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "required": {
+                              "type": "boolean"
+                            },
+                            "caseExact": {
+                              "type": "boolean"
+                            },
+                            "mutability": {
+                              "type": "string"
+                            },
+                            "returned": {
+                              "type": "string"
+                            },
+                            "uniqueness": {
+                              "type": "string"
+                            },
+                            "canonicalValues": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "referenceTypes": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "meta": {
+                  "type": "object",
+                  "properties": {
+                    "resourceType": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "resourceType",
+                    "location"
+                  ]
+                }
+              },
+              "required": [
+                "schemas",
+                "id",
+                "attributes"
+              ]
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request. Usually due to missing parameters, or invalid parameters",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized. Due to missing or invalid authentication.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden. The authenticated principal lacks permission.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found. The requested resource was not found.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict. A resource uniqueness constraint was violated.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests. You have exceeded the rate limit. Try again later.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error. This is a problem with the server that you cannot fix.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "getSCIMResourceTypes": {
+    "summary": "List SCIM resource types",
+    "description": "Lists the resource types supported by this SCIM service provider.",
+    "responses": {
+      "200": {
+        "description": "SCIM resource type ListResponse",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "totalResults": {
+                  "type": "number"
+                },
+                "itemsPerPage": {
+                  "type": "number"
+                },
+                "startIndex": {
+                  "type": "number"
+                },
+                "Resources": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "schemas": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "endpoint": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "schema": {
+                        "type": "string"
+                      },
+                      "schemaExtensions": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "schema": {
+                              "type": "string"
+                            },
+                            "required": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "schema",
+                            "required"
+                          ]
+                        }
+                      },
+                      "meta": {
+                        "type": "object",
+                        "properties": {
+                          "resourceType": {
+                            "type": "string"
+                          },
+                          "location": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "required": [
+                      "schemas",
+                      "name",
+                      "endpoint",
+                      "schema"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request. Usually due to missing parameters, or invalid parameters",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized. Due to missing or invalid authentication.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden. The authenticated principal lacks permission.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found. The requested resource was not found.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict. A resource uniqueness constraint was violated.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests. You have exceeded the rate limit. Try again later.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error. This is a problem with the server that you cannot fix.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "getSCIMResourceType": {
+    "summary": "Get a SCIM resource type",
+    "description": "Returns one resource type supported by this SCIM service provider.",
+    "responses": {
+      "200": {
+        "description": "SCIM resource type",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "endpoint": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "schema": {
+                  "type": "string"
+                },
+                "schemaExtensions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "schema": {
+                        "type": "string"
+                      },
+                      "required": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "schema",
+                      "required"
+                    ]
+                  }
+                },
+                "meta": {
+                  "type": "object",
+                  "properties": {
+                    "resourceType": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "schemas",
+                "name",
+                "endpoint",
+                "schema"
+              ]
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request. Usually due to missing parameters, or invalid parameters",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized. Due to missing or invalid authentication.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden. The authenticated principal lacks permission.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found. The requested resource was not found.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict. A resource uniqueness constraint was violated.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests. You have exceeded the rate limit. Try again later.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error. This is a problem with the server that you cannot fix.",
+        "content": {
+          "application/scim+json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "scimType": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "schemas",
+                "status"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

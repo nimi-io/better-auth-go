@@ -136,7 +136,11 @@ func TestAccountLockoutAcrossChallenges(t *testing.T) {
 		rs := parallel(2, func(k int) *res { return l.verifyBackup(challenges[k], l.backupCodes[0]) })
 		statuses := []int{rs[0].Status, rs[1].Status}
 		sort.Ints(statuses)
-		if statuses[0] != 200 || statuses[1] != 409 {
+		// Exactly one request may consume the code. Upstream (single-threaded Node) always
+		// interleaves both reads before either write, so the loser sees the guarded update
+		// fail (409). With real parallelism the loser can also read after the winner
+		// committed and then simply finds no matching code (401).
+		if statuses[0] != 200 || (statuses[1] != 409 && statuses[1] != 401) {
 			t.Fatalf("statuses %v", statuses)
 		}
 	})
